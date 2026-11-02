@@ -1,0 +1,397 @@
+{
+  "_note": "Vraies données d'Akaal FC reprises de SportEasy (captures du 2 novembre 2026), au même format que donneesDemo() dans js/store.js (collections -> {id: doc}). À importer dans Firestore au passage en mode Firebase. null = inconnu, à compléter par le capitaine (numéros, postes, emails, lieux et formats des amicaux, buteurs/passeurs par match, qui a joué). Deux joueurs s'appellent « Harman Singh » (j6, j7) : demander un surnom pour les distinguer. Type des matchs sans mention FSGT supposé « Amical » (à confirmer).",
+  "statsConnues": {
+    "_note": "Totaux saison de Simrat (j1) sur SportEasy ; le détail par match n'est pas connu.",
+    "j1": {
+      "matchsJoues": 6,
+      "victoires": 2,
+      "nuls": 0,
+      "defaites": 4,
+      "buts": 7,
+      "passes": 1,
+      "hommeDuMatch": 0
+    }
+  },
+  "joueurs": {
+    "j1": {
+      "id": "j1",
+      "nom": "Simrat Kohar",
+      "numero": 10,
+      "poste": null,
+      "role": "capitaine",
+      "email": null
+    },
+    "j2": {
+      "id": "j2",
+      "nom": "Gurnoor Singh",
+      "numero": null,
+      "poste": null,
+      "role": "joueur",
+      "email": null
+    },
+    "j3": {
+      "id": "j3",
+      "nom": "Gagan Singh",
+      "numero": null,
+      "poste": null,
+      "role": "joueur",
+      "email": null
+    },
+    "j4": {
+      "id": "j4",
+      "nom": "Guransh Singh",
+      "numero": null,
+      "poste": null,
+      "role": "joueur",
+      "email": null
+    },
+    "j5": {
+      "id": "j5",
+      "nom": "Harkarandeep Singh",
+      "numero": null,
+      "poste": null,
+      "role": "joueur",
+      "email": null
+    },
+    "j6": {
+      "id": "j6",
+      "nom": "Harman Singh",
+      "numero": null,
+      "poste": null,
+      "role": "joueur",
+      "email": null
+    },
+    "j7": {
+      "id": "j7",
+      "nom": "Harman Singh",
+      "numero": null,
+      "poste": null,
+      "role": "joueur",
+      "email": null
+    },
+    "j8": {
+      "id": "j8",
+      "nom": "Harmanjeet Singh",
+      "numero": null,
+      "poste": null,
+      "role": "joueur",
+      "email": null
+    },
+    "j9": {
+      "id": "j9",
+      "nom": "Jasmeet Singh",
+      "numero": null,
+      "poste": null,
+      "role": "joueur",
+      "email": null
+    },
+    "j10": {
+      "id": "j10",
+      "nom": "Karn Singh",
+      "numero": null,
+      "poste": null,
+      "role": "joueur",
+      "email": null
+    },
+    "j11": {
+      "id": "j11",
+      "nom": "Rajguru Singh",
+      "numero": null,
+      "poste": null,
+      "role": "joueur",
+      "email": null
+    },
+    "j12": {
+      "id": "j12",
+      "nom": "Sehaj Singh",
+      "numero": null,
+      "poste": null,
+      "role": "joueur",
+      "email": null
+    }
+  },
+  "matchs": {
+    "m1": {
+      "id": "m1",
+      "date": "2026-10-04T07:30:00.000Z",
+      "type": "Amical",
+      "journee": null,
+      "format": null,
+      "domicile": true,
+      "lieu": null,
+      "adversaire": "a7",
+      "saison": "2026-2027",
+      "convoques": [
+        "j1",
+        "j2",
+        "j3",
+        "j4",
+        "j5",
+        "j6",
+        "j7",
+        "j8",
+        "j9",
+        "j10",
+        "j11",
+        "j12"
+      ],
+      "scoreNous": 5,
+      "scoreEux": 8,
+      "joue": true,
+      "hommeDuMatch": null,
+      "ontJoue": [],
+      "compo": null
+    },
+    "m2": {
+      "id": "m2",
+      "date": "2026-10-10T06:00:00.000Z",
+      "type": "Amical",
+      "journee": null,
+      "format": null,
+      "domicile": true,
+      "lieu": null,
+      "adversaire": "a10",
+      "saison": "2026-2027",
+      "convoques": [
+        "j1",
+        "j2",
+        "j3",
+        "j4",
+        "j5",
+        "j6",
+        "j7",
+        "j8",
+        "j9",
+        "j10",
+        "j11",
+        "j12"
+      ],
+      "scoreNous": 11,
+      "scoreEux": 6,
+      "joue": true,
+      "hommeDuMatch": null,
+      "ontJoue": [],
+      "compo": null
+    },
+    "m3": {
+      "id": "m3",
+      "date": "2026-10-19T17:50:00.000Z",
+      "type": "Championnat",
+      "journee": 1,
+      "format": "7",
+      "domicile": false,
+      "lieu": null,
+      "adversaire": "a2",
+      "saison": "2026-2027",
+      "convoques": [
+        "j1",
+        "j2",
+        "j3",
+        "j4",
+        "j5",
+        "j6",
+        "j7",
+        "j8",
+        "j9",
+        "j10",
+        "j11",
+        "j12"
+      ],
+      "scoreNous": 2,
+      "scoreEux": 7,
+      "joue": true,
+      "hommeDuMatch": null,
+      "ontJoue": [],
+      "compo": null
+    },
+    "m4": {
+      "id": "m4",
+      "date": "2026-10-25T09:00:00.000Z",
+      "type": "Amical",
+      "journee": null,
+      "format": null,
+      "domicile": true,
+      "lieu": null,
+      "adversaire": "a5",
+      "saison": "2026-2027",
+      "convoques": [
+        "j1",
+        "j2",
+        "j3",
+        "j4",
+        "j5",
+        "j6",
+        "j7",
+        "j8",
+        "j9",
+        "j10",
+        "j11",
+        "j12"
+      ],
+      "scoreNous": 8,
+      "scoreEux": 10,
+      "joue": true,
+      "hommeDuMatch": null,
+      "ontJoue": [],
+      "compo": null
+    },
+    "m5": {
+      "id": "m5",
+      "date": "2026-10-26T19:00:00.000Z",
+      "type": "Championnat",
+      "journee": 2,
+      "format": "7",
+      "domicile": true,
+      "lieu": null,
+      "adversaire": "a1",
+      "saison": "2026-2027",
+      "convoques": [
+        "j1",
+        "j2",
+        "j3",
+        "j4",
+        "j5",
+        "j6",
+        "j7",
+        "j8",
+        "j9",
+        "j10",
+        "j11",
+        "j12"
+      ],
+      "scoreNous": 4,
+      "scoreEux": 5,
+      "joue": true,
+      "hommeDuMatch": null,
+      "ontJoue": [],
+      "compo": null
+    },
+    "m6": {
+      "id": "m6",
+      "date": "2026-11-01T10:00:00.000Z",
+      "type": "Amical",
+      "journee": null,
+      "format": "8",
+      "domicile": true,
+      "lieu": null,
+      "adversaire": "a5",
+      "saison": "2026-2027",
+      "convoques": [
+        "j1",
+        "j2",
+        "j3",
+        "j4",
+        "j5",
+        "j6",
+        "j7",
+        "j8",
+        "j9",
+        "j10",
+        "j11",
+        "j12"
+      ],
+      "scoreNous": 9,
+      "scoreEux": 4,
+      "joue": true,
+      "hommeDuMatch": null,
+      "ontJoue": [],
+      "compo": null
+    }
+  },
+  "buts": {},
+  "presences": {},
+  "lieux": {
+    "l1": {
+      "id": "l1",
+      "nom": "Stade Eugène Cognevault",
+      "adresse": "Rue Claret, 95500 Gonesse, France",
+      "maps": ""
+    }
+  },
+  "adversaires": {
+    "a1": {
+      "id": "a1",
+      "nom": "FC Astro",
+      "logo": null
+    },
+    "a2": {
+      "id": "a2",
+      "nom": "FC Noisy le Sec A",
+      "logo": null
+    },
+    "a3": {
+      "id": "a3",
+      "nom": "FC Punjab",
+      "logo": null
+    },
+    "a4": {
+      "id": "a4",
+      "nom": "LE Phoenix",
+      "logo": null
+    },
+    "a5": {
+      "id": "a5",
+      "nom": "Mams",
+      "logo": null
+    },
+    "a6": {
+      "id": "a6",
+      "nom": "Mero 🇵🇰",
+      "logo": null
+    },
+    "a7": {
+      "id": "a7",
+      "nom": "Pakos Pierrefite 🇵🇰",
+      "logo": null
+    },
+    "a8": {
+      "id": "a8",
+      "nom": "Réal Dugny",
+      "logo": null
+    },
+    "a9": {
+      "id": "a9",
+      "nom": "Soorma FC",
+      "logo": null
+    },
+    "a10": {
+      "id": "a10",
+      "nom": "United Singh FC",
+      "logo": null
+    },
+    "a11": {
+      "id": "a11",
+      "nom": "Villetaneuse Football 93",
+      "logo": null
+    }
+  },
+  "paiements": {},
+  "votes": {},
+  "equipe": {
+    "config": {
+      "id": "config",
+      "nom": "Akaal FC",
+      "championnat": "FSGT",
+      "groupe": "Football à 7 · 93 Groupe 1",
+      "couleurs": "Noir & Or",
+      "saison": "2026-2027",
+      "logo": null,
+      "anneeCreation": 2019,
+      "genre": "Masculin",
+      "trancheAge": "Adultes tous âges",
+      "typeEquipe": "Association loisir",
+      "formatParDefaut": "8",
+      "lieuDomicile": null,
+      "votesHeures": 48,
+      "hdmMode": "vote",
+      "limiteJours": 1,
+      "limiteHeure": "20:00",
+      "maxJoueurs": 0,
+      "convocation": {
+        "Championnat": null,
+        "Amical": null,
+        "Tournoi": null
+      }
+    }
+  }
+}

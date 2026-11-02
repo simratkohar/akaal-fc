@@ -117,5 +117,16 @@ Les stats saison sont **calculées** à partir de ces collections, jamais saisie
 1. ✅ Maquettes rangées, code restructuré, design Stitch, PWA, règles écrites et testées, toutes les fonctionnalités en mode démo.
 2. Activer GitHub Pages (Settings → Pages → branche `main`, dossier `/`) et tester la démo sur iPhone (Safari → Partager → Sur l'écran d'accueil).
 3. Créer le projet Firebase avec l'utilisateur, une étape à la fois : voir `GUIDE-FIREBASE.md` (offre Spark uniquement).
-4. Saisir le vrai effectif (avec e-mails Gmail) et le calendrier, partager le lien à l'équipe.
+4. Importer les vraies données de `data/seed.json` (voir ci-dessous), compléter ce qui manque (e-mails Gmail, numéros, postes…), puis partager le lien à l'équipe.
 5. Plus tard : notifications push (FCM ; l'envoi programmé demande un serveur — piste gratuite : GitHub Actions planifiée), visuel Instagram du résultat.
+
+## Vraies données (`data/seed.json`)
+- Reprises de SportEasy par l'utilisateur (captures du 2 novembre 2026), **au même format que `donneesDemo()`** de `js/store.js` (collections → `{id: doc}`).
+- Contenu : config de l'équipe (Akaal FC, Football, Masculin, Adultes tous âges, Association loisir, format par défaut 8 contre 8, créée en 2019), 12 membres (Simrat Kohar = capitaine et joueur, + 11 joueurs), 1 lieu (Stade Eugène Cognevault, Gonesse), 11 adversaires, 6 matchs déjà joués avec leur score (dont FSGT J1 et J2).
+- Inconnu (null) : numéros (sauf Simrat #10), postes, e-mails, lieux et format des amicaux, buteurs/passeurs par match, qui a joué. `statsConnues.j1` = totaux saison de Simrat sur SportEasy (6 matchs, 2V 0N 4D, 7 buts, 1 passe) en attendant le détail.
+- Deux joueurs s'appellent « Harman Singh » (j6, j7) : demander un surnom pour les distinguer.
+- Matchs sans mention FSGT supposés « Amical » : à confirmer avec l'utilisateur.
+- À faire : un bouton capitaine « Importer les données réelles » (ou un mode démo qui part de ces données) ; à l'import Firebase, écrire chaque collection telle quelle.
+
+## Écran « Mes statistiques » (référence SportEasy)
+- Matchs joués, puis 3 anneaux Victoires / Nuls / Défaites, cartes Buts et Passes décisives, bloc Homme du match (avatar + nombre de fois élu, ou « pas encore élu »), Mes notes (max / moy / min), Mes derniers matchs (pastilles V/N/D colorées).
