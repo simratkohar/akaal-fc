@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background-color:#131313;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "secondary-fixed": "#e2e2e2", "surface-container-high": "#2a2a2a", "on-secondary-container": "#b4b5b5", "surface": "#131313", "background": "#131313", "on-primary-container": "#4f3900", "tertiary": "#ffb3af", "on-error-container": "#ffdad6", "on-background": "#e5e2e1", "on-primary-fixed-variant": "#5b4300", "surface-bright": "#3a3939", "surface-variant": "#353534", "error-container": "#93000a", "on-tertiary-container": "#7f0013", "on-tertiary": "#68000e", "tertiary-container": "#ff827e", "inverse-primary": "#795900", "tertiary-fixed": "#ffdad7", "on-surface": "#e5e2e1", "on-error": "#690005", "on-primary-fixed": "#261a00", "surface-container-highest": "#353534", "primary-fixed": "#ffdf9e", "surface-container-lowest": "#0e0e0e", "primary-fixed-dim": "#ebc165", "on-secondary": "#2f3131", "on-secondary-fixed": "#1a1c1c", "on-secondary-fixed-variant": "#454747", "primary-container": "#c9a24a", "outline-variant": "#4e4637", "primary": "#ebc165", "inverse-on-surface": "#313030", "secondary": "#c6c6c7", "surface-tint": "#ebc165", "surface-container": "#201f1f", "on-surface-variant": "#d1c5b2", "surface-container-low": "#1c1b1b", "on-tertiary-fixed": "#410005", "secondary-container": "#454747", "error": "#ffb4ab", "tertiary-fixed-dim": "#ffb3af", "on-primary": "#3f2e00", "surface-dim": "#131313", "inverse-surface": "#e5e2e1", "outline": "#9a8f7e", "secondary-fixed-dim": "#c6c6c7", "on-tertiary-fixed-variant": "#930018" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "space-md": "0.75rem", "gutter": "0.75rem", "space-xs": "0.25rem", "space-lg": "1rem", "space-sm": "0.5rem", "margin": "1rem", "space-xl": "1.5rem" }, "fontFamily": { "headline-xl": ["Bebas Neue"], "label-lg": ["Manrope"], "body-md": ["Manrope"], "headline-sm": ["Bebas Neue"], "body-lg": ["Manrope"], "squad-number": ["Bebas Neue"], "body-sm": ["Manrope"], "label-sm": ["Manrope"], "headline-md": ["Bebas Neue"], "label-md": ["Manrope"], "score-xl": ["Bebas Neue"], "headline-lg": ["Bebas Neue"] }, "fontSize": { "headline-xl": ["44px", { "lineHeight": "44px", "letterSpacing": "0.04em", "fontWeight": "400" }], "label-lg": ["13px", { "lineHeight": "16px", "letterSpacing": "0.06em", "fontWeight": "700" }], "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }], "headline-sm": ["18px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "400" }], "body-lg": ["16px", { "lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "500" }], "squad-number": ["38px", { "lineHeight": "38px", "letterSpacing": "0.02em", "fontWeight": "400" }], "body-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }], "label-sm": ["9px", { "lineHeight": "12px", "letterSpacing": "0.1em", "fontWeight": "800" }], "headline-md": ["24px", { "lineHeight": "26px", "letterSpacing": "0.03em", "fontWeight": "400" }], "label-md": ["11px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "700" }], "score-xl": ["56px", { "lineHeight": "52px", "letterSpacing": "0.02em", "fontWeight": "400" }], "headline-lg": ["32px", { "lineHeight": "34px", "letterSpacing": "0.03em", "fontWeight": "400" }] } } } }</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-on-surface flex flex-col min-h-screen"><header class="fixed top-0 inset-x-0 z-50 bg-surface-dim/90 backdrop-blur-xl pt-safe shadow-[0_4px_20px_rgba(0,0,0,0.5)]"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><button aria-label="Retour" class="w-11 h-11 rounded-xl bg-surface-container flex items-center justify-center text-on-surface hover:text-primary transition-colors" onclick="history.back()"><span class="material-symbols-outlined text-[22px]">arrow_back_ios_new</span></button><div class="flex flex-col"><h1 class="font-headline-sm text-headline-sm tracking-wider uppercase text-on-surface leading-tight">Detail Match</h1><span class="font-label-sm text-label-sm tracking-widest text-primary uppercase">AKAAL FC</span></div></div><div class="flex items-center gap-space-sm"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/40" src="https://lh3.googleusercontent.com/aida/AEtjO1U0QbehxSUQiXtuVyRBveGv326dVYe3XqvXi4jPgCvKFY_9Md5DQFhP24ywVC318VVdQwQ0_Nunu_XkosMggDXHNgtu4gtfHfAZPKtdPDHFYJS-h0XHbATxL005OcMClCS9AubZX_KhtuUHpQqsLnZp1RytJJG79hbQw95KxnX0w6UDqfZXapRtvyy9AJVEOj9hB709Gw7LZtGRc27tob1fb6dXb4wBS9icY7NisIb7hW2pTf-zqVgWuixZ"/></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-safe bg-surface"><div class="flex flex-col w-full pb-10">
+<div class="px-margin pt-space-md pb-space-sm flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm tracking-widest text-primary uppercase">Trésorerie · Akaal FC</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant/80 uppercase">Saison 2026-2027</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+      Suivi des cotisations &amp; participations (Paiements hors-ligne)
+    </p>
+</div>
+<div class="px-margin mb-space-lg">
+<div class="grid grid-cols-1 gap-space-md">
+<!-- Fee Card 1 -->
+<div class="bg-surface-container rounded-xl p-space-lg relative overflow-hidden shadow-xl">
+<div class="absolute -right-10 -bottom-10 w-36 h-36 bg-primary/5 rounded-full pointer-events-none blur-xl"></div>
+<div class="flex items-start justify-between gap-space-sm mb-space-md relative z-10">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-primary tracking-wider uppercase">Cotisation Principale</span>
+<h2 class="font-headline-md text-headline-md uppercase text-on-surface leading-tight">Saison 2026-2027 · 50 €</h2>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-primary/15 text-primary font-label-sm text-label-sm tracking-widest uppercase">
+            En cours
+          </span>
+</div>
+<div class="flex items-baseline justify-between mb-space-xs relative z-10">
+<div class="flex items-baseline gap-1.5">
+<span class="font-headline-lg text-headline-lg text-on-surface">400 €</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">/ 600 € collectés</span>
+</div>
+<span class="font-label-lg text-label-lg text-primary">8/12 payés <span class="text-on-surface-variant font-normal">(67%)</span></span>
+</div>
+<div class="w-full h-2 rounded-full bg-surface-container-highest relative overflow-hidden shadow-inner">
+<div class="h-full rounded-full bg-gradient-to-r from-primary-container via-primary to-primary-fixed shadow-[0_0_12px_rgba(235,193,101,0.5)] transition-all duration-500" style="width: 67.33%;"></div>
+</div>
+<div class="flex items-center justify-between mt-space-md pt-space-sm text-on-surface-variant font-body-sm text-body-sm border-t-0">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-primary">account_balance_wallet</span>
+            Reste à recouvrer : 200 €
+          </span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Échéance 30 Nov</span>
+</div>
+</div>
+<!-- Fee Card 2 -->
+<div class="bg-surface-container rounded-xl p-space-lg relative overflow-hidden shadow-xl">
+<div class="flex items-start justify-between gap-space-sm mb-space-md">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-primary tracking-wider uppercase">Événement Spécial</span>
+<h2 class="font-headline-md text-headline-md uppercase text-on-surface leading-tight">Inscription tournoi · 10 €</h2>
+</div>
+<span class="px-2.5 py-1 rounded-full bg-tertiary-container/20 text-tertiary font-label-sm text-label-sm tracking-widest uppercase">
+            Clôture imminente
+          </span>
+</div>
+<div class="flex items-baseline justify-between mb-space-xs">
+<div class="flex items-baseline gap-1.5">
+<span class="font-headline-lg text-headline-lg text-on-surface">110 €</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">/ 120 € collectés</span>
+</div>
+<span class="font-label-lg text-label-lg text-primary">11/12 payés <span class="text-on-surface-variant font-normal">(92%)</span></span>
+</div>
+<div class="w-full h-2 rounded-full bg-surface-container-highest relative overflow-hidden shadow-inner">
+<div class="h-full rounded-full bg-gradient-to-r from-primary-container via-primary to-primary-fixed shadow-[0_0_12px_rgba(235,193,101,0.5)] transition-all duration-500" style="width: 91.66%;"></div>
+</div>
+<div class="flex items-center justify-between mt-space-md pt-space-sm text-on-surface-variant font-body-sm text-body-sm">
+<span class="flex items-center gap-1.5 text-tertiary">
+<span class="material-symbols-outlined text-[16px]">priority_high</span>
+            Dernier règlement attendu
+          </span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">Match ce dimanche</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Player Checklist Section -->
+<div class="px-margin flex flex-col gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm uppercase tracking-wider text-on-surface">
+          Détail par joueur · Cotisation 2026-2027
+        </h3>
+<span class="font-label-sm text-label-sm px-2 py-0.5 rounded bg-surface-container-high text-primary uppercase">
+          12 Licenciés
+        </span>
+</div>
+<!-- Tricolore Accent hairline -->
+<div class="h-[2px] w-full flex rounded-full overflow-hidden my-1 opacity-70">
+<div class="h-full w-1/3 bg-[#002654]"></div>
+<div class="h-full w-1/3 bg-[#FFFFFF]"></div>
+<div class="h-full w-1/3 bg-[#ED2939]"></div>
+</div>
+<div class="flex items-center gap-2 p-space-sm rounded-lg bg-surface-container-low text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] text-primary shrink-0">info</span>
+<p class="font-body-sm text-body-sm leading-snug">
+          Pas de paiement en ligne • Rapprochement manuel par le capitaine (espèces/virement).
+        </p>
+</div>
+</div>
+<!-- Players Interactive List -->
+<div class="flex flex-col gap-space-sm" id="players-list">
+<!-- Simratpal #10 -->
+<div class="p-space-md bg-surface-container rounded-xl flex items-center justify-between shadow-sm transition-all hover:bg-surface-container-high">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="relative w-12 h-12 rounded-full overflow-hidden shrink-0 shadow-md bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Intense high contrast studio portrait of Punjabi male football forward with tied hair wearing black jersey under moody gold dramatic athletic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_k_TgtbTwfw3uROmMuY6XPjty3bnFBhod3fqg7CC0p_PqPtDkQnrraspaERAnCV6mafHVwZ2Wd9m0OP3-WfVDAIdcRmCJA-ZE-zM-1FX09JBx8Rsg_8qkjzjJDkY2F58EhRvpCj_fab6HaTGiB13wZD1F1ISmLkxnJl1nZVqxMxdLaDKoYbqmFbPhqe3yrmExuE_FxapPg0TmxlEPjPveD6VYGC6ns2cJqp7B8sTm"/>
+<span class="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-primary text-on-primary font-headline-sm text-[10px] flex items-center justify-center font-bold">C</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Simratpal</span>
+<span class="font-squad-number text-headline-sm text-primary">#10</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-primary">event_available</span>
+              Reçu le 12 Oct
+            </span>
+</div>
+</div>
+<button class="px-space-md py-1.5 rounded-full font-label-md text-label-md uppercase tracking-wider flex items-center gap-1.5 transition-all bg-emerald-950/70 text-emerald-400 shadow-sm active:scale-95" data-paid="true" onclick="togglePayment(this)">
+<span class="material-symbols-outlined text-[15px]">check_circle</span>
+<span>Payé</span>
+</button>
+</div>
+<!-- Harpreet #9 -->
+<div class="p-space-md bg-surface-container rounded-xl flex items-center justify-between shadow-sm transition-all hover:bg-surface-container-high">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-full overflow-hidden shrink-0 shadow-md bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Athletic French Sikh striker with groomed beard wearing Akaal FC black football training kit looking forward with focus cinematic shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXzFY17OCvBEGX09rNn73NP6tfeq69Vtxx42U42Vi1BOcAE8q9VbWDUlbwvj7BzfVLnHOnsGuPMPEfbkREtwufnKZeHe8p5wU6MC-E2TWinY8drF8qESvJNDw6zDlAVf2aZq_66NvFldloizS0-D4Hh6xUiPDdXZOUOSpOuePcEVvhvD8LiqjD1sDPN6M0iBQfmj6G90iAOaxRaqr5WeKG3oUwp7Hc4pOtABs9lXqY"/>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Harpreet</span>
+<span class="font-squad-number text-headline-sm text-primary">#9</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-primary">payments</span>
+              Reçu espèces
+            </span>
+</div>
+</div>
+<button class="px-space-md py-1.5 rounded-full font-label-md text-label-md uppercase tracking-wider flex items-center gap-1.5 transition-all bg-emerald-950/70 text-emerald-400 shadow-sm active:scale-95" data-paid="true" onclick="togglePayment(this)">
+<span class="material-symbols-outlined text-[15px]">check_circle</span>
+<span>Payé</span>
+</button>
+</div>
+<!-- Arjun #8 -->
+<div class="p-space-md bg-surface-container rounded-xl flex items-center justify-between shadow-sm transition-all hover:bg-surface-container-high">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-full overflow-hidden shrink-0 shadow-md bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Dynamic portrait of midfield football player in dark jersey confident posture sharp eyes dramatic golden backlight aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqSGUOrOh5c3XAK0eKmy8FyUeLTJSOk6zTNbn9-RE5pmjU04vZwRZ_rN2yVFzM0YfjqnX5IlJa-Vrk10gATqgAXvgNJRfssBMMnTy-r6E5rlpiBlN1vWO5e_eBOxgzV5Lv5yO2eq5FlkC8P_3y_h66wI1YKL4iGAmtOFmeYFKL-JYbGZY4tMfDEyo8O9taPelQAj2Eeq1d_BjZ_qzIFrPnHAmdisOcUUITUJNJ3Xtz"/>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Arjun</span>
+<span class="font-squad-number text-headline-sm text-primary">#8</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-primary">account_balance</span>
+              Virement
+            </span>
+</div>
+</div>
+<button class="px-space-md py-1.5 rounded-full font-label-md text-label-md uppercase tracking-wider flex items-center gap-1.5 transition-all bg-emerald-950/70 text-emerald-400 shadow-sm active:scale-95" data-paid="true" onclick="togglePayment(this)">
+<span class="material-symbols-outlined text-[15px]">check_circle</span>
+<span>Payé</span>
+</button>
+</div>
+<!-- Gurvinder #7 -->
+<div class="p-space-md bg-surface-container rounded-xl flex items-center justify-between shadow-sm transition-all hover:bg-surface-container-high">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-full flex items-center justify-center bg-surface-container-highest shrink-0 shadow-inner">
+<span class="font-headline-md text-headline-md text-primary">#7</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Gurvinder</span>
+<span class="font-squad-number text-headline-sm text-secondary">#7</span>
+</div>
+<span class="font-body-sm text-body-sm text-tertiary flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">pending</span>
+              En attente
+            </span>
+</div>
+</div>
+<button class="px-space-md py-1.5 rounded-full font-label-md text-label-md uppercase tracking-wider flex items-center gap-1.5 transition-all bg-surface-container-highest text-tertiary shadow-sm active:scale-95" data-paid="false" onclick="togglePayment(this)">
+<span class="material-symbols-outlined text-[15px]">hourglass_empty</span>
+<span>Pas payé</span>
+</button>
+</div>
+<!-- Manpreet #1 -->
+<div class="p-space-md bg-surface-container rounded-xl flex items-center justify-between shadow-sm transition-all hover:bg-surface-container-high">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-full overflow-hidden shrink-0 shadow-md bg-surface-container-high">
+<img class="w-full h-full object-cover" data-alt="Athletic goalkeeper portrait wearing goalkeeper gloves and pitch black uniform with gold crest focused disciplined Parisian club vibe" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4N-l-uQ9h2QbTXvPAfSebROJSgOb3rN9zIaevPocbvbBWzLQyNnfIDxwygCIuQHEnXM9dygpKOsGD4uanoFFcUCMgPpVQuEXrYDuzkn4jHFLXWdHwYsvCIRxP2MezPNOL8ClRhP7ejR8cU1aXOoivGSRj8tQtdb_PbbZPWFaZ6y1gei_jF6hirPFBEl7Z9sAYDs4ovKzs4oexhe6U4bEDG9QT3W9FaAPIqleLjD2p"/>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Manpreet</span>
+<span class="font-squad-number text-headline-sm text-primary">#1</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-primary">check</span>
+              Règlement validé
+            </span>
+</div>
+</div>
+<button class="px-space-md py-1.5 rounded-full font-label-md text-label-md uppercase tracking-wider flex items-center gap-1.5 transition-all bg-emerald-950/70 text-emerald-400 shadow-sm active:scale-95" data-paid="true" onclick="togglePayment(this)">
+<span class="material-symbols-outlined text-[15px]">check_circle</span>
+<span>Payé</span>
+</button>
+</div>
+<!-- Jaspreet #4 -->
+<div class="p-space-md bg-surface-container rounded-xl flex items-center justify-between shadow-sm transition-all hover:bg-surface-container-high">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-full flex items-center justify-center bg-surface-container-highest shrink-0 shadow-inner">
+<span class="font-headline-md text-headline-md text-primary">#4</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Jaspreet</span>
+<span class="font-squad-number text-headline-sm text-primary">#4</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-primary">payments</span>
+              Reçu espèces
+            </span>
+</div>
+</div>
+<button class="px-space-md py-1.5 rounded-full font-label-md text-label-md uppercase tracking-wider flex items-center gap-1.5 transition-all bg-emerald-950/70 text-emerald-400 shadow-sm active:scale-95" data-paid="true" onclick="togglePayment(this)">
+<span class="material-symbols-outlined text-[15px]">check_circle</span>
+<span>Payé</span>
+</button>
+</div>
+<!-- Karan #5 -->
+<div class="p-space-md bg-surface-container rounded-xl flex items-center justify-between shadow-sm transition-all hover:bg-surface-container-high">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-full flex items-center justify-center bg-surface-container-highest shrink-0 shadow-inner">
+<span class="font-headline-md text-headline-md text-secondary">#5</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Karan</span>
+<span class="font-squad-number text-headline-sm text-secondary">#5</span>
+</div>
+<span class="font-body-sm text-body-sm text-tertiary flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">notifications_active</span>
+              Rappel envoyé
+            </span>
+</div>
+</div>
+<button class="px-space-md py-1.5 rounded-full font-label-md text-label-md uppercase tracking-wider flex items-center gap-1.5 transition-all bg-surface-container-highest text-tertiary shadow-sm active:scale-95" data-paid="false" onclick="togglePayment(this)">
+<span class="material-symbols-outlined text-[15px]">hourglass_empty</span>
+<span>Pas payé</span>
+</button>
+</div>
+<!-- Navjot #12 -->
+<div class="p-space-md bg-surface-container rounded-xl flex items-center justify-between shadow-sm transition-all hover:bg-surface-container-high">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-full flex items-center justify-center bg-surface-container-highest shrink-0 shadow-inner">
+<span class="font-headline-md text-headline-md text-primary">#12</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Navjot</span>
+<span class="font-squad-number text-headline-sm text-primary">#12</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-primary">account_balance</span>
+              Virement
+            </span>
+</div>
+</div>
+<button class="px-space-md py-1.5 rounded-full font-label-md text-label-md uppercase tracking-wider flex items-center gap-1.5 transition-all bg-emerald-950/70 text-emerald-400 shadow-sm active:scale-95" data-paid="true" onclick="togglePayment(this)">
+<span class="material-symbols-outlined text-[15px]">check_circle</span>
+<span>Payé</span>
+</button>
+</div>
+<!-- Vikram #14 -->
+<div class="p-space-md bg-surface-container rounded-xl flex items-center justify-between shadow-sm transition-all hover:bg-surface-container-high">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-12 h-12 rounded-full flex items-center justify-center bg-surface-container-highest shrink-0 shadow-inner">
+<span class="font-headline-md text-headline-md text-secondary">#14</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Vikram</span>
+<span class="font-squad-number text-headline-sm text-secondary">#14</span>
+</div>
+<span class="font-body-sm text-body-sm text-tertiary flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px]">pending</span>
+              En attente
+            </span>
+</div>
+</div>
+<button class="px-space-md py-1.5 rounded-full font-label-md text-label-md uppercase tracking-wider flex items-center gap-1.5 transition-all bg-surface-container-highest text-tertiary shadow-sm active:scale-95" data-paid="false" onclick="togglePayment(this)">
+<span class="material-symbols-outlined text-[15px]">hourglass_empty</span>
+<span>Pas payé</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Bottom CTA Actions -->
+<div class="px-margin mt-space-xl flex flex-col gap-space-sm">
+<button class="w-full py-3.5 px-space-lg rounded-xl bg-surface-container-high hover:bg-surface-bright text-primary font-label-lg text-label-lg tracking-wider uppercase flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98]" onclick="sendReminder()">
+<span class="material-symbols-outlined text-[20px] text-primary">chat</span>
+<span>Envoyer un rappel collectif (WhatsApp)</span>
+</button>
+<button class="w-full py-4 px-space-lg rounded-xl bg-primary hover:bg-primary-fixed text-on-primary font-label-lg text-label-lg tracking-wider uppercase flex items-center justify-center gap-2 shadow-[0_4px_18px_rgba(235,193,101,0.35)] transition-all active:scale-[0.98]" onclick="newCampaign()">
+<span class="material-symbols-outlined text-[20px]">add_circle</span>
+<span>Nouvelle cotisation / collecte</span>
+</button>
+</div>
+<!-- Notification Toast Modal -->
+<div class="fixed bottom-6 left-4 right-4 bg-surface-container-highest text-on-surface px-4 py-3 rounded-xl shadow-2xl flex items-center justify-between opacity-0 pointer-events-none transition-all duration-300 z-50" id="toast">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-primary text-[20px]" id="toast-icon">check_circle</span>
+<span class="font-body-md text-body-md" id="toast-text">Mise à jour enregistrée</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary uppercase">Fait</span>
+</div>
+</div>
+<script>
+  function togglePayment(btn) {
+    const isPaid = btn.getAttribute('data-paid') === 'true';
+    if (isPaid) {
+      btn.setAttribute('data-paid', 'false');
+      btn.className = 'px-space-md py-1.5 rounded-full font-label-md text-label-md uppercase tracking-wider flex items-center gap-1.5 transition-all bg-surface-container-highest text-tertiary shadow-sm active:scale-95';
+      btn.innerHTML = '<span class="material-symbols-outlined text-[15px]">hourglass_empty</span><span>Pas payé</span>';
+      showToast('Statut changé : En attente');
+    } else {
+      btn.setAttribute('data-paid', 'true');
+      btn.className = 'px-space-md py-1.5 rounded-full font-label-md text-label-md uppercase tracking-wider flex items-center gap-1.5 transition-all bg-emerald-950/70 text-emerald-400 shadow-sm active:scale-95';
+      btn.innerHTML = '<span class="material-symbols-outlined text-[15px]">check_circle</span><span>Payé</span>';
+      showToast('Paiement validé par le capitaine');
+    }
+  }
+
+  function sendReminder() {
+    showToast('Lien WhatsApp préparé pour les retardataires', 'send');
+  }
+
+  function newCampaign() {
+    showToast('Ouverture du module de création...', 'create_new_folder');
+  }
+
+  function showToast(message, iconName = 'check_circle') {
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toast-text');
+    const toastIcon = document.getElementById('toast-icon');
+    
+    toastText.innerText = message;
+    toastIcon.innerText = iconName;
+    
+    toast.classList.remove('opacity-0', 'pointer-events-none');
+    toast.classList.add('opacity-100');
+
+    setTimeout(() => {
+      toast.classList.add('opacity-0', 'pointer-events-none');
+      toast.classList.remove('opacity-100');
+    }, 2400);
+  }
+</script></main></body></html>
