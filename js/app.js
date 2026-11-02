@@ -47,7 +47,7 @@ function render() {
   document.body.classList.remove('sans-nav');
   const { page, args } = App.route;
   const pages = { accueil: pageAccueil, calendrier: pageCalendrier, stats: pageStats, effectif: pageEffectif, match: pageMatch, joueur: pageJoueur,
-    votes: pageVotes, reglages: pageReglages, paiements: pagePaiements, classement: pageClassement, bilan: pageBilan, profil: () => pageJoueur(Store.moi) };
+    votes: pageVotes, reglages: pageReglages, emails: pageEmails, paiements: pagePaiements, classement: pageClassement, bilan: pageBilan, profil: () => pageJoueur(Store.moi) };
   let contenu;
   try { contenu = (pages[page] || pageAccueil)(...args); }
   catch (e) { console.error(e); contenu = vide('Oups, une erreur est survenue sur cet écran.', 'error'); }
@@ -57,7 +57,7 @@ let _rafPrevu = false;
 function rafRender() { if (_rafPrevu) return; _rafPrevu = true; requestAnimationFrame(() => { _rafPrevu = false; render(); }); }
 
 const SOUS_TITRES = { accueil: 'Accueil', calendrier: 'Calendrier', stats: 'Statistiques', effectif: 'Effectif', match: 'Fiche match', joueur: 'Fiche joueur',
-  votes: 'Votes du match', reglages: 'Réglages', paiements: 'Paiements', classement: 'Classement', bilan: 'Bilan de saison', profil: 'Mon profil' };
+  votes: 'Votes du match', reglages: 'Réglages', emails: 'Accès joueurs', paiements: 'Paiements', classement: 'Classement', bilan: 'Bilan de saison', profil: 'Mon profil' };
 function entete() {
   const cfg = Store.config(), moi = joueur(Store.moi);
   const demo = Store.mode === 'demo' ? `<button class="demo-btn ${Store.capitaine ? 'cap' : ''}" onclick="Store.basculeDemo();toast(Store.capitaine?'Vue capitaine':'Aperçu : vue d’un joueur')">${Store.capitaine ? '★ Cap.' : 'Joueur'}</button>` : '';
@@ -588,6 +588,31 @@ function pageReglages(sous) {
   h += `<p class="note-bas">AKAAL FC · EST. 2019 · ${Store.mode === 'demo' ? 'MODE DÉMO' : 'CONNECTÉ'}</p>`;
   return h;
 }
+/* Lien spécial #/emails/<code> : enregistre d'un coup les e-mails Google des joueurs.
+   Les adresses restent dans le lien (jamais publiées dans le dépôt). */
+function decodeEmails(code) {
+  try { return JSON.parse(decodeURIComponent(escape(atob(code.replace(/-/g, '+').replace(/_/g, '/'))))); } catch { return null; }
+}
+function pageEmails(code) {
+  if (!Store.capitaine) return vide('Réservé au capitaine', 'lock');
+  const liste = decodeEmails(code || '');
+  if (!liste) return vide('Lien invalide', 'link_off');
+  const lignes = Object.entries(liste).map(([id, email]) => ({ id, email: String(email).trim().toLowerCase(), j: joueur(id) }));
+  const aFaire = lignes.filter(l => l.j && l.j.email !== l.email);
+  let h = `<a class="retour" href="#/reglages">${ic('arrow_back')} Réglages</a>${sec('E-mails des joueurs', 'alternate_email', `${lignes.length}`)}
+    <p class="aide" style="margin-bottom:12px">Chaque joueur pourra se connecter avec cette adresse Google et retrouvera son profil.</p>
+    <div class="carte liste">${lignes.map(l => `<div class="ligne">${l.j ? avatar(l.id) : `<div class="av">?</div>`}<div class="t"><b>${esc(l.j?.nom || 'Joueur introuvable')}</b><span>${esc(l.email)}</span></div>${!l.j ? '' : l.j.email === l.email ? `<span class="statut ok">${ic('check_circle')} OK</span>` : `<span class="chip or">Nouveau</span>`}</div>`).join('')}</div>`;
+  h += aFaire.length ? `<button class="btn" onclick="enregistrerEmails('${esc(code)}')">${ic('save')} Enregistrer ${aFaire.length} e-mail${aFaire.length > 1 ? 's' : ''}</button>`
+    : `<div class="alerte vert">${ic('check_circle')}<span>Tout est déjà enregistré.</span></div><a class="btn sec" href="#/effectif">${ic('groups')} Voir l’effectif</a>`;
+  return h;
+}
+async function enregistrerEmails(code) {
+  const liste = decodeEmails(code); if (!liste) return;
+  const ops = Object.entries(liste).filter(([id, e]) => joueur(id) && joueur(id).email !== String(e).trim().toLowerCase())
+    .map(([id, e]) => ({ op: 'patch', col: 'joueurs', id, obj: { email: String(e).trim().toLowerCase() } }));
+  if (await Store.batch(ops)) toast(`${ops.length} e-mail${ops.length > 1 ? 's' : ''} enregistré${ops.length > 1 ? 's' : ''} ✓`);
+}
+
 function pageLieux() {
   const ls = Store.liste('lieux').sort((a, b) => a.nom.localeCompare(b.nom));
   return `<a class="retour" href="#/reglages">${ic('arrow_back')} Réglages</a>${sec('Lieux enregistrés', 'location_on', ls.length)}
