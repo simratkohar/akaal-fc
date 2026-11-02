@@ -107,10 +107,11 @@ Les stats saison sont **calculées** à partir de ces collections, jamais saisie
 - Automatique seulement si la FSGT IDF donne son accord ou propose un flux.
 
 ## Prochaines étapes
-1. Appliquer le design (noir/or, logo, maquettes Stitch).
-2. Rendre l'app installable : `manifest.json` + icônes à partir du logo + service worker simple.
-3. Créer le projet Firebase avec l'utilisateur (le guider écran par écran).
-4. Remplacer l'objet `db` par Firestore + Auth Google ; écrire les règles de sécurité.
-5. Activer GitHub Pages (Settings → Pages → branche `main`, dossier `/`).
-6. Saisir le vrai effectif et le calendrier, partager le lien à l'équipe.
-7. Plus tard (V2) : notifications de rappel, cartons, classement du championnat.
+1. Lire les maquettes Google Stitch fournies par l'utilisateur (captures et/ou code exporté) : c'est la référence visuelle. Les ranger dans `maquettes/`.
+2. Restructurer le code (fichiers séparés : `index.html`, `css/`, `js/`), toujours sans framework ni build, et appliquer le design Stitch (noir/or, logo).
+3. Rendre l'app installable (PWA) : `manifest.json` + icônes à partir de `assets/logo.png` + service worker.
+4. Créer le projet Firebase avec l'utilisateur (le guider écran par écran, offre Spark uniquement).
+5. Remplacer l'objet `db` de démo par Firestore + Auth Google ; écrire et tester les règles de sécurité (rôles capitaine / joueur).
+6. Ajouter les fonctionnalités dans cet ordre : matchs + présences → résultats + stats → compo → réglages capitaine (lieux, adversaires, présences, membres) → votes et notes → paiements → classement FSGT → fiche joueur enrichie, face-à-face, archives, bilan de saison → notifications push.
+7. Activer GitHub Pages (Settings → Pages → branche `main`, dossier `/`) et tester sur iPhone (Safari → Partager → Sur l'écran d'accueil).
+8. Saisir le vrai effectif et le calendrier, partager le lien à l'équipe.
