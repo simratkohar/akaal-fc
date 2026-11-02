@@ -26,6 +26,14 @@ Contexte pour Claude Code. Lis ce fichier avant de travailler sur le dépôt.
 - **Stats** : filtre par compétition ; V/N/D, buts pour/contre, différence ; classements Buts / Passes / Homme du match / Matchs joués.
 - **Effectif** : par poste, numéro, capitaine « C », mini-stats ; fiche joueur.
 - **Connexion** : écusson + « Se connecter avec Google ».
+- **Profil / photo** : chaque joueur peut changer sa photo de profil (avatar rond + bouton appareil photo).
+
+### Photos de profil
+- Par défaut : la photo du compte Google (`user.photoURL` fourni par Firebase Auth).
+- Photo perso : choisie depuis le téléphone, recadrée en carré et compressée côté navigateur (canvas, ~256 px, JPEG ~0,7 → ~30 Ko), stockée en data URL dans le champ `photo` du document `joueurs`.
+- **Ne pas utiliser Firebase Storage** : il exige l'offre Blaze (payante) pour les nouveaux projets.
+- Règle : un joueur ne modifie que sa propre photo ; le capitaine peut toutes les modifier.
+- Avatars affichés partout : effectif, classements, présences, fiche match.
 
 ## Stack (décidée, 0 €)
 - HTML/CSS/JS simple, **sans framework, sans build**.
@@ -35,7 +43,7 @@ Contexte pour Claude Code. Lis ce fichier avant de travailler sur le dépôt.
 ## Modèle de données (Firestore)
 | Collection | Champs | Écrit par |
 |---|---|---|
-| `joueurs` | nom, numero, poste, uid (compte lié), role (`capitaine`/`joueur`) | capitaine |
+| `joueurs` | nom, numero, poste, uid (compte lié), role (`capitaine`/`joueur`), photo (data URL, facultatif) | capitaine ; le joueur pour sa propre `photo` |
 | `matchs` | type, format, date (ISO), lieu, adversaire, domicile (bool), scoreNous, scoreEux, joue (bool), hommeDuMatch, ontJoue [ids joueurs] | capitaine |
 | `buts` | match, buteur (id joueur ou `csc`), passeur (id ou null) | capitaine |
 | `presences` | doc id `<matchId>_<joueurId>` : match, joueur, reponse (`present`/`absent`) | le joueur lui-même, ou le capitaine |
