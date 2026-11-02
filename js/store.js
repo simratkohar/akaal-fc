@@ -171,12 +171,37 @@ const Store = {
     });
   },
   /* Premier lancement : le capitaine (e-mail autorisé dans les règles) crée l'équipe */
-  async creerEquipe(nom, numero) {
-    const id = nouvelId();
+  async creerEquipe(nom, numero, avecDonnees = false) {
+    const b = this.fs.batch(), doc = (c, id) => this.fs.collection(c).doc(id);
+    let moiId = nouvelId();
     try {
-      await this.fs.collection('joueurs').doc(id).set({ nom, numero: +numero || 10, poste: 'Milieu', role: 'capitaine', email: this.user.email, uid: this.user.uid, photoGoogle: this.user.photo || null });
-      await this.fs.collection('acces').doc(this.user.uid).set({ joueur: id, role: 'capitaine', email: this.user.email });
-      await this.fs.collection('equipe').doc('config').set({ ...CONFIG_DEFAUT });
+      if (avecDonnees) {
+        // Vraies données reprises de SportEasy (data/seed.json)
+        const seed = await (await fetch('data/seed.json', { cache: 'no-store' })).json();
+        const cfg = { ...CONFIG_DEFAUT, ...(seed.equipe?.config || {}) }; delete cfg.id;
+        b.set(doc('equipe', 'config'), nettoie(cfg));
+        const cap = Object.values(seed.joueurs || {}).find(j => j.role === 'capitaine');
+        if (cap) moiId = cap.id;
+        ['joueurs', 'lieux', 'adversaires', 'matchs', 'buts', 'presences', 'paiements'].forEach(col => {
+          Object.values(seed[col] || {}).forEach(o => {
+            const x = { ...o }; delete x.id;
+            if (col === 'matchs') {
+              if (!x.format) x.format = x.type === 'Championnat' ? '7' : (cfg.formatParDefaut || '8');
+              if (!x.saison) x.saison = saisonDe(x.date);
+              if (!x.limite) x.limite = new Date(x.date).getTime();
+            }
+            if (col === 'joueurs' && o.id === moiId) Object.assign(x, { email: this.user.email, uid: this.user.uid, photoGoogle: this.user.photo || null, role: 'capitaine' });
+            b.set(doc(col, o.id), nettoie(x));
+          });
+        });
+        if (!cap) b.set(doc('joueurs', moiId), { nom, numero: +numero || 10, poste: 'Milieu', role: 'capitaine', email: this.user.email, uid: this.user.uid, photoGoogle: this.user.photo || null });
+      } else {
+        b.set(doc('joueurs', moiId), { nom, numero: +numero || 10, poste: 'Milieu', role: 'capitaine', email: this.user.email, uid: this.user.uid, photoGoogle: this.user.photo || null });
+        b.set(doc('equipe', 'config'), { ...CONFIG_DEFAUT });
+      }
+      b.set(doc('acces', this.user.uid), { joueur: moiId, role: 'capitaine', email: this.user.email });
+      await b.commit();
+      toast('Équipe créée ✓');
       return this._surCompte(this.auth.currentUser);
     } catch (e) {
       console.error(e);
