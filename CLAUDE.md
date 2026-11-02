@@ -27,6 +27,7 @@ Contexte pour Claude Code. Lis ce fichier avant de travailler sur le dépôt.
   - Présences : présents / absents / sans réponse, boutons Présent/Absent.
   - Compo : voir ci-dessous.
   - Stats : buts (buteur + passeur, CSC possible), homme du match, qui a joué.
+  - Pas d'onglet Forum/chat : l'équipe utilise WhatsApp.
 - **Stats** : filtre par compétition ; V/N/D, buts pour/contre, différence ; classements Buts / Passes / Homme du match / Matchs joués.
 - **Effectif** : par poste, numéro, capitaine « C », mini-stats ; fiche joueur.
 - **Connexion** : écusson + « Se connecter avec Google ».
