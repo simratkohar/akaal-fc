@@ -22,11 +22,24 @@ Contexte pour Claude Code. Lis ce fichier avant de travailler sur le dépôt.
 ### Écrans (barre du bas : Accueil, Calendrier, Stats, Effectif)
 - **Accueil** : prochain match (type, format, date, heure, lieu, compte à rebours), boutons Présent/Absent, compteurs présents/absents/sans réponse ; dernier résultat ; bilan saison ; top 3 buteurs.
 - **Calendrier** : filtres par type ; « À venir » et « Résultats » groupés par mois.
-- **Fiche match** : score, buts (buteur + passeur, CSC possible), homme du match, qui a joué ; pour un match à venir : présents/absents/sans réponse.
+- **Fiche match** : en-tête date + score (Akaal FC vs adversaire), puis onglets **Infos · Présences · Compo · Stats**.
+  - Infos : type, format, domicile/extérieur, heure, lieu.
+  - Présences : présents / absents / sans réponse, boutons Présent/Absent.
+  - Compo : voir ci-dessous.
+  - Stats : buts (buteur + passeur, CSC possible), homme du match, qui a joué.
 - **Stats** : filtre par compétition ; V/N/D, buts pour/contre, différence ; classements Buts / Passes / Homme du match / Matchs joués.
 - **Effectif** : par poste, numéro, capitaine « C », mini-stats ; fiche joueur.
 - **Connexion** : écusson + « Se connecter avec Google ».
 - **Profil / photo** : chaque joueur peut changer sa photo de profil (avatar rond + bouton appareil photo).
+
+### Compo (composition d'équipe), par match
+- Inspirée de SportEasy (captures fournies par l'utilisateur).
+- Vide : illustration terrain + « Pas de composition » + bouton « Créer une compo » (capitaine).
+- Avertissement si pas assez de présents : « Il manque X joueur(s) (sur N) pour une compo complète » (N = 7, 8 ou 11 selon le format).
+- Éditeur (capitaine uniquement) : nom de la compo, choix de la **formation** (liste selon le format), terrain vertical avec emplacements (gardien en bas), on touche un emplacement → on choisit parmi les joueurs **marqués présents** ; zone **Remplaçants** sous le terrain ; bouton Enregistrer.
+- Formations : à 7 → 2-3-1, 3-2-1, 3-1-2, 2-2-2 ; à 8 → 2-3-2, 3-3-1, 3-2-2 ; à 11 → 4-4-2, 4-3-3, 3-5-2, 4-2-3-1 (gardien en plus).
+- Les joueurs voient la compo en lecture seule (avatars/photos + nom + numéro sur le terrain).
+- Données : champ `compo` dans le document `matchs` : `{nom, formation, postes: {"<slot>": joueurId}, remplacants: [joueurIds]}`.
 
 ### Photos de profil
 - Par défaut : la photo du compte Google (`user.photoURL` fourni par Firebase Auth).
