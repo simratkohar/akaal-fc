@@ -103,13 +103,13 @@ function bilan(matchs) {
 /* ---------- Classements joueurs ---------- */
 function classement(type, matchs) {
   const ids = new Set(matchs.map(m => m.id)), t = {};
-  const add = (id, v = 1) => { if (id && id !== 'csc' && joueur(id)) t[id] = (t[id] || 0) + v; };
+  const add = (id, v = 1) => { if (id && id !== 'csc' && joueur(id) && joueur(id).role !== 'invite') t[id] = (t[id] || 0) + v; };
   if (type === 'buts') Store.liste('buts').filter(b => ids.has(b.match)).forEach(b => add(b.buteur));
   if (type === 'passes') Store.liste('buts').filter(b => ids.has(b.match)).forEach(b => add(b.passeur));
   if (type === 'hdm') matchs.forEach(m => add(hommeDuMatch(m)));
   if (type === 'matchs') matchs.forEach(m => (m.ontJoue || []).forEach(j => add(j)));
-  if (type === 'notes') tousJoueurs().forEach(j => { const n = noteMoyenne(j.id, matchs); if (n != null) t[j.id] = Math.round(n * 10) / 10; });
-  if (type === 'presence') tousJoueurs().forEach(j => { const p = tauxPresence(j.id, matchs); if (p.convoc) t[j.id] = p.taux; });
+  if (type === 'notes') tousJoueurs().filter(j => j.role !== 'invite').forEach(j => { const n = noteMoyenne(j.id, matchs); if (n != null) t[j.id] = Math.round(n * 10) / 10; });
+  if (type === 'presence') tousJoueurs().filter(j => j.role !== 'invite').forEach(j => { const p = tauxPresence(j.id, matchs); if (p.convoc) t[j.id] = p.taux; });
   return Object.entries(t).map(([id, v]) => ({ id, v })).sort((a, b) => b.v - a.v || nomJ(a.id).localeCompare(nomJ(b.id)));
 }
 function tauxPresence(jid, matchs) {

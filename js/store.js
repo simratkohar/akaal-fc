@@ -75,27 +75,33 @@ const Store = {
   },
 
   /* ---------------- Mode démo ---------------- */
-  _initDemo() {
+  // Visite (?demo alors que Firebase est configuré) : vraies données de data/seed.json, sans compte
+  get visite() { return this.mode === 'demo' && typeof FIREBASE_CONFIG !== 'undefined' && !!FIREBASE_CONFIG; },
+  async _initDemo() {
     let d = null;
-    try { d = JSON.parse(localStorage.getItem(CLE_DEMO)); } catch {}
+    if (this.visite) {
+      try { d = normaliserSeed(await (await fetch('data/seed.json', { cache: 'no-store' })).json()); } catch (e) { console.error(e); }
+    } else {
+      try { d = JSON.parse(localStorage.getItem(CLE_DEMO)); } catch {}
+    }
     if (!d || !d.joueurs) d = donneesDemo();
     COLLECTIONS.forEach(c => this.data[c] = d[c] || {});
     const cap = this.liste('joueurs').find(j => j.role === 'capitaine');
-    this.moi = cap?.id; this.role = 'capitaine';
-    this.user = { uid: 'demo', email: cap?.email, nom: cap?.nom, photo: null };
+    if (this.visite) { this.moi = null; this.role = 'joueur'; this.user = { uid: 'visite', email: null, nom: 'Visiteur', photo: null }; }
+    else { this.moi = cap?.id; this.role = 'capitaine'; this.user = { uid: 'demo', email: cap?.email, nom: cap?.nom, photo: null }; }
     this.etat = 'pret';
     this._notifie();
   },
-  _sauveDemo() { try { localStorage.setItem(CLE_DEMO, JSON.stringify(this.data)); } catch {} },
-  basculeDemo() { // capitaine ↔ vue d'un joueur
+  _sauveDemo() { if (this.visite) return; try { localStorage.setItem(CLE_DEMO, JSON.stringify(this.data)); } catch {} },
+  basculeDemo() { // capitaine ↔ vue d'un joueur (ou visiteur)
     const js = this.liste('joueurs');
     if (this.role === 'capitaine') {
-      const j = js.find(x => x.role !== 'capitaine' && x.numero === 5) || js.find(x => x.role !== 'capitaine');
-      this.moi = j?.id; this.role = 'joueur';
+      const j = this.visite ? null : (js.find(x => x.role !== 'capitaine' && x.numero === 5) || js.find(x => x.role !== 'capitaine'));
+      this.moi = j?.id || null; this.role = 'joueur';
     } else {
       const c = js.find(x => x.role === 'capitaine'); this.moi = c?.id; this.role = 'capitaine';
     }
-    this.user = { ...this.user, nom: this.get('joueurs', this.moi)?.nom };
+    this.user = { ...this.user, nom: this.get('joueurs', this.moi)?.nom || 'Visiteur' };
     this._notifie();
   },
   reinitDemo() { localStorage.removeItem(CLE_DEMO); location.reload(); },
@@ -232,6 +238,21 @@ const Store = {
 /* =========================================================
    Données fictives pour le mode démo
    ========================================================= */
+/* Données SportEasy (data/seed.json) au format de l'app */
+function normaliserSeed(seed) {
+  const d = Object.fromEntries(COLLECTIONS.map(c => [c, {}]));
+  const cfg = { ...CONFIG_DEFAUT, ...(seed.equipe?.config || {}), id: 'config' };
+  COLLECTIONS.forEach(c => Object.values(seed[c] || {}).forEach(o => { d[c][o.id] = { ...o }; }));
+  d.equipe.config = cfg;
+  Object.values(d.matchs).forEach(m => {
+    if (!m.format) m.format = m.type === 'Championnat' ? '7' : (cfg.formatParDefaut || '8');
+    if (!m.saison) m.saison = saisonDe(m.date);
+    if (!m.limite) m.limite = new Date(m.date).getTime();
+  });
+  Object.values(d.joueurs).forEach(j => { j.email = null; });
+  return d;
+}
+
 function donneesDemo() {
   const d = Object.fromEntries(COLLECTIONS.map(c => [c, {}]));
   const jour = (n, h) => { const x = new Date(); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() + n); const [hh, mm] = h.split(':'); x.setHours(+hh, +mm); return x.toISOString(); };
