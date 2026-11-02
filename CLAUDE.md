@@ -121,12 +121,14 @@ Les stats saison sont **calculées** à partir de ces collections, jamais saisie
 5. Plus tard : notifications push (FCM ; l'envoi programmé demande un serveur — piste gratuite : GitHub Actions planifiée), visuel Instagram du résultat.
 
 ## Vraies données (`data/seed.json`)
-- Reprises de SportEasy par l'utilisateur (captures du 2 novembre 2026), **au même format que `donneesDemo()`** de `js/store.js` (collections → `{id: doc}`).
-- Contenu : config de l'équipe (Akaal FC, Football, Masculin, Adultes tous âges, Association loisir, format par défaut 8 contre 8, créée en 2019), 12 membres (Simrat Kohar = capitaine et joueur, + 11 joueurs), 1 lieu (Stade Eugène Cognevault, Gonesse), 11 adversaires, 6 matchs déjà joués avec leur score (dont FSGT J1 et J2).
-- Inconnu (null) : numéros (sauf Simrat #10), postes, e-mails, lieux et format des amicaux, buteurs/passeurs par match, qui a joué. `statsConnues.j1` = totaux saison de Simrat sur SportEasy (6 matchs, 2V 0N 4D, 7 buts, 1 passe) en attendant le détail.
-- Deux joueurs s'appellent « Harman Singh » (j6, j7) : demander un surnom pour les distinguer.
-- Matchs sans mention FSGT supposés « Amical » : à confirmer avec l'utilisateur.
-- À faire : un bouton capitaine « Importer les données réelles » (ou un mode démo qui part de ces données) ; à l'import Firebase, écrire chaque collection telle quelle.
+- Reprises de SportEasy et complétées par le capitaine (2 novembre 2026), **au même format que `donneesDemo()`** de `js/store.js` (collections → `{id: doc}`).
+- Équipe : Akaal FC, Football, Masculin, Adultes tous âges, Association loisir, format par défaut 8 contre 8, créée en 2019.
+- 13 membres : Simrat Kohar (capitaine et joueur, #10), Gurnoor, Gagan, Guransh, Harkarandeep, **Harman Blankok**, **Harman Sidhu**, Harmanjeet, Jasmeet, Karn, Rajguru, Sehaj Singh, Tal Sidhu. **Pas de postes** dans l'équipe : le champ poste doit être facultatif (effectif non groupé par poste si vide).
+- 1 invité : Lovely Aujla (`role: 'invite'`), venu dépanner : ses buts comptent dans le match mais il n'apparaît pas dans l'effectif ni dans les classements par défaut. Prévoir la possibilité d'ajouter un invité lors de la saisie d'un résultat.
+- 1 lieu, 11 adversaires, 6 matchs joués (4 amicaux, FSGT J1 et J2) avec scores et buts.
+- Buts : m3 à m6 complets ; m1 (4 connus sur 5) et m2 (8 connus sur 11) incomplets. Association buteur ↔ passeur arbitraire (seuls les totaux par joueur sont connus). `ontJoue` ne contient que les buteurs/passeurs connus.
+- Inconnu (null) : numéros (sauf Simrat), e-mails, lieux et format des amicaux.
+- À faire : un bouton capitaine « Importer les données réelles » ; à l'import Firebase, écrire chaque collection telle quelle.
 
 ## Écran « Mes statistiques » (référence SportEasy)
 - Matchs joués, puis 3 anneaux Victoires / Nuls / Défaites, cartes Buts et Passes décisives, bloc Homme du match (avatar + nombre de fois élu, ou « pas encore élu »), Mes notes (max / moy / min), Mes derniers matchs (pastilles V/N/D colorées).
