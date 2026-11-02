@@ -34,6 +34,12 @@ Contexte pour Claude Code. Lis ce fichier avant de travailler sur le dépôt.
 - **Connexion** : écusson + « Se connecter avec Google ».
 - **Profil / photo** : chaque joueur peut changer sa photo de profil (avatar rond + bouton appareil photo).
 
+### Réglages capitaine (menu « Plus » / « Réglages », visible seulement par le capitaine)
+- **Lieux enregistrés** : liste des stades/gymnases (nom, adresse, lien Google Maps facultatif). Ajouter / modifier / supprimer.
+- **Adversaires** : liste des équipes adverses (nom, logo facultatif compressé comme les photos). Ajouter / modifier / supprimer.
+- Dans le formulaire « Nouveau match », lieu et adversaire se choisissent dans ces listes (avec possibilité d'en créer un nouveau directement depuis le formulaire). Dans la fiche match, le lieu ouvre Google Maps.
+- Données : collections `lieux` {nom, adresse, maps} et `adversaires` {nom, logo}, écrites par le capitaine ; `matchs.lieu` et `matchs.adversaire` deviennent des ids.
+
 ### Compo (composition d'équipe), par match
 - Inspirée de SportEasy (captures fournies par l'utilisateur).
 - Vide : illustration terrain + « Pas de composition » + bouton « Créer une compo » (capitaine).
