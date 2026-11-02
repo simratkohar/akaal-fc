@@ -579,6 +579,7 @@ function pageReglages(sous) {
     ${ligne('event_available', 'Gestion des présences', `Réponse ${lim}${+cfg.maxJoueurs > 0 ? ' · max ' + cfg.maxJoueurs + ' joueurs' : ''}`, 'formPresences()')}
     ${ligne('format_list_numbered', 'Classement ' + esc(cfg.championnat), 'Tableau du groupe + lien officiel', "location.hash='#/classement'")}
   </div>`;
+  if (Store.mode === 'firebase' && !Store.get('joueurs', 'j1')) h += `<button class="btn" onclick="if(confirm('Importer les joueurs, adversaires et matchs repris de SportEasy ? Ta fiche sera remplacée par « Simrat Kohar ».'))Store.importerDonnees()">${ic('cloud_download')} Importer les données SportEasy</button>`;
   h += `<button class="btn sec" onclick="partagerLien()">${ic('share')} Partager le lien de l’app à l’équipe</button>`;
   if (Store.mode === 'demo') h += `<button class="btn danger" onclick="if(confirm('Remettre les données de démo à zéro ?'))Store.reinitDemo()">${ic('restart_alt')} Réinitialiser la démo</button>`;
   else h += `<button class="btn danger" onclick="Store.deconnexion()">${ic('logout')} Se déconnecter</button>`;
