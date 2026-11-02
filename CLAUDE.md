@@ -103,7 +103,7 @@ Les stats saison sont **calculées** à partir de ces collections, jamais saisie
 ### Classement FSGT
 - Source officielle : https://www.footfsgtidf.org/ → Football à 7 → 93 Groupe 1 (groupe d'Akaal FC).
 - Le site **interdit les robots (robots.txt)** : pas de récupération automatique (pas de scraping, pas de GitHub Action qui lit le site).
-- À faire : (1) bouton « Classement officiel » qui ouvre la page du groupe (lien exact à fournir par l'utilisateur) ; (2) tableau saisi par le capitaine (équipe, points, joués, V, N, D, buts pour/contre), Akaal FC mis en avant ; collection `classement` ou doc `equipe/classement`.
+- À faire : (1) bouton « Classement officiel » qui ouvre https://www.footfsgtidf.org/ (l'adresse ne change pas selon la page, pas de lien direct vers le groupe) avec l'indication « Football à 7 → 93 Groupe 1 » ; (2) tableau saisi par le capitaine (équipe, points, joués, V, N, D, buts pour/contre), Akaal FC mis en avant ; collection `classement` ou doc `equipe/classement`.
 - Automatique seulement si la FSGT IDF donne son accord ou propose un flux.
 
 ## Prochaines étapes
