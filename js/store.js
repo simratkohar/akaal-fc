@@ -6,7 +6,10 @@
    Le reste de l'app ne voit que Store.data, Store.set/patch/del.
    ========================================================= */
 
-const COLLECTIONS = ['joueurs', 'matchs', 'buts', 'presences', 'lieux', 'adversaires', 'paiements', 'votes', 'equipe'];
+const COLLECTIONS = ['joueurs', 'profils', 'matchs', 'buts', 'presences', 'lieux', 'adversaires', 'paiements', 'votes', 'equipe'];
+// Lisibles sans compte (lien visiteur ?voir) : pas d'e-mails ni de paiements
+const PUBLIQUES = ['profils', 'matchs', 'buts', 'presences', 'lieux', 'adversaires', 'votes', 'equipe'];
+const CHAMPS_PROFIL = ['nom', 'numero', 'poste', 'role', 'photo', 'photoGoogle'];
 const CLE_DEMO = 'akaal-demo-v1';
 const FB_VERSION = '10.12.2';
 
@@ -21,8 +24,9 @@ const CONFIG_DEFAUT = {
 const nettoie = o => JSON.parse(JSON.stringify(o));
 
 const Store = {
-  // ?demo dans l'adresse = visite sans compte, avec les données fictives
-  mode: (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG && !new URLSearchParams(location.search).has('demo')) ? 'firebase' : 'demo',
+  mode: (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG) ? 'firebase' : 'demo',
+  // ?voir (ou ancien ?demo) = visiteur : tout voir en direct, sans compte, sans rien modifier
+  visiteur: !!(typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG) && ['voir', 'demo'].some(k => new URLSearchParams(location.search).has(k)),
   data: Object.fromEntries(COLLECTIONS.map(c => [c, {}])),
   user: null,     // compte Google connecté
   moi: null,      // id du joueur lié au compte
@@ -76,7 +80,7 @@ const Store = {
 
   /* ---------------- Mode démo ---------------- */
   // Visite (?demo alors que Firebase est configuré) : vraies données de data/seed.json, sans compte
-  get visite() { return this.mode === 'demo' && typeof FIREBASE_CONFIG !== 'undefined' && !!FIREBASE_CONFIG; },
+  get visite() { return false; }, // ancien aperçu figé, remplacé par le mode visiteur en direct
   async _initDemo() {
     let d = null;
     if (this.visite) {
@@ -124,6 +128,7 @@ const Store = {
     this.auth = firebase.auth();
     this.fs = firebase.firestore();
     try { await this.fs.enablePersistence({ synchronizeTabs: true }); } catch {}
+    if (this.visiteur) { this.user = null; this.moi = null; this.role = 'visiteur'; return this._ecoute(PUBLIQUES); }
     try { await this.auth.getRedirectResult(); } catch (e) { console.warn(e); }
     this.auth.onAuthStateChanged(u => this._surCompte(u));
   },
@@ -156,6 +161,7 @@ const Store = {
         const j = q.docs[0];
         await this.fs.collection('acces').doc(u.uid).set({ joueur: j.id, role: j.data().role || 'joueur', email: this.user.email });
         await this.fs.collection('joueurs').doc(j.id).update({ uid: u.uid, photoGoogle: u.photoURL || null });
+        try { await this.fs.collection('profils').doc(j.id).update({ photoGoogle: u.photoURL || null }); } catch {}
         acces = await this.fs.collection('acces').doc(u.uid).get();
       }
       this.moi = acces.data().joueur; this.role = acces.data().role;
@@ -165,17 +171,36 @@ const Store = {
       this.etat = 'non-lie'; this.erreur = e.code || e.message; this._notifie();
     }
   },
-  _ecoute() {
-    let restants = COLLECTIONS.length;
-    COLLECTIONS.forEach(col => {
+  _ecoute(cols = COLLECTIONS) {
+    let restants = cols.length;
+    const fini = () => { if (restants > 0 && --restants === 0) { this.etat = 'pret'; this._syncProfils(); } };
+    cols.forEach(col => {
       const un = this.fs.collection(col).onSnapshot(snap => {
         const o = {}; snap.forEach(d => o[d.id] = { ...d.data(), id: d.id });
         this.data[col] = o;
-        if (restants > 0 && --restants === 0) this.etat = 'pret';
-        if (this.etat === 'pret') this._notifie();
-      }, e => { console.error(col, e); if (restants > 0 && --restants === 0) { this.etat = 'pret'; this._notifie(); } });
+        if (this.visiteur && col === 'profils') this.data.joueurs = o; // le visiteur ne voit que les profils publics
+        fini();
+        if (this.etat === 'pret') { if (col === 'joueurs' || col === 'profils') this._syncProfils(); this._notifie(); }
+      }, e => { console.error(col, e); fini(); if (this.etat === 'pret') this._notifie(); });
       this._unsubs.push(un);
     });
+  },
+  /* Le capitaine tient à jour la copie publique des fiches (sans e-mail) */
+  _syncProfils() {
+    if (!this.capitaine || this.visiteur) return;
+    clearTimeout(this._tSync);
+    this._tSync = setTimeout(() => {
+      const ops = [];
+      Object.values(this.data.joueurs).forEach(j => {
+        const v = Object.fromEntries(CHAMPS_PROFIL.map(c => [c, j[c] ?? null])), p = this.data.profils[j.id];
+        if (!p || CHAMPS_PROFIL.some(c => (p[c] ?? null) !== v[c])) ops.push({ op: 'set', col: 'profils', id: j.id, obj: v });
+      });
+      Object.keys(this.data.profils).forEach(id => { if (!this.data.joueurs[id]) ops.push({ op: 'del', col: 'profils', id }); });
+      if (!ops.length) return;
+      const b = this.fs.batch(); // silencieux : pas de message si les règles ne sont pas encore à jour
+      ops.slice(0, 400).forEach(({ op, col, id, obj }) => op === 'del' ? b.delete(this.fs.collection(col).doc(id)) : b.set(this.fs.collection(col).doc(id), nettoie(obj)));
+      b.commit().catch(e => console.warn('profils', e.code || e));
+    }, 1500);
   },
   /* Premier lancement : le capitaine (e-mail autorisé dans les règles) crée l'équipe */
   /* Opérations pour écrire les vraies données SportEasy (data/seed.json) */

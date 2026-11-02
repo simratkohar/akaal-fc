@@ -23,7 +23,13 @@ async function t(nom, p) { try { await p; ok++; console.log('✓', nom); } catch
   const j = env.authenticatedContext('uJ', { email: 'j@test.fr', email_verified: true }).firestore();
 
   await t('anonyme ne lit pas les joueurs', assertFails(anon.doc('joueurs/p2').get()));
-  await t('pirate ne lit pas les matchs', assertFails(pirate.doc('matchs/m1').get()));
+  await t('visiteur lit les matchs', assertSucceeds(anon.doc('matchs/m1').get()));
+  await t('visiteur lit la liste des matchs', assertSucceeds(anon.collection('matchs').get()));
+  await t('visiteur ne lit pas les paiements', assertFails(anon.doc('paiements/c1').get()));
+  await t('visiteur ne lit pas les accès', assertFails(anon.doc('acces/uA').get()));
+  await t('visiteur ne lit pas la liste des joueurs (e-mails)', assertFails(anon.collection('joueurs').get()));
+  await t('visiteur ne modifie pas un match', assertFails(anon.doc('matchs/m1').update({ joue: true })));
+  await t('pirate ne lit pas les paiements', assertFails(pirate.doc('paiements/c1').get()));
   await t('pirate ne peut pas créer l’équipe', assertFails(pirate.doc('equipe/config').set({ nom: 'x' })));
   await t('pirate ne peut pas se lier à la fiche de Karan', assertFails(pirate.doc('acces/uX').set({ joueur: 'p2', role: 'joueur' })));
   await t('capitaine (fondateur) crée sa fiche', assertSucceeds(cap.doc('joueurs/p1').set({ nom: 'Simratpal', role: 'capitaine', email: 'cap@test.fr', uid: 'uCap' })));
@@ -56,6 +62,12 @@ async function t(nom, p) { try { await p; ok++; console.log('✓', nom); } catch
   await t('joueur voit les paiements', assertSucceeds(j.doc('paiements/c1').get()));
   await t('joueur ne se marque pas payé', assertFails(j.doc('paiements/c1').update({ joueurs: { p2: true } })));
   await t('capitaine coche payé', assertSucceeds(cap.doc('paiements/c1').update({ joueurs: { p2: true } })));
+  await t('capitaine crée un profil public', assertSucceeds(cap.doc('profils/p2').set({ nom: 'Karan', numero: 5, photo: null })));
+  await t('visiteur lit les profils', assertSucceeds(anon.collection('profils').get()));
+  await t('visiteur ne modifie pas un profil', assertFails(anon.doc('profils/p2').update({ nom: 'X' })));
+  await t('joueur change la photo de son profil public', assertSucceeds(j.doc('profils/p2').update({ photo: 'data:y' })));
+  await t('joueur ne change pas le nom de son profil', assertFails(j.doc('profils/p2').update({ nom: 'Messi' })));
+  await t('joueur ne touche pas au profil d’un autre', assertFails(j.doc('profils/p1').set({ nom: 'x' })));
   await t('capitaine nomme un 2e capitaine', assertSucceeds(cap.doc('acces/uA').update({ role: 'capitaine' })));
   const a = env.authenticatedContext('uA', { email: 'a@test.fr', email_verified: true }).firestore();
   await t('le 2e capitaine peut créer un match', assertSucceeds(a.doc('matchs/m9').set({ joue: false })));

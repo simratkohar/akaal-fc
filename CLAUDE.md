@@ -94,6 +94,7 @@ Les stats saison sont **calculées** à partir de ces collections, jamais saisie
 - Accès : collection `acces/<uid>` {joueur, role, email} créée à la 1re connexion (le capitaine ajoute le joueur avec son e-mail Gmail → champ `joueurs.email`). Champs ajoutés : `matchs.journee`, `matchs.saison`, `matchs.convoques`, `matchs.limite` (ms, date limite de réponse), `matchs.votesFin` (ms), `buts.minute`, `paiements.echeance`, `paiements.saison`, doc `equipe/classement` {lignes, maj}.
 - `firestore.rules` : règles complètes (placeholder `TON_EMAIL@gmail.com` = compte fondateur/capitaine). Testées : `tests/regles` (36 tests, émulateur local).
 - À chaque mise en ligne d'une modif CSS/JS : augmenter `?v=` dans `index.html` et `sw.js` + le nom `CACHE` dans `sw.js` (sinon les téléphones gardent l'ancienne version).
+- **Lien visiteur** `?voir` (ancien `?demo` aussi) : lecture seule en direct, sans compte. Lit les collections publiques (matchs, buts, présences, votes, lieux, adversaires, equipe) et `profils/{id}` {nom, numero, poste, role, photo, photoGoogle} = copie publique des fiches **sans e-mail**, tenue à jour automatiquement par l'app du capitaine (`Store._syncProfils`). Restent privés : `joueurs`, `paiements`, `acces`.
 - Mode démo : bouton « ★ Cap. / Joueur » en haut pour basculer de vue ; Réglages → Réinitialiser la démo.
 
 ## Fonctionnalités en plus (validées par l'utilisateur)

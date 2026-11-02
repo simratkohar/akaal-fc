@@ -204,7 +204,10 @@ async function supprimerJoueur(id) {
 }
 async function changerPhoto(jid) {
   const photo = await choisirPhoto(); if (!photo) return;
-  if (await Store.patch('joueurs', jid, { photo })) toast('Photo mise à jour 📸');
+  if (await Store.patch('joueurs', jid, { photo })) {
+    if (!Store.capitaine && Store.mode === 'firebase' && Store.get('profils', jid)) await Store.patch('profils', jid, { photo });
+    toast('Photo mise à jour 📸');
+  }
 }
 
 /* ---------------- Compo ---------------- */
