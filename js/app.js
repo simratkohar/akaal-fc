@@ -469,14 +469,16 @@ function pageEffectif() {
   const ms = matchsJoues(Store.config().saison);
   let h = '';
   POSTES.forEach(po => {
-    const js = tousJoueurs().filter(j => j.poste === po); if (!js.length) return;
+    const js = tousJoueurs().filter(j => j.poste === po && j.role !== 'invite'); if (!js.length) return;
     h += sec(po + 's', null, `${js.length}`);
     h += `<div class="carte liste">${js.map(j => { const s = statsJoueur(j.id, ms); return `<a class="ligne clic" style="color:inherit" href="#/joueur/${j.id}">
       ${avatar(j.id)}<div class="t"><b class="nom-t">${esc(j.nom)}${capC(j)}</b><span>${s.j} match${s.j > 1 ? 's' : ''} · ${s.g} but${s.g > 1 ? 's' : ''} · ${s.a} passe${s.a > 1 ? 's' : ''}${s.hdm ? ` · ${s.hdm}★` : ''}</span></div>
       <span class="maillot-num">${esc(j.numero ?? '')}</span></a>`; }).join('')}</div>`;
   });
-  const sansPoste = tousJoueurs().filter(j => !POSTES.includes(j.poste));
+  const sansPoste = tousJoueurs().filter(j => !POSTES.includes(j.poste) && j.role !== 'invite');
   if (sansPoste.length) h += sec('Poste à définir', null, `${sansPoste.length}`) + `<div class="carte liste">${sansPoste.map(j => { const s = statsJoueur(j.id, ms); return `<a class="ligne clic" style="color:inherit" href="#/joueur/${j.id}">${avatar(j.id)}<div class="t"><b class="nom-t">${esc(j.nom)}${capC(j)}</b><span>${s.j} match${s.j > 1 ? 's' : ''} · ${s.g} but${s.g > 1 ? 's' : ''}</span></div><span class="maillot-num">${esc(j.numero ?? '')}</span></a>`; }).join('')}</div>`;
+  const invites = tousJoueurs().filter(j => j.role === 'invite');
+  if (invites.length) h += sec('Invités', null, `${invites.length}`) + `<div class="carte liste">${invites.map(j => `<a class="ligne clic" style="color:inherit" href="#/joueur/${j.id}">${avatar(j.id)}<div class="t"><b>${esc(j.nom)}</b><span>Venu dépanner · hors effectif</span></div></a>`).join('')}</div>`;
   if (!h) h = `<div class="carte mt16">${vide('Aucun joueur dans l’effectif', 'group_off')}</div>`;
   if (Store.capitaine) h += `<button class="btn" onclick="formJoueur()">${ic('person_add')} Ajouter un joueur</button>`;
   return h;
@@ -579,6 +581,7 @@ function pageReglages(sous) {
     ${ligne('event_available', 'Gestion des présences', `Réponse ${lim}${+cfg.maxJoueurs > 0 ? ' · max ' + cfg.maxJoueurs + ' joueurs' : ''}`, 'formPresences()')}
     ${ligne('format_list_numbered', 'Classement ' + esc(cfg.championnat), 'Tableau du groupe + lien officiel', "location.hash='#/classement'")}
   </div>`;
+  if (Store.mode === 'firebase' && !Store.get('joueurs', 'j1')) h += `<button class="btn" onclick="if(confirm('Importer les joueurs, adversaires et matchs repris de SportEasy ? Ta fiche sera remplacée par « Simrat Kohar ».'))Store.importerDonnees()">${ic('cloud_download')} Importer les données SportEasy</button>`;
   h += `<button class="btn sec" onclick="partagerLien()">${ic('share')} Partager le lien de l’app à l’équipe</button>`;
   if (Store.mode === 'demo') h += `<button class="btn danger" onclick="if(confirm('Remettre les données de démo à zéro ?'))Store.reinitDemo()">${ic('restart_alt')} Réinitialiser la démo</button>`;
   else h += `<button class="btn danger" onclick="Store.deconnexion()">${ic('logout')} Se déconnecter</button>`;
