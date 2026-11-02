@@ -1,0 +1,90 @@
+rules_version = '2';
+
+// =========================================================
+// RÈGLES DE SÉCURITÉ — AKAAL FC
+// À coller dans la console Firebase : Firestore Database → Règles.
+// ⚠️ Remplace TON_EMAIL@gmail.com (plus bas) par l'adresse Gmail du capitaine
+//    avant de publier. C'est le seul compte qui peut créer l'équipe.
+//
+// Principe :
+// - Il faut être connecté ET dans l'effectif (doc acces/<uid>) pour lire.
+// - Le capitaine écrit tout.
+// - Un joueur écrit seulement : sa présence (avant la date limite),
+//   son vote (s'il a joué, avant la clôture), sa photo de profil.
+// =========================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function connecte() { return request.auth != null; }
+    function emailCompte() { return request.auth.token.email.lower(); }
+    function fondateur() {
+      return connecte() && request.auth.token.email_verified == true
+        && emailCompte() == 'TON_EMAIL@gmail.com';
+    }
+    function docAcces() { return get(/databases/$(database)/documents/acces/$(request.auth.uid)).data; }
+    function membre() { return connecte() && exists(/databases/$(database)/documents/acces/$(request.auth.uid)); }
+    function capitaine() { return fondateur() || (membre() && docAcces().role == 'capitaine'); }
+    function moi() { return docAcces().joueur; }
+    function seulement(champs) { return request.resource.data.diff(resource.data).affectedKeys().hasOnly(champs); }
+    function joueurDoc(id) { return get(/databases/$(database)/documents/joueurs/$(id)).data; }
+    function matchDoc(id) { return get(/databases/$(database)/documents/matchs/$(id)).data; }
+    function photoOk() {
+      return !('photo' in request.resource.data) || request.resource.data.photo == null
+        || (request.resource.data.photo is string && request.resource.data.photo.size() < 300000);
+    }
+
+    // Lien compte Google ↔ fiche joueur (créé à la première connexion)
+    match /acces/{uid} {
+      allow read: if connecte() && (request.auth.uid == uid || capitaine());
+      allow create: if connecte() && request.auth.uid == uid && (
+        capitaine()
+        || (joueurDoc(request.resource.data.joueur).email == emailCompte()
+            && request.resource.data.role == joueurDoc(request.resource.data.joueur).role)
+      );
+      allow update, delete: if capitaine();
+    }
+
+    match /joueurs/{id} {
+      // un compte pas encore lié peut lire SA fiche (recherche par e-mail)
+      allow read: if membre() || fondateur() || (connecte() && resource.data.email == emailCompte());
+      allow create, delete: if capitaine();
+      allow update: if (capitaine() && photoOk())
+        || (membre() && moi() == id && seulement(['photo']) && photoOk())
+        || (connecte() && resource.data.email == emailCompte()
+            && seulement(['uid', 'photoGoogle']) && request.resource.data.uid == request.auth.uid);
+    }
+
+    match /presences/{pid} {
+      allow read: if membre();
+      allow create, update: if capitaine() || (
+        membre()
+        && pid == request.resource.data.match + '_' + moi()
+        && request.resource.data.joueur == moi()
+        && request.resource.data.reponse in ['present', 'absent']
+        && matchDoc(request.resource.data.match).joue == false
+        && request.time.toMillis() < matchDoc(request.resource.data.match).limite
+      );
+      allow delete: if capitaine();
+    }
+
+    match /votes/{vid} {
+      allow read: if membre();
+      allow create, update: if membre()
+        && vid == request.resource.data.match + '_' + moi()
+        && request.resource.data.joueur == moi()
+        && request.resource.data.hommeDuMatch != moi()
+        && matchDoc(request.resource.data.match).joue == true
+        && moi() in matchDoc(request.resource.data.match).ontJoue
+        && request.time.toMillis() < matchDoc(request.resource.data.match).votesFin;
+      allow delete: if capitaine();
+    }
+
+    // Tout le reste : lecture pour l'équipe, écriture pour le capitaine
+    match /matchs/{id}      { allow read: if membre(); allow write: if capitaine(); }
+    match /buts/{id}        { allow read: if membre(); allow write: if capitaine(); }
+    match /lieux/{id}       { allow read: if membre(); allow write: if capitaine(); }
+    match /adversaires/{id} { allow read: if membre(); allow write: if capitaine(); }
+    match /paiements/{id}   { allow read: if membre(); allow write: if capitaine(); }
+    match /equipe/{id}      { allow read: if membre(); allow write: if capitaine(); }
+  }
+}

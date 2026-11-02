@@ -1,0 +1,7 @@
+{
+  "name": "akaal-fc-tests-regles",
+  "private": true,
+  "description": "Tests des règles de sécurité Firestore (émulateur local, aucun accès au vrai projet)",
+  "scripts": { "test": "firebase emulators:exec --only firestore --project akaal-test \"node test.js\"" },
+  "devDependencies": { "@firebase/rules-unit-testing": "^3.0.4", "firebase": "^10.14.1", "firebase-tools": "^13.35.1" }
+}

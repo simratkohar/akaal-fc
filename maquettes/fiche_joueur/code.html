@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;background:#131313;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { 'colors': { 'surface-bright': '#3a3939', 'surface-tint': '#ebc165', 'tertiary-fixed-dim': '#ffb3af', 'secondary': '#c6c6c7', 'on-surface-variant': '#d1c5b2', 'surface-dim': '#131313', 'on-tertiary-fixed': '#410005', 'on-primary-fixed-variant': '#5b4300', 'on-tertiary-container': '#7f0013', 'outline-variant': '#4e4637', 'on-secondary-fixed-variant': '#454747', 'on-secondary-fixed': '#1a1c1c', 'secondary-fixed-dim': '#c6c6c7', 'tertiary': '#ffb3af', 'primary-fixed': '#ffdf9e', 'tertiary-container': '#ff827e', 'on-error': '#690005', 'surface-container-highest': '#353534', 'inverse-on-surface': '#313030', 'on-secondary': '#2f3131', 'inverse-surface': '#e5e2e1', 'on-surface': '#e5e2e1', 'primary': '#ebc165', 'outline': '#9a8f7e', 'on-primary': '#3f2e00', 'surface-container': '#201f1f', 'background': '#131313', 'secondary-container': '#454747', 'surface-container-high': '#2a2a2a', 'primary-fixed-dim': '#ebc165', 'on-secondary-container': '#b4b5b5', 'surface': '#131313', 'primary-container': '#c9a24a', 'error': '#ffb4ab', 'inverse-primary': '#795900', 'on-error-container': '#ffdad6', 'surface-variant': '#353534', 'error-container': '#93000a', 'secondary-fixed': '#e2e2e2', 'tertiary-fixed': '#ffdad7', 'surface-container-lowest': '#0e0e0e', 'on-primary-container': '#4f3900', 'on-primary-fixed': '#261a00', 'on-tertiary': '#68000e', 'surface-container-low': '#1c1b1b', 'on-background': '#e5e2e1', 'on-tertiary-fixed-variant': '#930018' }, 'borderRadius': { 'DEFAULT': '0.125rem', 'lg': '0.25rem', 'xl': '0.5rem', 'full': '0.75rem' }, 'spacing': { 'gutter': '0.75rem', 'margin': '1rem', 'space-md': '0.75rem', 'space-lg': '1rem', 'space-sm': '0.5rem', 'space-xl': '1.5rem', 'space-xs': '0.25rem' }, 'fontFamily': { 'label-sm': ['Manrope'], 'headline-md': ['Bebas Neue'], 'label-md': ['Manrope'], 'score-xl': ['Bebas Neue'], 'body-lg': ['Manrope'], 'squad-number': ['Bebas Neue'], 'label-lg': ['Manrope'], 'body-sm': ['Manrope'], 'body-md': ['Manrope'], 'headline-lg': ['Bebas Neue'], 'headline-xl': ['Bebas Neue'], 'headline-sm': ['Bebas Neue'] }, 'fontSize': { 'label-sm': ['9px', { 'lineHeight': '12px', 'letterSpacing': '0.1em', 'fontWeight': '800' }], 'headline-md': ['24px', { 'lineHeight': '26px', 'letterSpacing': '0.03em', 'fontWeight': '400' }], 'label-md': ['11px', { 'lineHeight': '14px', 'letterSpacing': '0.08em', 'fontWeight': '700' }], 'score-xl': ['56px', { 'lineHeight': '52px', 'letterSpacing': '0.02em', 'fontWeight': '400' }], 'body-lg': ['16px', { 'lineHeight': '24px', 'letterSpacing': '-0.01em', 'fontWeight': '500' }], 'squad-number': ['38px', { 'lineHeight': '38px', 'letterSpacing': '0.02em', 'fontWeight': '400' }], 'label-lg': ['13px', { 'lineHeight': '16px', 'letterSpacing': '0.06em', 'fontWeight': '700' }], 'body-sm': ['12px', { 'lineHeight': '16px', 'letterSpacing': '0.01em', 'fontWeight': '400' }], 'body-md': ['14px', { 'lineHeight': '20px', 'letterSpacing': '0em', 'fontWeight': '400' }], 'headline-lg': ['32px', { 'lineHeight': '34px', 'letterSpacing': '0.03em', 'fontWeight': '400' }], 'headline-xl': ['44px', { 'lineHeight': '44px', 'letterSpacing': '0.04em', 'fontWeight': '400' }], 'headline-sm': ['18px', { 'lineHeight': '20px', 'letterSpacing': '0.05em', 'fontWeight': '400' }] } } } }</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface text-on-surface font-body-md text-body-md flex flex-col min-h-screen selection:bg-primary-container selection:text-on-primary-container"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.12)]"><div class="h-16 px-margin flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="relative flex items-center justify-center"><div class="w-9 h-9 rounded-full bg-gradient-to-tr from-primary-container via-primary to-primary-fixed p-[1px] flex items-center justify-center"><div class="w-full h-full rounded-full bg-surface-container-lowest flex items-center justify-center overflow-hidden"><span class="material-symbols-outlined text-primary text-[20px]">sports_soccer</span></div></div><div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-primary flex items-center justify-center"><span class="font-label-sm text-label-sm text-on-primary font-bold leading-none">C</span></div></div><div class="flex flex-col"><div class="flex items-center gap-space-xs"><span class="font-headline-md text-headline-md tracking-wider uppercase text-on-surface">AKAAL FC</span><span class="px-1.5 py-0.5 rounded-DEFAULT bg-primary-container/20 text-primary font-label-sm text-label-sm uppercase tracking-wider">PARIS R1</span></div><span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Accueil</span></div></div><div class="flex items-center gap-space-sm"><div class="flex flex-col items-end"><span class="font-label-sm text-label-sm text-primary font-extrabold uppercase tracking-wider">Capitaine #10</span><span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Île-de-France</span></div><div class="relative flex items-center justify-center"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1U0QbehxSUQiXtuVyRBveGv326dVYe3XqvXi4jPgCvKFY_9Md5DQFhP24ywVC318VVdQwQ0_Nunu_XkosMggDXHNgtu4gtfHfAZPKtdPDHFYJS-h0XHbATxL005OcMClCS9AubZX_KhtuUHpQqsLnZp1RytJJG79hbQw95KxnX0w6UDqfZXapRtvyy9AJVEOj9hB709Gw7LZtGRc27tob1fb6dXb4wBS9icY7NisIb7hW2pTf-zqVgWuixZ"/><div class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-primary ring-2 ring-surface"></div></div></div></div><div class="h-[2px] w-full flex"><div class="h-full flex-1 bg-[#002654]"></div><div class="h-full flex-1 bg-[#FFFFFF]"></div><div class="h-full flex-1 bg-[#ED2939]"></div><div class="h-full flex-1 bg-primary"></div></div></header><main class="flex flex-col relative w-full pt-16 pb-28 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Toast Notification Feedback (Micro-interaction) -->
+<div class="fixed top-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none transition-all duration-300 opacity-0 -translate-y-2 flex items-center gap-space-sm px-space-md py-space-xs rounded-xl bg-surface-container-highest shadow-xl" id="toast-notif">
+<span class="material-symbols-outlined text-primary text-[18px]">verified</span>
+<span class="font-label-md text-label-md text-on-surface" id="toast-text">Photo de profil mise à jour</span>
+</div>
+<!-- Hero Profile Banner with Jersey Diagonal Graphic Background -->
+<section class="relative px-margin pt-space-md pb-space-lg overflow-hidden">
+<!-- Ambient Golden Glow -->
+<div class="absolute -top-16 left-1/2 -translate-x-1/2 w-64 h-64 rounded-full bg-primary/10 blur-3xl pointer-events-none"></div>
+<!-- Official Diagonal Jersey Sash Watermark Texture -->
+<div class="absolute inset-0 opacity-[0.06] pointer-events-none select-none bg-[repeating-linear-gradient(45deg,#ffffff,#ffffff_18px,transparent_18px,transparent_36px)]"></div>
+<!-- French Tricolore Micro Stripe Accent Top -->
+<div class="w-20 h-1 mx-auto mb-space-md flex rounded-full overflow-hidden">
+<div class="h-full flex-1 bg-[#002654]"></div>
+<div class="h-full flex-1 bg-[#FFFFFF]"></div>
+<div class="h-full flex-1 bg-[#ED2939]"></div>
+</div>
+<!-- Profile Header Core: Avatar & Identity -->
+<div class="relative flex flex-col items-center text-center">
+<!-- Avatar Stack with Gold Glow & Camera Action -->
+<div class="relative group my-space-xs">
+<!-- Gold Aura Ring -->
+<div class="w-28 h-28 rounded-full p-[2px] bg-gradient-to-tr from-primary-container via-primary to-primary-fixed shadow-[0_0_24px_rgba(201,162,74,0.35)] flex items-center justify-center">
+<div class="w-full h-full rounded-full bg-surface-container-lowest overflow-hidden relative">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Close-up portrait of athletic male footballer in Parisian Akaal FC official jersey, intense proud gaze, studio dark athletic rim lighting, gold reflections, clean modern aesthetic, sports portrait photography." id="avatar-img" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtsf6ZZKi-gsq-zVbklqNmT2tYaWW4_ZMW3-YP5IRioKtRPYqKeUtnljoVz6FvHH9GKgKUdviWZYT_lcyDOw3CBuatU7_FFzRCkZnuvbCem28gUubupvFYDPlyrgKgeg3hccOIwOOdbtf1cOPTcli9rnSAcDFqlWGi-VmOXKKW583xJOVZG5qWM4W7Vhuv-kd38RwFV2CY2p6hnW-V5j82XQDZhpPZ5mT8U2jFlS5p"/>
+</div>
+</div>
+<!-- Floating Camera Quick-Action Button -->
+<button aria-label="Changer la photo de profil" class="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-gradient-to-tr from-primary-container via-primary to-primary-fixed text-on-primary shadow-lg flex items-center justify-center active:scale-90 transition-transform cursor-pointer" id="btn-camera" type="button">
+<span class="material-symbols-outlined text-[19px]">photo_camera</span>
+</button>
+<!-- Hidden File Input for Image Upload -->
+<input accept="image/*" class="hidden" id="avatar-input" type="file"/>
+</div>
+<!-- Quick Contextual Helper / Tooltip Indicator -->
+<button class="mt-1 mb-space-sm flex items-center gap-1 text-on-surface-variant hover:text-primary transition-colors" onclick="document.getElementById('avatar-input').click()">
+<span class="material-symbols-outlined text-[13px] text-primary">add_a_photo</span>
+<span class="font-label-sm text-label-sm tracking-wider uppercase">Changer la photo de profil</span>
+</button>
+<!-- Full Player Identity -->
+<h1 class="font-headline-lg text-headline-lg tracking-wider uppercase text-on-surface flex items-center gap-space-xs justify-center">
+        Simratpal SINGH
+      </h1>
+<!-- Captain Armband & Official Squad Role Badges -->
+<div class="flex items-center gap-space-xs mt-1 flex-wrap justify-center">
+<div class="px-2 py-0.5 rounded-DEFAULT bg-primary text-on-primary font-label-md text-label-md flex items-center gap-1 shadow-sm">
+<span class="font-headline-sm text-headline-sm font-bold leading-none">C</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-extrabold">Capitaine</span>
+</div>
+<div class="px-2 py-0.5 rounded-DEFAULT bg-surface-container-highest text-primary font-headline-sm text-headline-sm">
+          #10
+        </div>
+<div class="px-2 py-0.5 rounded-DEFAULT bg-surface-container text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">
+          Paris R1 FSGT
+        </div>
+</div>
+<!-- Tactical Position Pill & FSGT License Status -->
+<div class="mt-space-sm flex flex-col items-center gap-1">
+<div class="flex items-center gap-1.5 px-space-md py-1 rounded-full bg-surface-container-high">
+<span class="w-2 h-2 rounded-full bg-tertiary-container animate-pulse"></span>
+<span class="font-label-md text-label-md text-tertiary uppercase tracking-wider">Attaquant de soutien • Ailier gauche</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant mt-0.5">
+<span class="material-symbols-outlined text-primary text-[14px]">verified_user</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Licence FSGT 2024-2025 • <strong class="text-primary font-semibold">Active</strong> (N° 849201)</span>
+</div>
+</div>
+<!-- Quick Action Buttons -->
+<div class="grid grid-cols-2 gap-gutter w-full mt-space-md">
+<button class="h-10 px-space-md rounded-xl bg-primary text-on-primary font-label-lg text-label-lg uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-md active:bg-primary-fixed transition-colors" id="btn-edit-modal">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+<span>Modifier infos</span>
+</button>
+<button class="h-10 px-space-md rounded-xl bg-surface-container-high text-on-surface font-label-lg text-label-lg uppercase tracking-wider flex items-center justify-center gap-1.5 active:bg-surface-container-highest transition-colors" id="btn-notif-pref">
+<span class="material-symbols-outlined text-primary text-[18px]">notifications_active</span>
+<span>Préférences</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Section: Season Track Record (Bilan de la Saison) -->
+<section class="px-margin my-space-xs">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">military_tech</span>
+<h2 class="font-headline-md text-headline-md tracking-wider uppercase text-on-surface">Bilan Saison 2024/25</h2>
+</div>
+<span class="font-label-sm text-label-sm text-primary uppercase font-bold tracking-widest">R1 Poule A</span>
+</div>
+<!-- Stat Metrics Bento Matrix -->
+<div class="grid grid-cols-4 gap-gutter mb-gutter">
+<!-- Matches -->
+<div class="p-space-sm rounded-xl bg-surface-container flex flex-col items-center text-center">
+<span class="font-score-xl text-score-xl text-on-surface leading-none">14</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase mt-1">Matchs</span>
+</div>
+<!-- Goals -->
+<div class="p-space-sm rounded-xl bg-surface-container flex flex-col items-center text-center relative overflow-hidden">
+<div class="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-primary/10"></div>
+<span class="font-score-xl text-score-xl text-primary leading-none">15</span>
+<span class="font-label-sm text-label-sm text-primary font-extrabold uppercase mt-1">Buts</span>
+</div>
+<!-- Assists -->
+<div class="p-space-sm rounded-xl bg-surface-container flex flex-col items-center text-center">
+<span class="font-score-xl text-score-xl text-on-surface leading-none">08</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase mt-1">Passes D.</span>
+</div>
+<!-- MOTM -->
+<div class="p-space-sm rounded-xl bg-surface-container flex flex-col items-center text-center">
+<div class="flex items-center gap-0.5">
+<span class="font-score-xl text-score-xl text-on-surface leading-none">4</span>
+<span class="material-symbols-outlined text-primary text-[14px]">star</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase mt-1">HDM</span>
+</div>
+</div>
+<!-- Attendance Gauge Card with Tactile Graphic Progress -->
+<div class="p-space-md rounded-xl bg-surface-container flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[18px]">event_available</span>
+<span class="font-label-lg text-label-lg uppercase tracking-wider text-on-surface">Taux de présence aux matchs</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded-full bg-primary-container/20 text-primary font-label-sm text-label-sm uppercase font-extrabold tracking-wider">Assidu</span>
+<span class="font-headline-md text-headline-md text-primary">93%</span>
+</div>
+</div>
+<!-- Custom Stadium Attendance Progress Bar -->
+<div class="w-full h-2.5 rounded-full bg-surface-container-highest overflow-hidden p-0.5 flex">
+<div class="h-full rounded-full bg-gradient-to-r from-primary-container via-primary to-primary-fixed w-[93%]"></div>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant font-label-sm text-label-sm">
+<span>13 présences sur 14 convocations</span>
+<span class="text-primary font-semibold">1 absence justifiée (Blessure)</span>
+</div>
+</div>
+</section>
+<!-- Section: Personal Dossier & Locker Room Specs (Vestiaire & Infos) -->
+<section class="px-margin mt-space-md">
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">badge</span>
+<h2 class="font-headline-md text-headline-md tracking-wider uppercase text-on-surface">Vestiaire &amp; Coordonnées</h2>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Édition rapide</span>
+</div>
+<!-- Coordonnées & Vestiaire List Items -->
+<div class="flex flex-col gap-space-xs">
+<!-- Email Address Item -->
+<div class="p-space-md rounded-xl bg-surface-container flex items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[20px]">alternate_email</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant tracking-wider">Adresse e-mail club</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold truncate">simratpal.singh@akaalfc.fr</span>
+<span class="font-label-sm text-label-sm text-primary mt-0.5 flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+              Compte vérifié Google Workspace
+            </span>
+</div>
+</div>
+<button class="shrink-0 text-on-surface-variant hover:text-on-surface p-1" title="Modifier l'email">
+<span class="material-symbols-outlined text-[18px]">lock</span>
+</button>
+</div>
+<!-- Phone / WhatsApp Sync Item -->
+<div class="p-space-md rounded-xl bg-surface-container flex items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[20px]">call</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant tracking-wider">Ligne Mobile</span>
+<span class="font-body-md text-body-md text-on-surface font-semibold">+33 6 42 19 88 05</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">Synchronisé Groupe WhatsApp Équipe</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-primary text-[20px]">chat</span>
+</div>
+<!-- Split Card: Flocage, Kit Size & Preferred Foot -->
+<div class="grid grid-cols-3 gap-gutter">
+<!-- Jersey Number -->
+<div class="p-space-md rounded-xl bg-surface-container flex flex-col items-center text-center">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">N° Flocage</span>
+<span class="font-headline-lg text-headline-lg text-primary my-0.5">#10</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Attribué C</span>
+</div>
+<!-- Kit Size -->
+<div class="p-space-md rounded-xl bg-surface-container flex flex-col items-center text-center">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">Taille Pack</span>
+<span class="font-headline-lg text-headline-lg text-on-surface my-0.5">L</span>
+<span class="font-label-sm text-label-sm text-primary">Doté Adidas</span>
+</div>
+<!-- Strong Foot -->
+<div class="p-space-md rounded-xl bg-surface-container flex flex-col items-center text-center">
+<span class="font-label-sm text-label-sm uppercase text-on-surface-variant">Pied Fort</span>
+<span class="font-headline-lg text-headline-lg text-on-surface my-0.5">DROIT</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Frappe 92</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Club Crest Authenticity Card (Visual Moment of Delight) -->
+<section class="px-margin mt-space-md">
+<div class="relative rounded-2xl bg-surface-container p-space-md overflow-hidden flex items-center gap-space-md">
+<!-- Zebra Diagonal Motif Watermark -->
+<div class="absolute inset-0 opacity-[0.04] pointer-events-none bg-[repeating-linear-gradient(-45deg,#ffffff,#ffffff_14px,transparent_14px,transparent_28px)]"></div>
+<!-- Crest Thumbnail Avatar -->
+<div class="w-16 h-16 rounded-full shrink-0 bg-surface-container-lowest p-1 shadow-md flex items-center justify-center">
+<img class="w-full h-full object-cover rounded-full" data-alt="Official round golden crest emblem of Akaal FC France with golden lion, sikh khanda insignia, laurel wreath and tricolore ribbons on deep textured black background, ultra luxury football badge 3D rendering." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOjQWlwcB7RPryHFcNfU0CeSIzNoE1qtxtw2ce8AkafS--Na7DSh-xEGlTgVFhrdTjXQ9YE1lI1pFjvHOTV7mTCsDR2z6hMdHKkjhh1areY-sR4sxKKABp1rT9e4zK8Fhrbar5IOP-3UGdlYiSzA97ExEdDQfs0bQNGvEYrh1ZdjI9vRBemZNhEMyLGlhVYQVw9mZ1GtQe0zLTrYFEIJOcjRpkuIYGmEsareWzXtKW"/>
+</div>
+<div class="flex flex-col min-w-0 z-10">
+<div class="flex items-center gap-1.5">
+<span class="font-label-sm text-label-sm uppercase text-primary font-extrabold tracking-wider">Membre Fondateur</span>
+<span class="px-1.5 py-0.5 rounded-DEFAULT bg-primary/10 text-primary font-label-sm text-label-sm font-bold">2019</span>
+</div>
+<span class="font-headline-sm text-headline-sm tracking-wide uppercase text-on-surface mt-0.5">Akaal Football Club</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Fierté, noblesse et engagement sur le terrain parisien.</span>
+</div>
+</div>
+</section>
+<!-- Section: Settings, Notifications & Security -->
+<section class="px-margin mt-space-md pb-space-lg">
+<div class="flex items-center gap-space-xs mb-space-sm">
+<span class="material-symbols-outlined text-primary text-[20px]">admin_panel_settings</span>
+<h2 class="font-headline-md text-headline-md tracking-wider uppercase text-on-surface">Sécurité &amp; Préférences</h2>
+</div>
+<div class="flex flex-col gap-space-xs">
+<!-- Convocations Push & WhatsApp Toggle -->
+<div class="p-space-md rounded-xl bg-surface-container flex items-center justify-between">
+<div class="flex items-center gap-space-md">
+<div class="w-10 h-10 rounded-xl bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[20px]">campaign</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg uppercase tracking-wider text-on-surface">Rappels de Convocations</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Alertes match H-48 par Push &amp; WhatsApp</span>
+</div>
+</div>
+<!-- Interactive Accessible Toggle Switch -->
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" id="toggle-convoc" type="checkbox"/>
+<div class="w-12 h-6 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-surface peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-on-primary peer-checked:after:bg-on-primary after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+</label>
+</div>
+<!-- Admin / Captain Management Card -->
+<div class="p-space-md rounded-xl bg-surface-container flex items-center justify-between">
+<div class="flex items-center gap-space-md">
+<div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[20px]">shield</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="font-label-lg text-label-lg uppercase tracking-wider text-on-surface">Rôle Staff &amp; Capitaine</span>
+<span class="px-1.5 py-0.2 rounded-DEFAULT bg-primary text-on-primary font-label-sm text-label-sm font-bold">ACTIF</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Validation compo d'équipe &amp; feuille de match</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">chevron_right</span>
+</div>
+<!-- Action: Logout / Switch Account -->
+<button class="mt-space-sm w-full h-12 rounded-xl bg-surface-container-high text-error font-label-lg text-label-lg uppercase tracking-wider flex items-center justify-center gap-space-xs active:bg-error-container/20 transition-colors" id="btn-logout">
+<span class="material-symbols-outlined text-error text-[20px]">logout</span>
+<span>Se déconnecter de la session</span>
+</button>
+<!-- App Build Version Footer Micro-Detail -->
+<div class="text-center mt-space-sm text-on-surface-variant font-label-sm text-label-sm uppercase tracking-widest opacity-60">
+        Akaal FC OS • Version 3.4.1 (Paris Elite R1)
+      </div>
+</div>
+</section>
+<!-- Interactive Modal Drawer: Edit Personal Infos (Hidden by default) -->
+<div class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 flex items-end" id="edit-modal">
+<div class="w-full max-w-md mx-auto bg-surface-container-high rounded-t-2xl p-space-lg flex flex-col gap-space-md translate-y-full transition-transform duration-300" id="edit-drawer">
+<!-- Tricolore Top Hairline -->
+<div class="w-full h-1 flex rounded-full overflow-hidden mb-1">
+<div class="h-full flex-1 bg-[#002654]"></div>
+<div class="h-full flex-1 bg-[#FFFFFF]"></div>
+<div class="h-full flex-1 bg-[#ED2939]"></div>
+<div class="h-full flex-1 bg-primary"></div>
+</div>
+<div class="flex items-center justify-between">
+<h3 class="font-headline-md text-headline-md tracking-wider uppercase text-on-surface">Modifier mes coordonnées</h3>
+<button class="text-on-surface-variant p-1" id="btn-close-modal">
+<span class="material-symbols-outlined text-[24px]">close</span>
+</button>
+</div>
+<!-- Form Inputs -->
+<div class="flex flex-col gap-space-sm">
+<div>
+<label class="block font-label-sm text-label-sm uppercase text-on-surface-variant mb-1">Numéro WhatsApp Équipe</label>
+<input class="w-full h-11 px-space-md rounded-xl bg-surface-container text-on-surface font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary" id="input-phone" type="text" value="+33 6 42 19 88 05"/>
+</div>
+<div class="grid grid-cols-2 gap-gutter">
+<div>
+<label class="block font-label-sm text-label-sm uppercase text-on-surface-variant mb-1">Taille Maillot</label>
+<select class="w-full h-11 px-space-md rounded-xl bg-surface-container text-on-surface font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary" id="select-size">
+<option value="M">M (Athletic)</option>
+<option selected="" value="L">L (Recommandé)</option>
+<option value="XL">XL (Confort)</option>
+</select>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm uppercase text-on-surface-variant mb-1">Pied Fort</label>
+<select class="w-full h-11 px-space-md rounded-xl bg-surface-container text-on-surface font-body-md text-body-md focus:outline-none focus:ring-1 focus:ring-primary" id="select-foot">
+<option selected="" value="Droitier">Droitier</option>
+<option value="Gaucher">Gaucher</option>
+<option value="Ambidextre">Ambidextre</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Save CTA Button -->
+<button class="w-full h-12 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg uppercase tracking-wider font-extrabold flex items-center justify-center gap-1.5 shadow-md active:bg-primary-fixed mt-space-xs" id="btn-save-modal">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span>Enregistrer les modifications</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  (function () {
+    const avatarInput = document.getElementById('avatar-input');
+    const avatarImg = document.getElementById('avatar-img');
+    const btnCamera = document.getElementById('btn-camera');
+    const toast = document.getElementById('toast-notif');
+    const toastText = document.getElementById('toast-text');
+    const editModal = document.getElementById('edit-modal');
+    const editDrawer = document.getElementById('edit-drawer');
+    const btnEditModal = document.getElementById('btn-edit-modal');
+    const btnCloseModal = document.getElementById('btn-close-modal');
+    const btnSaveModal = document.getElementById('btn-save-modal');
+    const btnNotifPref = document.getElementById('btn-notif-pref');
+    const toggleConvoc = document.getElementById('toggle-convoc');
+    const btnLogout = document.getElementById('btn-logout');
+
+    function showToast(message) {
+      if (!toast || !toastText) return;
+      toastText.textContent = message;
+      toast.classList.remove('opacity-0', '-translate-y-2');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        toast.classList.add('opacity-0', '-translate-y-2');
+        toast.classList.remove('opacity-100', 'translate-y-0');
+      }, 2600);
+    }
+
+    // Camera action triggered
+    if (btnCamera && avatarInput) {
+      btnCamera.addEventListener('click', (e) => {
+        e.stopPropagation();
+        avatarInput.click();
+      });
+    }
+
+    // Real-time photo update preview
+    if (avatarInput && avatarImg) {
+      avatarInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            avatarImg.src = event.target.result;
+            showToast('Nouvelle photo de profil enregistrée !');
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    // Modal Drawer logic
+    function openModal() {
+      if (!editModal || !editDrawer) return;
+      editModal.classList.remove('opacity-0', 'pointer-events-none');
+      editModal.classList.add('opacity-100', 'pointer-events-auto');
+      editDrawer.classList.remove('translate-y-full');
+      editDrawer.classList.add('translate-y-0');
+    }
+
+    function closeModal() {
+      if (!editModal || !editDrawer) return;
+      editModal.classList.add('opacity-0', 'pointer-events-none');
+      editModal.classList.remove('opacity-100', 'pointer-events-auto');
+      editDrawer.classList.add('translate-y-full');
+      editDrawer.classList.remove('translate-y-0');
+    }
+
+    if (btnEditModal) btnEditModal.addEventListener('click', openModal);
+    if (btnCloseModal) btnCloseModal.addEventListener('click', closeModal);
+    if (editModal) {
+      editModal.addEventListener('click', (e) => {
+        if (e.target === editModal) closeModal();
+      });
+    }
+
+    if (btnSaveModal) {
+      btnSaveModal.addEventListener('click', () => {
+        closeModal();
+        showToast('Fiche vestiaire mise à jour');
+      });
+    }
+
+    if (btnNotifPref) {
+      btnNotifPref.addEventListener('click', () => {
+        showToast('Préférences d’alerte synchronisées');
+      });
+    }
+
+    if (toggleConvoc) {
+      toggleConvoc.addEventListener('change', (e) => {
+        showToast(e.target.checked ? 'Rappels WhatsApp activés' : 'Rappels WhatsApp désactivés');
+      });
+    }
+
+    if (btnLogout) {
+      btnLogout.addEventListener('click', () => {
+        showToast('Déconnexion du vestiaire...');
+      });
+    }
+  })();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(0,0,0,0.25)]" data-active-classes="text-primary font-bold scale-105"><div class="relative flex justify-around items-center h-20 px-space-xs"><a class="flex flex-col items-center justify-center gap-space-xs w-16 h-14 text-on-surface-variant transition-all" data-path="accueil" href="#"><span class="material-symbols-outlined text-[24px]">stadium</span><span class="font-label-sm text-label-sm uppercase tracking-wider">Accueil</span></a><a class="flex flex-col items-center justify-center gap-space-xs w-16 h-14 text-on-surface-variant transition-all" data-path="calendrier" href="#"><span class="material-symbols-outlined text-[24px]">calendar_month</span><span class="font-label-sm text-label-sm uppercase tracking-wider">Calendrier</span></a><div class="flex flex-col items-center justify-center relative -top-3"><a class="w-12 h-12 rounded-full bg-gradient-to-tr from-primary-container via-primary to-primary-fixed flex items-center justify-center shadow-[0_0_16px_rgba(201,162,74,0.35)] active:scale-95 transition-transform text-on-primary" data-path="nouveau-match" href="#" title="Nouveau match"><span class="material-symbols-outlined text-[26px]">add</span></a><span class="font-label-sm text-label-sm text-primary font-bold uppercase tracking-wider mt-1">Match +</span></div><a class="flex flex-col items-center justify-center gap-space-xs w-16 h-14 text-on-surface-variant transition-all" data-path="statistiques" href="#"><span class="material-symbols-outlined text-[24px]">leaderboard</span><span class="font-label-sm text-label-sm uppercase tracking-wider">Stats</span></a><a class="flex flex-col items-center justify-center gap-space-xs w-16 h-14 text-on-surface-variant transition-all" data-path="effectif" href="#"><span class="material-symbols-outlined text-[24px]">shield_person</span><span class="font-label-sm text-label-sm uppercase tracking-wider">Effectif</span></a></div></nav></body></html>

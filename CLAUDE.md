@@ -86,8 +86,15 @@ Les stats saison sont **calculées** à partir de ces collections, jamais saisie
 - Maquettes en cours sur Google Stitch : quand l'utilisateur les fournit, les suivre.
 
 ## État actuel
-- `index.html` : V1 **démo** fonctionnelle, tout en un fichier, données fictives en mémoire (objet `db`), tous les écrans et formulaires capitaine. Bouton en haut à droite = bascule capitaine / vue joueur (démo uniquement).
-- Couleurs provisoires bleu marine/or → à passer en noir/or avec le logo.
+- App restructurée (sans framework ni build) et design Stitch appliqué (noir/or, Bebas Neue + Manrope, logo) :
+  - `index.html` (coquille), `css/app.css`, `js/config.js` (config Firebase, `null` = mode démo), `js/utils.js`, `js/store.js` (données : démo localStorage **ou** Firestore + Auth Google), `js/calc.js` (stats, classements, votes, badges, formations), `js/app.js` (écrans + navigation `#/…`), `js/forms.js` (formulaires capitaine, compo, votes, paiements, partage WhatsApp).
+  - PWA : `manifest.json`, `sw.js`, icônes `icons/` générées depuis le logo (`assets/logo-256.png` = version légère).
+  - Maquettes Stitch rangées dans `maquettes/` (captures + code exporté + `DESIGN.md`).
+- Fonctionnalités faites : tous les écrans (accueil, calendrier, fiche match Infos/Présences/Compo/Stats, stats + classements, effectif, fiche joueur enrichie avec forme/note/présence/badges, photo de profil), compo (formations, placement auto, remplaçants), votes HDM + notes, paiements, réglages (équipe, lieux, adversaires, votes, membres concernés, présences), classement FSGT saisi + lien officiel, face-à-face, archives par saison, bilan « Wrapped », relances WhatsApp.
+- Accès : collection `acces/<uid>` {joueur, role, email} créée à la 1re connexion (le capitaine ajoute le joueur avec son e-mail Gmail → champ `joueurs.email`). Champs ajoutés : `matchs.journee`, `matchs.saison`, `matchs.convoques`, `matchs.limite` (ms, date limite de réponse), `matchs.votesFin` (ms), `buts.minute`, `paiements.echeance`, `paiements.saison`, doc `equipe/classement` {lignes, maj}.
+- `firestore.rules` : règles complètes (placeholder `TON_EMAIL@gmail.com` = compte fondateur/capitaine). Testées : `tests/regles` (36 tests, émulateur local).
+- À chaque mise en ligne d'une modif CSS/JS : augmenter `?v=` dans `index.html` et `sw.js` + le nom `CACHE` dans `sw.js` (sinon les téléphones gardent l'ancienne version).
+- Mode démo : bouton « ★ Cap. / Joueur » en haut pour basculer de vue ; Réglages → Réinitialiser la démo.
 
 ## Fonctionnalités en plus (validées par l'utilisateur)
 - **Rappels / notifications push** (PWA, service worker + Firebase Cloud Messaging, gratuit) : nouveau match créé, relance la veille aux joueurs sans réponse, résultat publié.
@@ -107,11 +114,8 @@ Les stats saison sont **calculées** à partir de ces collections, jamais saisie
 - Automatique seulement si la FSGT IDF donne son accord ou propose un flux.
 
 ## Prochaines étapes
-1. Lire les maquettes Google Stitch fournies par l'utilisateur (captures et/ou code exporté) : c'est la référence visuelle. Les ranger dans `maquettes/`.
-2. Restructurer le code (fichiers séparés : `index.html`, `css/`, `js/`), toujours sans framework ni build, et appliquer le design Stitch (noir/or, logo).
-3. Rendre l'app installable (PWA) : `manifest.json` + icônes à partir de `assets/logo.png` + service worker.
-4. Créer le projet Firebase avec l'utilisateur (le guider écran par écran, offre Spark uniquement).
-5. Remplacer l'objet `db` de démo par Firestore + Auth Google ; écrire et tester les règles de sécurité (rôles capitaine / joueur).
-6. Ajouter les fonctionnalités dans cet ordre : matchs + présences → résultats + stats → compo → réglages capitaine (lieux, adversaires, présences, membres) → votes et notes → paiements → classement FSGT → fiche joueur enrichie, face-à-face, archives, bilan de saison → notifications push.
-7. Activer GitHub Pages (Settings → Pages → branche `main`, dossier `/`) et tester sur iPhone (Safari → Partager → Sur l'écran d'accueil).
-8. Saisir le vrai effectif et le calendrier, partager le lien à l'équipe.
+1. ✅ Maquettes rangées, code restructuré, design Stitch, PWA, règles écrites et testées, toutes les fonctionnalités en mode démo.
+2. Activer GitHub Pages (Settings → Pages → branche `main`, dossier `/`) et tester la démo sur iPhone (Safari → Partager → Sur l'écran d'accueil).
+3. Créer le projet Firebase avec l'utilisateur, une étape à la fois : voir `GUIDE-FIREBASE.md` (offre Spark uniquement).
+4. Saisir le vrai effectif (avec e-mails Gmail) et le calendrier, partager le lien à l'équipe.
+5. Plus tard : notifications push (FCM ; l'envoi programmé demande un serveur — piste gratuite : GitHub Actions planifiée), visuel Instagram du résultat.
