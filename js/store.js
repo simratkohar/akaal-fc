@@ -21,7 +21,8 @@ const CONFIG_DEFAUT = {
 const nettoie = o => JSON.parse(JSON.stringify(o));
 
 const Store = {
-  mode: (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG) ? 'firebase' : 'demo',
+  // ?demo dans l'adresse = visite sans compte, avec les données fictives
+  mode: (typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG && !new URLSearchParams(location.search).has('demo')) ? 'firebase' : 'demo',
   data: Object.fromEntries(COLLECTIONS.map(c => [c, {}])),
   user: null,     // compte Google connecté
   moi: null,      // id du joueur lié au compte
