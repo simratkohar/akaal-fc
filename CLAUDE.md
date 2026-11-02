@@ -115,8 +115,8 @@ Les stats saison sont **calculées** à partir de ces collections, jamais saisie
 
 ## Prochaines étapes
 1. ✅ Maquettes rangées, code restructuré, design Stitch, PWA, règles écrites et testées, toutes les fonctionnalités en mode démo.
-2. Activer GitHub Pages (Settings → Pages → branche `main`, dossier `/`) et tester la démo sur iPhone (Safari → Partager → Sur l'écran d'accueil).
-3. Créer le projet Firebase avec l'utilisateur, une étape à la fois : voir `GUIDE-FIREBASE.md` (offre Spark uniquement).
+2. ✅ GitHub Pages activé, démo installée sur l'iPhone du capitaine.
+3. Firebase (voir `GUIDE-FIREBASE.md`, offre Spark) : ✅ projet `akaal-fc` créé, ✅ app web ajoutée et config collée dans `js/config.js`. Reste : Auth Google + domaine autorisé, Firestore, règles, puis mise en ligne et « Je suis le capitaine ».
 4. Importer les vraies données de `data/seed.json` (voir ci-dessous), compléter ce qui manque (e-mails Gmail, numéros, postes…), puis partager le lien à l'équipe.
 5. Plus tard : notifications push (FCM ; l'envoi programmé demande un serveur — piste gratuite : GitHub Actions planifiée), visuel Instagram du résultat.
 
