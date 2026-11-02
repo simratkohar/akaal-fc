@@ -439,9 +439,12 @@ async function supprimerRef(col, id, champ) {
 
 /* ---------------- Premier lancement (capitaine) ---------------- */
 function formCreerEquipe() {
-  ouvrirFeuille(`<h3>Créer l’équipe</h3><p class="aide">Seulement pour le capitaine dont l’e-mail est inscrit dans les règles Firestore. Ta fiche joueur sera créée avec le rôle capitaine.</p>
+  ouvrirFeuille(`<h3>Créer l’équipe</h3><p class="aide">Seulement pour le capitaine dont l’e-mail est inscrit dans les règles Firestore.</p>
+    <button class="btn" onclick="fermerFeuille();toast('Création en cours…');Store.creerEquipe('', '', true)">${ic('cloud_download')} Avec les données SportEasy</button>
+    <p class="aide">12 joueurs, 11 adversaires, 6 matchs déjà joués. Tu seras « Simrat Kohar », capitaine.</p>
+    <label class="f">Ou partir d’une équipe vide</label>
     <div class="grille3"><div><label class="f">Ton nom</label><input class="in" id="ce-nom" value="${esc(Store.user?.nom || '')}"></div><div><label class="f">Numéro</label><input class="in" type="number" id="ce-num" value="10"></div></div>
-    <button class="btn" onclick="fermerFeuille();Store.creerEquipe(val('ce-nom')||'Capitaine',val('ce-num'))">${ic('shield_person')} Créer</button>`);
+    <button class="btn gris" onclick="fermerFeuille();Store.creerEquipe(val('ce-nom')||'Capitaine',val('ce-num'))">${ic('shield_person')} Équipe vide</button>`);
 }
 
 /* ---------------- Partage / WhatsApp ---------------- */

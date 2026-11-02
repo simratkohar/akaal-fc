@@ -476,7 +476,7 @@ function pageEffectif() {
       <span class="maillot-num">${esc(j.numero ?? '')}</span></a>`; }).join('')}</div>`;
   });
   const sansPoste = tousJoueurs().filter(j => !POSTES.includes(j.poste));
-  if (sansPoste.length) h += sec('Autres') + `<div class="carte liste">${sansPoste.map(j => `<a class="ligne clic" style="color:inherit" href="#/joueur/${j.id}">${avatar(j.id)}<div class="t"><b>${esc(j.nom)}</b></div></a>`).join('')}</div>`;
+  if (sansPoste.length) h += sec('Poste à définir', null, `${sansPoste.length}`) + `<div class="carte liste">${sansPoste.map(j => { const s = statsJoueur(j.id, ms); return `<a class="ligne clic" style="color:inherit" href="#/joueur/${j.id}">${avatar(j.id)}<div class="t"><b class="nom-t">${esc(j.nom)}${capC(j)}</b><span>${s.j} match${s.j > 1 ? 's' : ''} · ${s.g} but${s.g > 1 ? 's' : ''}</span></div><span class="maillot-num">${esc(j.numero ?? '')}</span></a>`; }).join('')}</div>`;
   if (!h) h = `<div class="carte mt16">${vide('Aucun joueur dans l’effectif', 'group_off')}</div>`;
   if (Store.capitaine) h += `<button class="btn" onclick="formJoueur()">${ic('person_add')} Ajouter un joueur</button>`;
   return h;
