@@ -89,6 +89,23 @@ Les stats saison sont **calculées** à partir de ces collections, jamais saisie
 - `index.html` : V1 **démo** fonctionnelle, tout en un fichier, données fictives en mémoire (objet `db`), tous les écrans et formulaires capitaine. Bouton en haut à droite = bascule capitaine / vue joueur (démo uniquement).
 - Couleurs provisoires bleu marine/or → à passer en noir/or avec le logo.
 
+## Fonctionnalités en plus (validées par l'utilisateur)
+- **Rappels / notifications push** (PWA, service worker + Firebase Cloud Messaging, gratuit) : nouveau match créé, relance la veille aux joueurs sans réponse, résultat publié.
+- **Bilan des présences** : taux de présence par joueur sur la saison (onglet Stats).
+- **Fiche joueur enrichie** : forme sur les 5 derniers matchs (V/N/D), note moyenne (votes), taux de présence, badges (premier but, triplé, 10/20/50 buts, 10/20/50 matchs, homme du match x5…).
+- **Face-à-face** : historique contre chaque adversaire (V/N/D, buts) dans la fiche adversaire et la fiche match.
+- **Classement du championnat FSGT** : tableau du groupe. Objectif : mise à jour automatique depuis le site de la FSGT (voir ci-dessous).
+- **Bilan de fin de saison** façon « Wrapped » : meilleur buteur, meilleur passeur, plus gros score, joueur le plus présent, homme du match le plus voté…
+- **Archives par saison** : chaque match/stat est rattaché à une saison (`saison: "2026-2027"`) ; sélecteur de saison dans Stats.
+- **À tester plus tard** : visuel du résultat à partager sur Instagram (image générée côté navigateur, noir/or, score + buteurs + homme du match).
+- **Refusé** : ajout au calendrier du téléphone, covoiturage, cartons/suspensions, forum.
+
+### Classement FSGT automatique (piste)
+- Le site de la FSGT publie et met à jour le classement. Le site GitHub Pages ne peut pas le lire directement (CORS).
+- Solution gratuite : un **GitHub Action planifié** (gratuit sur dépôt public), par ex. chaque mardi matin après les matchs du lundi, qui lit la page publique du classement, en extrait le tableau et écrit `data/classement.json` dans le dépôt ; l'app lit ce fichier.
+- Prévoir une saisie manuelle par le capitaine en secours si la page change de format.
+- Lien de la page du classement : à fournir par l'utilisateur.
+
 ## Prochaines étapes
 1. Appliquer le design (noir/or, logo, maquettes Stitch).
 2. Rendre l'app installable : `manifest.json` + icônes à partir du logo + service worker simple.
