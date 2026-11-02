@@ -40,6 +40,14 @@ Contexte pour Claude Code. Lis ce fichier avant de travailler sur le dépôt.
 - Dans le formulaire « Nouveau match », lieu et adversaire se choisissent dans ces listes (avec possibilité d'en créer un nouveau directement depuis le formulaire). Dans la fiche match, le lieu ouvre Google Maps.
 - Données : collections `lieux` {nom, adresse, maps} et `adversaires` {nom, logo}, écrites par le capitaine ; `matchs.lieu` et `matchs.adversaire` deviennent des ids.
 
+### Autres réglages capitaine (repris de SportEasy, sauf « Gestion des tâches » et « Abonnement »)
+- **Paiements** : suivi des cotisations / frais (ex. cotisation saison, inscription tournoi) : montant, joueurs concernés, statut payé / pas payé coché par le capitaine. **Aucun paiement en ligne** (suivi seulement, 0 €). Chaque joueur voit ce qu'il doit.
+- **Détails de l'équipe** : nom, logo, couleurs, saison en cours, championnat (FSGT).
+- **Votes et notes du match** : après un match terminé, chaque joueur qui a joué vote pour l'homme du match et peut noter ses coéquipiers sur 10. Fermeture des votes au bout de 48 h (réglable). Le capitaine choisit si l'homme du match = résultat du vote ou son propre choix. Notes moyennes visibles dans les stats.
+- **Membres concernés** : par type de match, quels joueurs sont convoqués par défaut (tout l'effectif, ou une sélection).
+- **Gestion des présences** : date limite de réponse (ex. la veille à 20 h), nombre max de joueurs, le capitaine peut changer la réponse d'un joueur.
+- Données : `paiements` {libelle, montant, joueurs: {id: paye(bool)}}, `votes` doc `<matchId>_<joueurId>` {hommeDuMatch, notes: {joueurId: n}}, réglages dans un doc `equipe/config`.
+
 ### Compo (composition d'équipe), par match
 - Inspirée de SportEasy (captures fournies par l'utilisateur).
 - Vide : illustration terrain + « Pas de composition » + bouton « Créer une compo » (capitaine).
