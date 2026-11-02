@@ -15,13 +15,14 @@ Contexte pour Claude Code. Lis ce fichier avant de travailler sur le dépôt.
 - Les droits doivent être appliqués **côté base (règles Firestore)**, pas seulement en cachant des boutons.
 
 ### Matchs
-- Type : `Championnat FSGT` (lundi soir), `Amical`, `Tournoi`, `Coupe` (souvent samedi/dimanche).
+- Type : **uniquement** `Championnat` (FSGT, lundi soir), `Amical`, `Tournoi` (souvent samedi/dimanche). Pas de Coupe, Entraînement ni Autre.
+- Championnat : numéro de journée (affiché « FSGT · J1 », « FSGT · J2 »…).
 - Format : foot à `7`, `8` ou `11`.
 - Domicile/extérieur, date, heure, lieu, adversaire.
 
 ### Écrans (barre du bas : Accueil, Calendrier, Stats, Effectif)
 - **Accueil** : prochain match (type, format, date, heure, lieu, compte à rebours), boutons Présent/Absent, compteurs présents/absents/sans réponse ; dernier résultat ; bilan saison ; top 3 buteurs.
-- **Calendrier** : filtres par type ; « À venir » et « Résultats » groupés par mois.
+- **Calendrier** : filtres Tous / Championnat / Amical / Tournoi ; « À venir » et « Terminés ». Carte de match : colonne date (jour, numéro, mois, heure) | les deux équipes l'une sous l'autre (domicile en haut) avec type/journée au-dessus | scores à droite, en vert si victoire, rouge si défaite, gris si nul.
 - **Fiche match** : en-tête date + score (Akaal FC vs adversaire), puis onglets **Infos · Présences · Compo · Stats**.
   - Infos : type, format, domicile/extérieur, heure, lieu.
   - Présences : présents / absents / sans réponse, boutons Présent/Absent.
