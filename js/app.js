@@ -471,7 +471,8 @@ function pageClassement(code) {
   h += `<div class="carte pad"><span class="label or">${esc(cfg.groupe || '')}</span>${tableauClassement(l)}</div>`;
   h += `<a class="btn sec" href="https://www.footfsgtidf.org/" target="_blank" rel="noopener">${ic('open_in_new')} Classement officiel</a>
     <p class="aide" style="text-align:center">Sur le site : <b>Football à 7 → 93 Groupe 1</b></p>`;
-  if (Store.capitaine) h += `<button class="btn" onclick="formClassement()">${ic('edit')} Mettre à jour le tableau</button>`;
+  if (Store.capitaine) h += `<button class="btn" onclick="formCollerClassement()">${ic('content_paste')} Coller le classement</button>
+    <button class="btn gris" onclick="formClassement()">${ic('edit')} Modifier à la main</button>`;
   return h;
 }
 

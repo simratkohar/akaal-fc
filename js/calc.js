@@ -12,6 +12,42 @@ const lieuDe = m => Store.get('lieux', m?.lieu) || (m?.lieuNom ? { nom: m.lieuNo
 const photoJ = j => j?.photo || j?.photoGoogle || (j && j.id === Store.moi && Store.user?.photo) || null;
 // « #10 » seulement si le joueur a un numéro (l'équipe n'a pas de numéros attitrés)
 const numTxt = (j, pre = ' #') => j && j.numero != null && j.numero !== '' ? pre + j.numero : '';
+/* ---------- Classement FSGT collé depuis le site ----------
+   Colonnes du site : N° | Équipe | PTS J G N P F Pe But+ But- Diff B/P AG UA
+   Marche si le navigateur copie avec des tabulations, une case par ligne ou des espaces. */
+const PETITS_MOTS = ['LE', 'LA', 'LES', 'DE', 'DU', 'DES', 'ET', 'EN', 'SUR'];
+const joliNom = s => s.trim().replace(/\s+/g, ' ').split(' ').map(w => /\d/.test(w) || (!PETITS_MOTS.includes(w.toUpperCase()) && (w.length <= 2 || (w.length <= 3 && !/[AEIOUY]/i.test(w)))) ? w.toUpperCase() : w[0].toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+const estNombre = c => /^[+-]?\d+$/.test(String(c).trim());
+function ligneDepuisNombres(equipe, n) {
+  const x = n.map(v => parseInt(v, 10));
+  return { equipe: joliNom(equipe), pts: x[0], j: x[1], v: x[2], n: x[3], d: x[4], f: (x[5] || 0) + (x[6] || 0), bp: x[7], bc: x[8] };
+}
+function lireClassementColle(texte) {
+  const lignes = [], vues = new Set();
+  const ajoute = (rang, equipe, nums) => { if (nums.length >= 9 && /[A-Za-zÀ-ÿ]/.test(equipe) && !vues.has(rang)) { vues.add(rang); lignes.push(ligneDepuisNombres(equipe, nums)); } };
+  const rows = String(texte || '').split(/\r?\n/).map(r => r.trim()).filter(Boolean);
+  // 1) une ligne par équipe (tabulations ou espaces)
+  rows.forEach(r => {
+    let cells = r.includes('\t') ? r.split('\t').map(c => c.trim()).filter(Boolean) : null;
+    if (cells && cells.length >= 11 && /^\d+$/.test(cells[0]) && !estNombre(cells[1])) return ajoute(cells[0], cells[1], cells.slice(2).filter(estNombre));
+    const t = r.split(/\s+/);
+    if (t.length < 11 || !/^\d+$/.test(t[0])) return;
+    let fin = t.length; while (fin > 1 && estNombre(t[fin - 1])) fin--;
+    const nums = t.slice(fin), debut = Math.max(0, nums.length - 13); // l'équipe peut finir par un nombre (« … 93 »)
+    ajoute(t[0], t.slice(1, fin).concat(nums.slice(0, debut)).join(' '), nums.slice(debut));
+  });
+  if (lignes.length) return lignes;
+  // 2) une case par ligne (copie depuis certains téléphones)
+  const c = rows.flatMap(r => r.split('\t')).map(x => x.trim()).filter(Boolean);
+  for (let i = 0; i < c.length - 10; i++) {
+    if (!/^\d+$/.test(c[i]) || estNombre(c[i + 1])) continue;
+    let k = i + 2; const nums = [];
+    while (k < c.length && estNombre(c[k]) && nums.length < 13) nums.push(c[k++]);
+    if (nums.length >= 9) { ajoute(c[i], c[i + 1], nums); i = k - 1; }
+  }
+  return lignes;
+}
+
 const tousJoueurs = () => Store.liste('joueurs').sort((a, b) => (a.numero || 99) - (b.numero || 99));
 
 const resultat = m => !m?.joue ? null : m.scoreNous > m.scoreEux ? 'V' : m.scoreNous < m.scoreEux ? 'D' : 'N';
