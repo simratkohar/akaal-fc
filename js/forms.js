@@ -397,6 +397,29 @@ function rendreClassementForm() {
     <button class="ajout" onclick="syncClassement();F.lignes.push({equipe:'',pts:0,j:0,v:0,n:0,d:0,bp:0,bc:0});rendreClassementForm()">${ic('add')} Ajouter une équipe</button>
     <button class="btn" onclick="enregistrerClassement()">${ic('check')} Enregistrer</button>`);
 }
+/* Coller le tableau copié sur le site FSGT */
+function formCollerClassement() {
+  F = { colle: [] };
+  ouvrirFeuille(`<h3>Coller le classement</h3>
+    <p class="aide">1. Sur le site FSGT (Foot à 7 → 93 Groupe 1), sélectionne tout le tableau, de « N° Equipe » jusqu’à la dernière équipe, et copie-le (Ctrl+C).<br>2. Colle-le ici (Ctrl+V).</p>
+    <a class="lien-btn" href="https://www.footfsgtidf.org/" target="_blank" rel="noopener">${ic('open_in_new')} Ouvrir le site FSGT</a>
+    <textarea class="in mt8" id="cl-colle" rows="6" placeholder="Colle le tableau ici…" style="font-size:12px;font-family:monospace" oninput="apercuCollerClassement()"></textarea>
+    <div id="cl-apercu"></div>
+    <button class="btn" id="cl-ok" disabled onclick="enregistrerCollerClassement()">${ic('check')} Enregistrer</button>`);
+}
+function apercuCollerClassement() {
+  F.colle = lireClassementColle($('#cl-colle').value);
+  const vide = !$('#cl-colle').value.trim();
+  $('#cl-apercu').innerHTML = vide ? '' : F.colle.length
+    ? `<div class="alerte vert">${ic('check_circle')}<span><b>${F.colle.length} équipes</b> trouvées. Vérifie l’aperçu puis enregistre.</span></div>${tableauClassement(trierClassement(F.colle))}`
+    : `<div class="alerte">${ic('warning')}<span>Je ne reconnais pas le tableau. Copie bien toutes les lignes, du « 1 » jusqu’à la dernière équipe.</span></div>`;
+  $('#cl-ok').disabled = !F.colle.length;
+}
+async function enregistrerCollerClassement() {
+  if (!F.colle?.length) return;
+  if (await Store.set('equipe', 'classement', { lignes: F.colle, maj: new Date().toISOString().slice(0, 10) })) { fermerFeuille(); toast('Classement mis à jour ✓'); }
+}
+
 async function enregistrerClassement() {
   syncClassement();
   const lignes = F.lignes.filter(l => l.equipe);
