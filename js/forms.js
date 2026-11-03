@@ -39,6 +39,31 @@ async function repondre(mid, rep, jid = Store.moi) {
   if (ok) toast(rep === 'present' ? 'Présence enregistrée ✓' : 'Absence enregistrée');
 }
 
+/* Capitaine : changer le statut d'un joueur (match à venir ou déjà joué) */
+function menuPresence(mid, jid) {
+  const m = Store.get('matchs', mid), x = statutPresence(m, jid);
+  const opt = (k, t, icone, coul) => `<button class="choix-joueur ${x === k ? 'on' : ''}" onclick="definirPresence('${mid}','${jid}',${k ? `'${k}'` : 'null'})"><span class="ms" style="color:${coul}">${icone}</span><span style="flex:1"><b>${t}</b></span>${x === k ? ic('check') : ''}</button>`;
+  ouvrirFeuille(`<div class="flex" style="margin-bottom:8px">${avatar(jid, 'rond')}<h3 style="margin:0">${esc(nomJ(jid))}</h3></div>
+    <p class="aide">${m.joue ? `A-t-il joué contre ${esc(adv(m).nom)} ?` : `Réponse pour le match contre ${esc(adv(m).nom)}`}</p>
+    ${opt('present', m.joue ? 'A joué' : 'Présent', 'check_circle', 'var(--vert)')}
+    ${opt('absent', 'Absent', 'cancel', 'var(--rouge)')}
+    ${opt(null, m.joue ? 'Pas renseigné' : 'Sans réponse', 'help', 'var(--orange)')}
+    ${m.joue && butsDe(mid).some(b => b.buteur === jid || b.passeur === jid) ? `<p class="aide">Il a marqué ou fait une passe dans ce match : il compte toujours comme ayant joué.</p>` : ''}`);
+}
+async function definirPresence(mid, jid, statut) {
+  if (!Store.capitaine) return;
+  const m = Store.get('matchs', mid), pid = `${mid}_${jid}`, ops = [];
+  if (statut) ops.push({ op: 'set', col: 'presences', id: pid, obj: { match: mid, joueur: jid, reponse: statut, maj: Date.now() } });
+  else if (Store.get('presences', pid)) ops.push({ op: 'del', col: 'presences', id: pid });
+  if (m.joue) { // match joué : « Ont joué » suit la présence
+    const oj = new Set(m.ontJoue || []);
+    statut === 'present' ? oj.add(jid) : oj.delete(jid);
+    ops.push({ op: 'patch', col: 'matchs', id: mid, obj: { ontJoue: [...oj] } });
+  }
+  if (!ops.length) return fermerFeuille();
+  if (await Store.batch(ops)) { fermerFeuille(); toast(`${prenom(jid)} : ${statut === 'present' ? (m.joue ? 'a joué ✓' : 'présent ✓') : statut === 'absent' ? 'absent' : 'sans réponse'}`); }
+}
+
 /* ---------------- Match (créer / modifier) ---------------- */
 function formMatch(id) {
   if (!Store.capitaine) return;

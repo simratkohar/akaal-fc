@@ -278,19 +278,26 @@ function ongletInfos(m) {
   return h;
 }
 function ongletPresences(m) {
-  const c = compteurs(m);
+  const c = compteurs(m), cap = Store.capitaine, cfg = Store.config();
   let h = m.joue ? '' : `<div class="carte pad mt16">${blocPresence(m)}</div>`;
-  const cap = Store.capitaine && !m.joue;
-  const ligne = (j, rep) => `<div class="ligne">${avatar(j, 'rond')}<div class="t"><b>${esc(nomJ(j))}${capC(joueur(j))}</b><span>${esc(joueur(j)?.poste || '')} · #${esc(joueur(j)?.numero ?? '')}</span></div>
-    ${cap ? `<div class="flex"><button class="icon-btn" style="width:34px;height:34px;${rep === 'present' ? 'background:var(--vert);color:#fff' : ''}" onclick="repondre('${m.id}','present','${j}')">${ic('check')}</button><button class="icon-btn" style="width:34px;height:34px;${rep === 'absent' ? 'background:var(--rouge);color:#fff' : ''}" onclick="repondre('${m.id}','absent','${j}')">${ic('close')}</button></div>` : ''}</div>`;
-  const cfg = Store.config();
-  h += sec(`Présents (${c.p.length})`, 'check_circle', cfg.maxJoueurs > 0 ? `max ${cfg.maxJoueurs}` : '');
+  if (cap) h += `<p class="aide mt12">${ic('more_vert')} Touche les 3 points à droite d’un joueur pour changer ${m.joue ? 's’il a joué ou non' : 'sa réponse'}.</p>`;
+  const ST = {
+    present: { t: m.joue ? 'A joué' : 'Présent', c: 'var(--vert)', i: 'check' },
+    absent: { t: 'Absent', c: 'var(--rouge)', i: 'close' },
+    q: { t: m.joue ? 'Pas renseigné' : 'Sans réponse', c: 'var(--orange)', i: 'question_mark' }
+  };
+  const ligne = (j, k) => `<div class="ligne"><div class="av-statut">${avatar(j, 'rond')}<span class="pastille" style="background:${ST[k].c}">${ic(ST[k].i)}</span></div>
+    <div class="t"><b>${esc(nomJ(j))}${capC(joueur(j))}${joueur(j)?.role === 'invite' ? ' <span class="chip">Invité</span>' : ''}</b><span style="color:${ST[k].c};font-weight:700">${ST[k].t}</span></div>
+    ${cap ? `<button class="icon-btn" style="border:0;background:none" aria-label="Changer" onclick="menuPresence('${m.id}','${j}')">${ic('more_vert')}</button>` : ''}</div>`;
+  h += sec(`${m.joue ? 'Ont joué' : 'Présents'} (${c.p.length})`, 'check_circle', !m.joue && cfg.maxJoueurs > 0 ? `max ${cfg.maxJoueurs}` : '');
   h += `<div class="carte liste">${c.p.map(j => ligne(j, 'present')).join('') || vide('Personne pour l’instant', 'person_off')}</div>`;
   h += sec(`Absents (${c.a.length})`, 'cancel');
   h += `<div class="carte liste">${c.a.map(j => ligne(j, 'absent')).join('') || vide('Aucun absent', 'sentiment_satisfied')}</div>`;
-  h += sec(`Sans réponse (${c.q.length})`, 'hourglass_top');
-  h += `<div class="carte liste">${c.q.map(j => ligne(j, null)).join('') || vide('Tout le monde a répondu', 'done_all')}</div>`;
-  if (Store.capitaine && !m.joue && c.q.length) h += `<button class="btn sec" onclick="relanceWhatsApp('${m.id}')">${ic('chat')} Relancer sur WhatsApp</button>`;
+  if (c.q.length || !m.joue) {
+    h += sec(`${ST.q.t} (${c.q.length})`, 'hourglass_top');
+    h += `<div class="carte liste">${c.q.map(j => ligne(j, 'q')).join('') || vide('Tout le monde a répondu', 'done_all')}</div>`;
+  }
+  if (cap && !m.joue && c.q.length) h += `<button class="btn sec" onclick="relanceWhatsApp('${m.id}')">${ic('chat')} Relancer sur WhatsApp</button>`;
   return h;
 }
 

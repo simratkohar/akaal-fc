@@ -40,9 +40,17 @@ function convoques(m) {
   Store.liste('presences').forEach(p => { if (p.match === m.id && ids.has(p.joueur) && !base.includes(p.joueur)) base.push(p.joueur); });
   return base;
 }
+/* Match à venir : réponses des joueurs. Match joué : présent = a joué (coché ou buteur/passeur). */
+const aJoueSet = m => new Set([...(m.ontJoue || []), ...butsDe(m.id).flatMap(b => [b.buteur, b.passeur])].filter(j => j && joueur(j)));
+function statutPresence(m, jid, joues = m.joue ? aJoueSet(m) : null) {
+  if (!m.joue) return reponse(m.id, jid) || null;
+  return joues.has(jid) ? 'present' : reponse(m.id, jid) === 'absent' ? 'absent' : null;
+}
 function compteurs(m) {
   const c = convoques(m), r = { p: [], a: [], q: [] };
-  c.forEach(j => { const x = reponse(m.id, j); (x === 'present' ? r.p : x === 'absent' ? r.a : r.q).push(j); });
+  const joues = m.joue ? aJoueSet(m) : null;
+  if (joues) joues.forEach(j => { if (!c.includes(j)) c.push(j); });
+  c.forEach(j => { const x = statutPresence(m, j, joues); (x === 'present' ? r.p : x === 'absent' ? r.a : r.q).push(j); });
   const tri = l => l.sort((a, b) => (joueur(a)?.numero || 99) - (joueur(b)?.numero || 99));
   tri(r.p); tri(r.a); tri(r.q);
   return r;
