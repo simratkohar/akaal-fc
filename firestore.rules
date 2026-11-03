@@ -7,7 +7,9 @@ rules_version = '2';
 //    avant de publier. C'est le seul compte qui peut créer l'équipe.
 //
 // Principe :
-// - Il faut être connecté ET dans l'effectif (doc acces/<uid>) pour lire.
+// - Tout le monde peut LIRE (lien visiteur) : matchs, buts, présences, votes,
+//   lieux, adversaires, équipe et « profils » (nom, numéro, photo — sans e-mail).
+// - Restent privés (membres connectés) : joueurs (avec e-mails), paiements, accès.
 // - Le capitaine écrit tout.
 // - Un joueur écrit seulement : sa présence (avant la date limite),
 //   son vote (s'il a joué, avant la clôture), sa photo de profil.
@@ -54,8 +56,16 @@ service cloud.firestore {
             && seulement(['uid', 'photoGoogle']) && request.resource.data.uid == request.auth.uid);
     }
 
+    // Copie publique des fiches joueurs, sans e-mail (tenue à jour par l'app du capitaine)
+    match /profils/{id} {
+      allow read: if true;
+      allow create, delete: if capitaine();
+      allow update: if (capitaine() && photoOk())
+        || (membre() && moi() == id && seulement(['photo', 'photoGoogle']) && photoOk());
+    }
+
     match /presences/{pid} {
-      allow read: if membre();
+      allow read: if true;
       allow create, update: if capitaine() || (
         membre()
         && pid == request.resource.data.match + '_' + moi()
@@ -68,7 +78,7 @@ service cloud.firestore {
     }
 
     match /votes/{vid} {
-      allow read: if membre();
+      allow read: if true;
       allow create, update: if membre()
         && vid == request.resource.data.match + '_' + moi()
         && request.resource.data.joueur == moi()
@@ -79,12 +89,13 @@ service cloud.firestore {
       allow delete: if capitaine();
     }
 
-    // Tout le reste : lecture pour l'équipe, écriture pour le capitaine
-    match /matchs/{id}      { allow read: if membre(); allow write: if capitaine(); }
-    match /buts/{id}        { allow read: if membre(); allow write: if capitaine(); }
-    match /lieux/{id}       { allow read: if membre(); allow write: if capitaine(); }
-    match /adversaires/{id} { allow read: if membre(); allow write: if capitaine(); }
+    // Lecture pour tous, écriture pour le capitaine
+    match /matchs/{id}      { allow read: if true; allow write: if capitaine(); }
+    match /buts/{id}        { allow read: if true; allow write: if capitaine(); }
+    match /lieux/{id}       { allow read: if true; allow write: if capitaine(); }
+    match /adversaires/{id} { allow read: if true; allow write: if capitaine(); }
+    match /equipe/{id}      { allow read: if true; allow write: if capitaine(); }
+    // Privé : membres connectés seulement
     match /paiements/{id}   { allow read: if membre(); allow write: if capitaine(); }
-    match /equipe/{id}      { allow read: if membre(); allow write: if capitaine(); }
   }
 }
