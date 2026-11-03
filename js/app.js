@@ -132,7 +132,7 @@ function pageAccueil() {
 
   const top = classement('buts', ms).slice(0, 3), max = top[0]?.v || 1;
   h += sec('Top buteurs', 'sports_soccer', `<a href="#/stats">Classement club</a>`);
-  h += top.length ? top.map((x, i) => rangLigne(x, i, max, 'buts', ms.length)).join('') : `<div class="carte">${vide('Pas encore de but cette saison')}</div>`;
+  h += top.length ? top.map((x, i) => rangLigne(x, i, max, 'buts', ms)).join('') : `<div class="carte">${vide('Pas encore de but cette saison')}</div>`;
 
   h += `<div class="duo"><a class="btn sec" href="#/classement">${ic('format_list_numbered')} Classement</a><a class="btn sec" href="#/bilan">${ic('auto_awesome')} Bilan saison</a></div>`;
   if (Store.visiteur) h += `<p class="note-bas">APERÇU EN DIRECT · LECTURE SEULE</p><a class="btn gris" href="./">${ic('login')} Je suis dans l’équipe : me connecter</a>`;
@@ -187,13 +187,15 @@ function carteDernier(m) {
   </a>`;
 }
 const UNITES = { buts: 'buts', passes: 'passes', hdm: 'HDM', matchs: 'matchs', notes: '/10', presence: '%' };
-function rangLigne(x, i, max, type, nbMatchs) {
+// ms = les matchs du classement affiché (saison + compétition filtrées) : le ratio se calcule sur ces matchs-là
+function rangLigne(x, i, max, type, ms = []) {
   const j = joueur(x.id), val = type === 'notes' ? fmtNote(x.v) : x.v;
-  const sous = type === 'buts' && nbMatchs ? `${(x.v / Math.max(1, statsJoueur(x.id, matchsJoues(App.etat.statsSaison || Store.config().saison)).j || 1)).toFixed(2).replace('.', ',')} / match` : '';
+  const joues = type === 'buts' ? statsJoueur(x.id, ms).j : 0;
+  const sous = type === 'buts' && joues ? `${(x.v / joues).toFixed(2).replace('.', ',')} / match · ${joues} joué${joues > 1 ? 's' : ''}` : '';
   return `<a class="carte rang clic ${i === 0 ? 'r1' : ''}" style="color:inherit" href="#/joueur/${x.id}">
     <div class="pos">${i + 1}</div>${avatar(x.id)}
     <div class="t"><b>${esc(j?.nom)}${capC(j)}</b><span>${esc(j?.poste || '')}${j?.numero != null ? ' · #' + j.numero : ''}</span><div class="barre-p"><i style="width:${(type === 'notes' ? x.v / 10 : type === 'presence' ? x.v / 100 : x.v / max) * 100}%"></i></div></div>
-    <div class="val"><b>${val}</b><span>${UNITES[type]}</span>${sous ? `<div class="label" style="font-size:9px">${sous}</div>` : ''}</div></a>`;
+    <div class="val"><b>${val}</b><span>${x.v === 1 && ['buts', 'passes', 'matchs'].includes(type) ? UNITES[type].slice(0, -1) : UNITES[type]}</span>${sous ? `<div class="label" style="font-size:9px">${sous}</div>` : ''}</div></a>`;
 }
 
 /* ---------------- Calendrier ---------------- */
@@ -419,7 +421,7 @@ function pageStats() {
   h += sec('Classements', 'leaderboard');
   h += `<div class="filtres" style="margin-top:0">${Object.entries(tabs).map(([k, t]) => `<button class="${App.etat.statsTab === k ? 'on' : ''}" onclick="App.etat.statsTab='${k}';render()">${t}</button>`).join('')}</div>`;
   const cl = classement(App.etat.statsTab, ms), max = cl[0]?.v || 1;
-  h += `<div class="mt12">${cl.length ? cl.map((x, i) => rangLigne(x, i, max, App.etat.statsTab, ms.length)).join('') : `<div class="carte">${vide('Pas encore de données', 'query_stats')}</div>`}</div>`;
+  h += `<div class="mt12">${cl.length ? cl.map((x, i) => rangLigne(x, i, max, App.etat.statsTab, ms)).join('') : `<div class="carte">${vide('Pas encore de données', 'query_stats')}</div>`}</div>`;
   h += `<div class="duo"><a class="btn sec" href="#/classement">${ic('format_list_numbered')} Classement ${esc(Store.config().championnat || 'FSGT')}</a><a class="btn sec" href="#/bilan">${ic('auto_awesome')} Bilan saison</a></div>`;
   return h;
 }
