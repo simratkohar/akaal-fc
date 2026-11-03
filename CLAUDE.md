@@ -98,7 +98,7 @@ Les stats saison sont **calculées** à partir de ces collections, jamais saisie
 - Mode démo : bouton « ★ Cap. / Joueur » en haut pour basculer de vue ; Réglages → Réinitialiser la démo.
 
 ## Vidéos (motion design)
-- Outil : **HyperFrames** (HeyGen, open source, HTML → MP4). Skills installés dans `.claude/skills/` (`hyperframes`, `hyperframes-cli`, `media-use`, v0.9.9) : **les lire avant toute vidéo**.
+- Outil : **HyperFrames** (HeyGen, open source, HTML → MP4). Skills `hyperframes`, `hyperframes-cli`, `media-use` installés sur le **compte Claude** de l'utilisateur (pas dans le dépôt) : **les lire avant toute vidéo**.
 - Mode d'emploi du club et astuces de l'environnement (GSAP en local, format 1080×1920) : `videos/README.md`.
 - Première démo faite : résultat Akaal FC 9-4 MAMS (story 10 s). Idée validée : bouton « Créer la vidéo » sur la fiche match.
 

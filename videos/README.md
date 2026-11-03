@@ -1,7 +1,8 @@
 # Vidéos Akaal FC (motion design)
 
 Les vidéos (résultats de match, annonces, bilans) sont faites avec **HyperFrames** : on écrit l'animation
-en HTML + GSAP, puis on la rend en MP4. Les règles de l'outil sont dans `.claude/skills/hyperframes/`.
+en HTML + GSAP, puis on la rend en MP4. Les règles de l'outil sont dans les skills `hyperframes`, `hyperframes-cli` et `media-use`,
+installés sur le compte Claude de l'utilisateur (sources : paquet npm `hyperframes`, licence Apache-2.0).
 
 - Nouveau projet : `npx hyperframes@0.9.9 init <nom> --example blank --resolution portrait --non-interactive --skip-skills`
 - Rendu : `npx hyperframes@0.9.9 render -o sortie.mp4` (depuis le dossier du projet)
