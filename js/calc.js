@@ -126,7 +126,8 @@ function tauxPresence(jid, matchs) {
 function statsJoueur(jid, matchs) {
   const ids = new Set(matchs.map(m => m.id));
   const buts = Store.liste('buts').filter(b => ids.has(b.match));
-  const joues = matchs.filter(m => (m.ontJoue || []).includes(jid));
+  // a joué = coché « Ont joué », ou a marqué / fait une passe dans ce match
+  const joues = matchs.filter(m => (m.ontJoue || []).includes(jid) || buts.some(b => b.match === m.id && (b.buteur === jid || b.passeur === jid)));
   return {
     j: joues.length,
     g: buts.filter(b => b.buteur === jid).length,
