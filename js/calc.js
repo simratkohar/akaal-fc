@@ -35,7 +35,8 @@ function matchsJoues(saison, type = 'Tous') {
 const reponse = (mid, jid) => Store.get('presences', mid + '_' + jid)?.reponse;
 function convoques(m) {
   const ids = new Set(Object.keys(Store.data.joueurs));
-  const base = Array.isArray(m.convoques) ? m.convoques.filter(id => ids.has(id)) : [...ids];
+  // Par défaut : tout l'effectif, sans les joueurs occasionnels
+  const base = Array.isArray(m.convoques) ? m.convoques.filter(id => ids.has(id)) : [...ids].filter(id => joueur(id)?.role !== 'invite');
   // Un joueur non convoqué qui répond quand même est compté
   Store.liste('presences').forEach(p => { if (p.match === m.id && ids.has(p.joueur) && !base.includes(p.joueur)) base.push(p.joueur); });
   return base;

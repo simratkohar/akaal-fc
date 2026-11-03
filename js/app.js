@@ -287,7 +287,7 @@ function ongletPresences(m) {
     q: { t: m.joue ? 'Pas renseigné' : 'Sans réponse', c: 'var(--orange)', i: 'question_mark' }
   };
   const ligne = (j, k) => `<div class="ligne"><div class="av-statut">${avatar(j, 'rond')}<span class="pastille" style="background:${ST[k].c}">${ic(ST[k].i)}</span></div>
-    <div class="t"><b>${esc(nomJ(j))}${capC(joueur(j))}${joueur(j)?.role === 'invite' ? ' <span class="chip">Invité</span>' : ''}</b><span style="color:${ST[k].c};font-weight:700">${ST[k].t}</span></div>
+    <div class="t"><b>${esc(nomJ(j))}${capC(joueur(j))}${joueur(j)?.role === 'invite' ? ' <span class="chip">Occasionnel</span>' : ''}</b><span style="color:${ST[k].c};font-weight:700">${ST[k].t}</span></div>
     ${cap ? `<button class="icon-btn" style="border:0;background:none" aria-label="Changer" onclick="menuPresence('${m.id}','${j}')">${ic('more_vert')}</button>` : ''}</div>`;
   h += sec(`${m.joue ? 'Ont joué' : 'Présents'} (${c.p.length})`, 'check_circle', !m.joue && cfg.maxJoueurs > 0 ? `max ${cfg.maxJoueurs}` : '');
   h += `<div class="carte liste">${c.p.map(j => ligne(j, 'present')).join('') || vide('Personne pour l’instant', 'person_off')}</div>`;
@@ -297,6 +297,7 @@ function ongletPresences(m) {
     h += sec(`${ST.q.t} (${c.q.length})`, 'hourglass_top');
     h += `<div class="carte liste">${c.q.map(j => ligne(j, 'q')).join('') || vide('Tout le monde a répondu', 'done_all')}</div>`;
   }
+  if (cap) h += `<button class="btn sec" onclick="formOccasionnel('${m.id}')">${ic('person_add')} Ajouter un joueur occasionnel</button>`;
   if (cap && !m.joue && c.q.length) h += `<button class="btn sec" onclick="relanceWhatsApp('${m.id}')">${ic('chat')} Relancer sur WhatsApp</button>`;
   return h;
 }
@@ -489,7 +490,7 @@ function pageEffectif() {
   const sansPoste = tousJoueurs().filter(j => !POSTES.includes(j.poste) && j.role !== 'invite');
   if (sansPoste.length) h += sec('Poste à définir', null, `${sansPoste.length}`) + `<div class="carte liste">${sansPoste.map(j => { const s = statsJoueur(j.id, ms); return `<a class="ligne clic" style="color:inherit" href="#/joueur/${j.id}">${avatar(j.id)}<div class="t"><b class="nom-t">${esc(j.nom)}${capC(j)}</b><span>${s.j} match${s.j > 1 ? 's' : ''} · ${s.g} but${s.g > 1 ? 's' : ''}</span></div><span class="maillot-num">${esc(j.numero ?? '')}</span></a>`; }).join('')}</div>`;
   const invites = tousJoueurs().filter(j => j.role === 'invite');
-  if (invites.length) h += sec('Invités', null, `${invites.length}`) + `<div class="carte liste">${invites.map(j => `<a class="ligne clic" style="color:inherit" href="#/joueur/${j.id}">${avatar(j.id)}<div class="t"><b>${esc(j.nom)}</b><span>Venu dépanner · hors effectif</span></div></a>`).join('')}</div>`;
+  if (invites.length) h += sec('Joueurs occasionnels', null, `${invites.length}`) + `<div class="carte liste">${invites.map(j => `<a class="ligne clic" style="color:inherit" href="#/joueur/${j.id}">${avatar(j.id)}<div class="t"><b>${esc(j.nom)}</b><span>Vient dépanner · hors classements</span></div></a>`).join('')}</div>`;
   if (!h) h = `<div class="carte mt16">${vide('Aucun joueur dans l’effectif', 'group_off')}</div>`;
   if (Store.capitaine) h += `<button class="btn" onclick="formJoueur()">${ic('person_add')} Ajouter un joueur</button>`;
   return h;
