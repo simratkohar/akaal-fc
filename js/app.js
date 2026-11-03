@@ -440,19 +440,35 @@ function pageStats() {
 
 /* ---------------- Classement FSGT ---------------- */
 const estNous = nom => String(nom || '').trim().toLowerCase() === NOUS().trim().toLowerCase();
-function classementFSGT() {
-  const c = Store.get('equipe', 'classement');
-  return (c?.lignes || []).map(l => ({ ...l, pts: (+l.v || 0) * 3 + (+l.n || 0), diff: (+l.bp || 0) - (+l.bc || 0) }))
+// Barème FSGT : victoire 3, nul 2, défaite 1, forfait / pénalité 0. Si les points officiels sont saisis, on les garde.
+const ptsFSGT = l => (l.pts != null && l.pts !== '') ? +l.pts : (+l.v || 0) * 3 + (+l.n || 0) * 2 + (+l.d || 0);
+function trierClassement(lignes) {
+  return (lignes || []).map(l => ({ ...l, pts: ptsFSGT(l), diff: (+l.bp || 0) - (+l.bc || 0) }))
     .sort((a, b) => b.pts - a.pts || b.diff - a.diff || b.bp - a.bp);
 }
-function pageClassement() {
+function classementFSGT() { return trierClassement(Store.get('equipe', 'classement')?.lignes); }
+function tableauClassement(l) {
+  return `<div class="tab-scroll mt8"><table class="tableau"><thead><tr><th>#</th><th>Équipe</th><th>Pts</th><th>J</th><th>V</th><th>N</th><th>D</th><th>BP</th><th>BC</th><th>+/-</th></tr></thead><tbody>
+    ${l.map((x, i) => `<tr class="${estNous(x.equipe) ? 'nous' : ''}"><td>${i + 1}</td><td>${esc(x.equipe)}</td><td class="pts">${x.pts}</td><td>${x.j ?? ''}</td><td>${x.v ?? ''}</td><td>${x.n ?? ''}</td><td>${x.d ?? ''}</td><td>${x.bp ?? ''}</td><td>${x.bc ?? ''}</td><td>${x.diff > 0 ? '+' : ''}${x.diff}</td></tr>`).join('') || `<tr><td colspan="10">${vide('Tableau pas encore saisi', 'table_chart')}</td></tr>`}
+    </tbody></table></div>`;
+}
+/* Lien #/classement/<code> : remplit le tableau d'un coup (capitaine) */
+async function enregistrerClassementLien(code) {
+  const lignes = decodeEmails(code); if (!Array.isArray(lignes)) return toast('Lien invalide');
+  if (await Store.set('equipe', 'classement', { lignes, maj: new Date().toISOString().slice(0, 10) })) { toast('Classement mis à jour ✓'); location.replace('#/classement'); }
+}
+function pageClassement(code) {
   const cfg = Store.config(), c = Store.get('equipe', 'classement'), l = classementFSGT();
   let h = `<a class="retour" href="#/stats">${ic('arrow_back')} Stats</a>`;
+  if (code) {
+    const lignes = decodeEmails(code);
+    if (!Array.isArray(lignes)) return h + vide('Lien invalide', 'link_off');
+    if (!Store.capitaine) return h + vide('Réservé au capitaine', 'lock');
+    return h + sec('Nouveau classement', 'format_list_numbered') + `<div class="carte pad"><span class="label or">Aperçu avant enregistrement</span>${tableauClassement(trierClassement(lignes))}</div>
+      <button class="btn" onclick="enregistrerClassementLien('${esc(code)}')">${ic('save')} Enregistrer ce classement</button><a class="btn gris" href="#/classement">Annuler</a>`;
+  }
   h += sec(`Classement ${esc(cfg.championnat || 'FSGT')}`, 'format_list_numbered', c?.maj ? 'MAJ ' + esc(c.maj.split('-').reverse().join('/')) : '');
-  h += `<div class="carte pad"><span class="label or">${esc(cfg.groupe || '')}</span>
-    <div class="tab-scroll mt8"><table class="tableau"><thead><tr><th>#</th><th>Équipe</th><th>Pts</th><th>J</th><th>V</th><th>N</th><th>D</th><th>BP</th><th>BC</th><th>+/-</th></tr></thead><tbody>
-    ${l.map((x, i) => `<tr class="${estNous(x.equipe) ? 'nous' : ''}"><td>${i + 1}</td><td>${esc(x.equipe)}</td><td class="pts">${x.pts}</td><td>${x.j ?? ''}</td><td>${x.v ?? ''}</td><td>${x.n ?? ''}</td><td>${x.d ?? ''}</td><td>${x.bp ?? ''}</td><td>${x.bc ?? ''}</td><td>${x.diff > 0 ? '+' : ''}${x.diff}</td></tr>`).join('') || `<tr><td colspan="10">${vide('Tableau pas encore saisi', 'table_chart')}</td></tr>`}
-    </tbody></table></div></div>`;
+  h += `<div class="carte pad"><span class="label or">${esc(cfg.groupe || '')}</span>${tableauClassement(l)}</div>`;
   h += `<a class="btn sec" href="https://www.footfsgtidf.org/" target="_blank" rel="noopener">${ic('open_in_new')} Classement officiel</a>
     <p class="aide" style="text-align:center">Sur le site : <b>Football à 7 → 93 Groupe 1</b></p>`;
   if (Store.capitaine) h += `<button class="btn" onclick="formClassement()">${ic('edit')} Mettre à jour le tableau</button>`;

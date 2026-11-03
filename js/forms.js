@@ -382,18 +382,19 @@ async function supprimerCollecte(id) {
 function formClassement() {
   const c = Store.get('equipe', 'classement');
   F = { lignes: (c?.lignes || []).map(l => ({ ...l })) };
-  if (!F.lignes.length) F.lignes.push({ equipe: NOUS(), j: 0, v: 0, n: 0, d: 0, bp: 0, bc: 0 });
+  F.lignes.forEach(l => { l.pts = ptsFSGT(l); });
+  if (!F.lignes.length) F.lignes.push({ equipe: NOUS(), pts: 0, j: 0, v: 0, n: 0, d: 0, bp: 0, bc: 0 });
   rendreClassementForm();
 }
-function syncClassement() { $$('.cl-ligne').forEach((l, i) => { const ins = l.querySelectorAll('input'); F.lignes[i] = { equipe: ins[0].value.trim(), j: +ins[1].value || 0, v: +ins[2].value || 0, n: +ins[3].value || 0, d: +ins[4].value || 0, bp: +ins[5].value || 0, bc: +ins[6].value || 0 }; }); }
+function syncClassement() { $$('.cl-ligne').forEach((l, i) => { const ins = l.querySelectorAll('input'); F.lignes[i] = { equipe: ins[0].value.trim(), pts: +ins[1].value || 0, j: +ins[2].value || 0, v: +ins[3].value || 0, n: +ins[4].value || 0, d: +ins[5].value || 0, bp: +ins[6].value || 0, bc: +ins[7].value || 0 }; }); }
 function rendreClassementForm() {
   const n = (v, w = 44) => `<input class="in" type="number" min="0" inputmode="numeric" value="${v ?? 0}" style="width:${w}px;padding:8px 4px;text-align:center;font-size:13px">`;
-  ouvrirFeuille(`<h3>Classement du groupe</h3><p class="aide">Recopie le tableau du site officiel (les points sont calculés : V = 3, N = 1).</p>
-    <div class="tab-scroll mt12"><div style="min-width:430px">
-    <div class="flex label" style="gap:4px"><span style="flex:1">Équipe</span><span style="width:44px;text-align:center">J</span><span style="width:44px;text-align:center">V</span><span style="width:44px;text-align:center">N</span><span style="width:44px;text-align:center">D</span><span style="width:44px;text-align:center">BP</span><span style="width:44px;text-align:center">BC</span><span style="width:24px"></span></div>
-    ${F.lignes.map((l, i) => `<div class="flex cl-ligne mt8" style="gap:4px"><input class="in" value="${esc(l.equipe)}" style="flex:1;padding:8px;font-size:13px;min-width:110px">${n(l.j)}${n(l.v)}${n(l.n)}${n(l.d)}${n(l.bp)}${n(l.bc)}<button style="width:24px;color:#FCA5A5;font-size:18px" onclick="syncClassement();F.lignes.splice(${i},1);rendreClassementForm()">×</button></div>`).join('')}
+  ouvrirFeuille(`<h3>Classement du groupe</h3><p class="aide">Recopie le tableau du site officiel, points compris (barème FSGT : V = 3, N = 2, D = 1, forfait / pénalité = 0).</p>
+    <div class="tab-scroll mt12"><div style="min-width:480px">
+    <div class="flex label" style="gap:4px"><span style="flex:1">Équipe</span><span style="width:44px;text-align:center">Pts</span><span style="width:44px;text-align:center">J</span><span style="width:44px;text-align:center">V</span><span style="width:44px;text-align:center">N</span><span style="width:44px;text-align:center">D</span><span style="width:44px;text-align:center">BP</span><span style="width:44px;text-align:center">BC</span><span style="width:24px"></span></div>
+    ${F.lignes.map((l, i) => `<div class="flex cl-ligne mt8" style="gap:4px"><input class="in" value="${esc(l.equipe)}" style="flex:1;padding:8px;font-size:13px;min-width:110px">${n(l.pts)}${n(l.j)}${n(l.v)}${n(l.n)}${n(l.d)}${n(l.bp)}${n(l.bc)}<button style="width:24px;color:#FCA5A5;font-size:18px" onclick="syncClassement();F.lignes.splice(${i},1);rendreClassementForm()">×</button></div>`).join('')}
     </div></div>
-    <button class="ajout" onclick="syncClassement();F.lignes.push({equipe:'',j:0,v:0,n:0,d:0,bp:0,bc:0});rendreClassementForm()">${ic('add')} Ajouter une équipe</button>
+    <button class="ajout" onclick="syncClassement();F.lignes.push({equipe:'',pts:0,j:0,v:0,n:0,d:0,bp:0,bc:0});rendreClassementForm()">${ic('add')} Ajouter une équipe</button>
     <button class="btn" onclick="enregistrerClassement()">${ic('check')} Enregistrer</button>`);
 }
 async function enregistrerClassement() {
