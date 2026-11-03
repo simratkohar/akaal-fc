@@ -464,3 +464,53 @@ nav.bas button.on .ms{background:rgba(201,162,74,.16);border-radius:10px;padding
 .rang .t b,.ligne .nom-t{font-family:var(--texte)!important;font-weight:800;font-size:16px!important;letter-spacing:0;text-transform:none}
 .kpi.v b{color:var(--vert)}
 .presence .oui.on{background:var(--or);border-color:var(--or);color:var(--noir)}
+
+/* =========================================================
+   VERSION PC (écran large) — le téléphone n'est pas touché
+   ========================================================= */
+.cols-pc,.col-pc,.grille-pc{display:block}
+@media (min-width: 980px){
+  body{padding-bottom:32px;padding-left:232px}
+  .wrap{max-width:1180px;padding:0 32px}
+  .top .wrap{height:72px}
+  /* Barre du bas → menu à gauche */
+  nav.bas{top:0;bottom:0;right:auto;width:232px;padding:24px 14px;border-top:0;border-right:1px solid var(--ligne-or);display:flex;flex-direction:column}
+  nav.bas::before{content:"";display:block;height:112px;margin:0 auto 18px;width:112px;border-radius:50%;background:url(../assets/logo-256.png) center/118% no-repeat;box-shadow:0 0 30px rgba(201,162,74,.2)}
+  nav.bas .wrap{display:flex;flex-direction:column;gap:6px;padding:0;max-width:none;align-items:stretch}
+  nav.bas button{flex-direction:row;justify-content:flex-start;gap:14px;font-size:13px;padding:12px 14px;border-radius:10px}
+  nav.bas button .ms{font-size:24px}
+  nav.bas button.on{background:rgba(201,162,74,.14)}
+  nav.bas button.on .ms{background:none;padding:0}
+  nav.bas button:hover{background:rgba(255,255,255,.05)}
+  nav.bas .plus{order:-1;background:var(--or);color:var(--noir);margin-bottom:14px;justify-content:center;font-size:14px}
+  nav.bas .plus:hover{background:var(--or-2)}
+  nav.bas .plus .rond-plus{width:auto;height:auto;margin:0;background:none;box-shadow:none}
+  nav.bas .plus .rond-plus .ms{font-size:22px}
+  /* Colonnes */
+  .cols-pc{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:28px;align-items:start}
+  .col-pc > .hero:first-child,.col-pc > .alerte:first-child{margin-top:16px}
+  .col-pc > .sec:first-child{margin-top:16px}
+  .grille-pc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+  .grille-pc > .mcarte,.grille-pc > .rang{margin-bottom:0}
+  .grille-pc > .carte:only-child{grid-column:1/-1}
+  .carte.liste{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  .carte.liste > .ligne{border-top:0;border-bottom:1px solid var(--ligne)}
+  .carte.liste > .vide{grid-column:1/-1}
+  .kpis{gap:12px}
+  .badges{grid-template-columns:repeat(6,1fr)}
+  .votes-grille{grid-template-columns:repeat(4,1fr)}
+  .terrain{max-width:520px;margin-left:auto;margin-right:auto}
+  .entete-match,.profil-tete{padding:24px 32px}
+  .sb .res{font-size:76px}
+  .btn{max-width:520px;margin-left:auto;margin-right:auto}
+  .duo{max-width:720px;margin:0 auto}
+  .duo .btn{max-width:none}
+  .onglets{top:calc(72px + env(safe-area-inset-top))}
+  /* Formulaires : fenêtre au centre */
+  .fond{align-items:center}
+  .feuille{max-width:600px;border-radius:14px;max-height:86vh;padding-bottom:24px}
+  .toast{bottom:28px}
+  .clic:hover{border-color:var(--ligne-or)}
+  .connexion{padding-left:0}
+}
+body.sans-nav{padding-left:0}

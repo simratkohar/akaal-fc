@@ -118,12 +118,15 @@ function pageAccueil() {
     h += `<a class="alerte vert clic" href="#/votes/${m.id}">${ic('how_to_vote')}<span><b>Vote ouvert</b> : homme du match contre ${esc(adv(m).nom)} · clôture ${fmtDateCourte(m.votesFin)}</span></a>`;
   });
 
+  // Sur PC : prochain match à gauche, le reste à droite (sur téléphone : l'un sous l'autre)
+  h += `<div class="cols-pc"><div class="col-pc">`;
   const m = prochain();
   if (m) h += heroMatch(m);
   else h += `<div class="hero rayures">${vide('Aucun match prévu pour l’instant', 'event_busy')}${Store.capitaine ? `<button class="btn" onclick="formMatch()">${ic('add')} Planifier un match</button>` : ''}</div>`;
 
   const der = termines()[0];
   if (der) h += carteDernier(der);
+  h += `</div><div class="col-pc">`;
 
   const ms = matchsJoues(cfg.saison), s = bilan(ms);
   const cl = classementFSGT(), pos = cl.findIndex(l => estNous(l.equipe));
@@ -135,6 +138,7 @@ function pageAccueil() {
   h += top.length ? top.map((x, i) => rangLigne(x, i, max, 'buts', ms)).join('') : `<div class="carte">${vide('Pas encore de but cette saison')}</div>`;
 
   h += `<div class="duo"><a class="btn sec" href="#/classement">${ic('format_list_numbered')} Classement</a><a class="btn sec" href="#/bilan">${ic('auto_awesome')} Bilan saison</a></div>`;
+  h += `</div></div>`;
   if (Store.visiteur) h += `<p class="note-bas">APERÇU EN DIRECT · LECTURE SEULE</p><a class="btn gris" href="./">${ic('login')} Je suis dans l’équipe : me connecter</a>`;
   if (Store.mode === 'demo') h += `<p class="note-bas">${Store.visite ? 'APERÇU · VRAIES DONNÉES SPORTEASY · SANS LES PHOTOS' : 'MODE DÉMO · DONNÉES FICTIVES · RIEN N\'EST PARTAGÉ'}</p>${typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG ? `<a class="btn gris" href="./">${ic('login')} Se connecter</a>` : ''}`;
   return h;
@@ -208,9 +212,9 @@ function pageCalendrier() {
   const up = ms.filter(m => !m.joue), fin = ms.filter(m => m.joue).reverse(), b = bilan(fin);
   let h = filtres('calFiltre', f);
   h += sec('À venir', null, `${up.length} match${up.length > 1 ? 's' : ''}`);
-  h += up.length ? up.map((m, i) => carteMatch(m, i === 0)).join('') : `<div class="carte">${vide('Aucun match prévu', 'event_busy')}</div>`;
+  h += up.length ? `<div class="grille-pc">${up.map((m, i) => carteMatch(m, i === 0)).join('')}</div>` : `<div class="carte">${vide('Aucun match prévu', 'event_busy')}</div>`;
   h += sec('Terminés', null, `<span class="chips"><span class="chip vert">${b.v}V</span><span class="chip">${b.n}N</span><span class="chip rouge">${b.d}D</span></span>`);
-  h += fin.length ? fin.map(m => carteMatch(m)).join('') : `<div class="carte">${vide('Aucun résultat pour l’instant')}</div>`;
+  h += fin.length ? `<div class="grille-pc">${fin.map(m => carteMatch(m)).join('')}</div>` : `<div class="carte">${vide('Aucun résultat pour l’instant')}</div>`;
   if (Store.capitaine) h += `<button class="btn" onclick="formMatch()">${ic('add_circle')} Planifier un match</button>`;
   return h;
 }
@@ -429,7 +433,7 @@ function pageStats() {
   h += sec('Classements', 'leaderboard');
   h += `<div class="filtres" style="margin-top:0">${Object.entries(tabs).map(([k, t]) => `<button class="${App.etat.statsTab === k ? 'on' : ''}" onclick="App.etat.statsTab='${k}';render()">${t}</button>`).join('')}</div>`;
   const cl = classement(App.etat.statsTab, ms), max = cl[0]?.v || 1;
-  h += `<div class="mt12">${cl.length ? cl.map((x, i) => rangLigne(x, i, max, App.etat.statsTab, ms)).join('') : `<div class="carte">${vide('Pas encore de données', 'query_stats')}</div>`}</div>`;
+  h += `<div class="mt12 grille-pc">${cl.length ? cl.map((x, i) => rangLigne(x, i, max, App.etat.statsTab, ms)).join('') : `<div class="carte">${vide('Pas encore de données', 'query_stats')}</div>`}</div>`;
   h += `<div class="duo"><a class="btn sec" href="#/classement">${ic('format_list_numbered')} Classement ${esc(Store.config().championnat || 'FSGT')}</a><a class="btn sec" href="#/bilan">${ic('auto_awesome')} Bilan saison</a></div>`;
   return h;
 }
