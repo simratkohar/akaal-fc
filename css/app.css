@@ -428,3 +428,39 @@ input[type=date].in,input[type=time].in{min-height:46px}
 .av-statut{position:relative;flex:none}
 .av-statut .pastille{position:absolute;right:-3px;bottom:-3px;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;color:#fff;border:2px solid var(--carte)}
 .av-statut .pastille .ms{font-size:13px;font-variation-settings:'FILL' 1,'wght' 700}
+
+/* ---------- Contraste renforcé (v2) ---------- */
+:root{
+  --noir:#0A0A0B; --noir-2:#1A1A1E; --carte:#232328; --carte-2:#303037; --carte-3:#3A3A42;
+  --gris:#B3B3BB; --gris-2:#7A7A82; --ligne:rgba(255,255,255,.17); --ligne-or:rgba(201,162,74,.42);
+}
+.carte,.kpi,.hero{box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 8px 20px rgba(0,0,0,.35)}
+.sec{padding-bottom:8px;border-bottom:1px solid var(--ligne)}
+.liste > .ligne{border-top-color:rgba(255,255,255,.10)}
+.filtres button,.seg{background:var(--carte-2);color:var(--creme);border-color:rgba(255,255,255,.16)}
+.seg button{color:var(--creme)}
+.onglets{background:var(--carte);border-color:rgba(255,255,255,.16)}
+.onglets button{color:var(--creme)}
+.onglets button.on{background:var(--or);color:var(--noir);box-shadow:0 4px 14px rgba(201,162,74,.3)}
+.onglets button.on .n{background:rgba(0,0,0,.22);color:var(--noir)}
+.choix button,.coches button{background:var(--carte-2);color:var(--creme);border-color:rgba(255,255,255,.16)}
+.in{background:#111114;border-color:rgba(255,255,255,.2)}
+.chip{background:var(--carte-3);border-color:rgba(255,255,255,.18)}
+.mcarte{border-left-width:4px}
+.top{background:rgba(11,11,12,.94);border-bottom:1px solid rgba(255,255,255,.06)}
+nav.bas{background:#16161A;border-top:1px solid rgba(201,162,74,.5)}
+nav.bas button{color:#B4B4BC}
+nav.bas button.on{color:var(--or-2)}
+nav.bas button.on .ms{background:rgba(201,162,74,.16);border-radius:10px;padding:2px 14px;width:auto}
+.icon-btn{background:var(--carte-2);border-color:rgba(255,255,255,.16)}
+.btn.gris,.btn.sec{background:var(--carte-2)}
+.lieu,.buteurs{background:var(--carte-2)}
+.compte div{background:var(--carte-3)}
+.filtres button.on,.seg button.on,.choix button.on{box-shadow:0 4px 14px rgba(201,162,74,.3)}
+.rang .pos{background:var(--carte-3)}
+.av{background:var(--carte-3);border-color:rgba(255,255,255,.2)}
+/* Repris de Stitch : noms des joueurs en écriture normale, vert plus vif, bouton Présent en or */
+:root{ --vert:#22C55E; --rouge:#E5484D; }
+.rang .t b,.ligne .nom-t{font-family:var(--texte)!important;font-weight:800;font-size:16px!important;letter-spacing:0;text-transform:none}
+.kpi.v b{color:var(--vert)}
+.presence .oui.on{background:var(--or);border-color:var(--or);color:var(--noir)}
