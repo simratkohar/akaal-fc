@@ -63,7 +63,7 @@ function entete() {
   const demo = Store.mode === 'demo' ? `<button class="demo-btn ${Store.capitaine ? 'cap' : ''}" onclick="Store.basculeDemo();toast(Store.capitaine?'Vue capitaine':'Aperçu : vue d’un joueur')">${Store.capitaine ? '★ Cap.' : 'Joueur'}</button>` : '';
   return `<header class="top"><div class="wrap">
     <a class="crest" href="#/">${ecussonNous(42)}</a>
-    <div class="titre"><h1>${esc(cfg.nom)} <span class="tag">${esc(cfg.championnat || 'FSGT')}</span></h1><small>${SOUS_TITRES[App.route.page] || ''}</small></div>
+    <div class="titre"><h1>${esc(cfg.nom)} <span class="tag">EST. ${esc(cfg.anneeCreation || 2019)}</span></h1><small>${SOUS_TITRES[App.route.page] || ''}</small></div>
     <div class="actions">${demo}
       ${Store.capitaine ? `<a class="icon-btn or" href="#/reglages" aria-label="Réglages">${ic('tune')}</a>` : ''}
       ${Store.visiteur ? `<a class="demo-btn cap" href="./">${ic('login')} Connexion</a>` : `<a class="moi" href="#/profil" aria-label="Mon profil">${avatar(Store.moi, 'rond').replace('class="av rond"', 'class="av rond" style="width:100%;height:100%;border:0"')}</a>`}
