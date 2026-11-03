@@ -166,7 +166,7 @@ function blocPresence(m, jid = Store.moi) {
   const r = reponse(m.id, jid), ouvert = reponsesOuvertes(m);
   const bloque = !ouvert && !Store.capitaine;
   const conv = convoques(m).includes(jid);
-  return `<div class="entre mt12"><span class="label or">${conv ? 'Ta convocation' : 'Non convoqué'}</span><span class="label">${esc(nomJ(jid))} #${esc(joueur(jid).numero ?? '')}</span></div>
+  return `<div class="entre mt12"><span class="label or">${conv ? 'Ta convocation' : 'Non convoqué'}</span><span class="label">${esc(nomJ(jid))}${esc(numTxt(joueur(jid)))}</span></div>
     <div class="presence">
       <button class="oui ${r === 'present' ? 'on' : ''}" ${bloque ? 'disabled' : ''} onclick="repondre('${m.id}','present')">${ic('check_circle')} Présent</button>
       <button class="non ${r === 'absent' ? 'on' : ''}" ${bloque ? 'disabled' : ''} onclick="repondre('${m.id}','absent')">${ic('cancel')} Absent</button>
@@ -194,7 +194,7 @@ function rangLigne(x, i, max, type, ms = []) {
   const sous = type === 'buts' && joues ? `${(x.v / joues).toFixed(2).replace('.', ',')} / match · ${joues} joué${joues > 1 ? 's' : ''}` : '';
   return `<a class="carte rang clic ${i === 0 ? 'r1' : ''}" style="color:inherit" href="#/joueur/${x.id}">
     <div class="pos">${i + 1}</div>${avatar(x.id)}
-    <div class="t"><b>${esc(j?.nom)}${capC(j)}</b><span>${esc(j?.poste || '')}${j?.numero != null ? ' · #' + j.numero : ''}</span><div class="barre-p"><i style="width:${(type === 'notes' ? x.v / 10 : type === 'presence' ? x.v / 100 : x.v / max) * 100}%"></i></div></div>
+    <div class="t"><b>${esc(j?.nom)}${capC(j)}</b><span>${[j?.poste, numTxt(j, '#')].filter(Boolean).map(esc).join(' · ')}</span><div class="barre-p"><i style="width:${(type === 'notes' ? x.v / 10 : type === 'presence' ? x.v / 100 : x.v / max) * 100}%"></i></div></div>
     <div class="val"><b>${val}</b><span>${x.v === 1 && ['buts', 'passes', 'matchs'].includes(type) ? UNITES[type].slice(0, -1) : UNITES[type]}</span>${sous ? `<div class="label" style="font-size:9px">${sous}</div>` : ''}</div></a>`;
 }
 
@@ -364,7 +364,7 @@ function ongletStats(m) {
   // Buts
   h += sec('Buts', 'sports_soccer', `${bs.length} but${bs.length > 1 ? 's' : ''}`);
   let n = 0;
-  h += `<div class="carte">${bs.map(b => { n++; return `<div class="but"><span class="min">${b.minute != null ? b.minute + '’' : n}</span><div class="t"><b>${esc(nomJ(b.buteur))}${b.buteur !== 'csc' && joueur(b.buteur) ? ' #' + esc(joueur(b.buteur).numero ?? '') : ''}</b><span>${b.buteur === 'csc' ? 'But contre son camp adverse' : b.passeur ? 'Passe décisive : ' + esc(nomJ(b.passeur)) : 'Sans passe'}</span></div></div>`; }).join('') || vide('Aucun but marqué', 'sports_soccer')}</div>`;
+  h += `<div class="carte">${bs.map(b => { n++; return `<div class="but"><span class="min">${b.minute != null ? b.minute + '’' : n}</span><div class="t"><b>${esc(nomJ(b.buteur))}${b.buteur !== 'csc' ? esc(numTxt(joueur(b.buteur))) : ''}</b><span>${b.buteur === 'csc' ? 'But contre son camp adverse' : b.passeur ? 'Passe décisive : ' + esc(nomJ(b.passeur)) : 'Sans passe'}</span></div></div>`; }).join('') || vide('Aucun but marqué', 'sports_soccer')}</div>`;
   // Effectif & notes
   const voirNotes = !ouvert || Store.capitaine;
   const oj = (m.ontJoue || []).filter(joueur).sort((a, b) => (joueur(a).numero || 99) - (joueur(b).numero || 99));
@@ -393,7 +393,7 @@ function pageVotes(mid) {
   <div class="seg">${peut ? `<button class="${tab === 'hdm' ? 'on' : ''}" onclick="App.etat.voteTab='hdm';render()">Vote HDM</button><button class="${tab === 'notes' ? 'on' : ''}" onclick="App.etat.voteTab='notes';render()">Noter (1-10)</button>` : ''}<button class="${tab === 'resultats' ? 'on' : ''}" onclick="App.etat.voteTab='resultats';render()">Résultats</button></div>`;
   if (tab === 'hdm' && peut) {
     h += sec('Homme du match') + `<p class="muted" style="margin-top:-6px;margin-bottom:12px">Choisis le joueur le plus décisif (un seul vote, pas toi-même).</p>`;
-    h += `<div class="votes-grille">${autres.map(j => { const s = statsJoueur(j, [m]); return `<button class="carte vcarte ${ev.hdm === j ? 'on' : ''}" onclick="App.etat.vote.hdm='${j}';render()">${ev.hdm === j ? `<span class="ok">${ic('check')}</span>` : ''}${avatar(j)}<b>${esc(prenom(j))}</b><span>${[s.g && `${s.g} but${s.g > 1 ? 's' : ''}`, s.a && `${s.a} passe${s.a > 1 ? 's' : ''}`].filter(Boolean).join(' · ') || '#' + esc(joueur(j).numero ?? '')}</span><div class="mt8">${chipPoste(joueur(j).poste)}</div></button>`; }).join('')}</div>`;
+    h += `<div class="votes-grille">${autres.map(j => { const s = statsJoueur(j, [m]); return `<button class="carte vcarte ${ev.hdm === j ? 'on' : ''}" onclick="App.etat.vote.hdm='${j}';render()">${ev.hdm === j ? `<span class="ok">${ic('check')}</span>` : ''}${avatar(j)}<b>${esc(prenom(j))}</b><span>${[s.g && `${s.g} but${s.g > 1 ? 's' : ''}`, s.a && `${s.a} passe${s.a > 1 ? 's' : ''}`].filter(Boolean).join(' · ') || esc(numTxt(joueur(j), '#'))}</span><div class="mt8">${chipPoste(joueur(j).poste)}</div></button>`; }).join('')}</div>`;
     h += `<button class="btn" onclick="App.etat.voteTab='notes';render();scrollTo(0,0)">${ic('arrow_forward')} Suivant : noter les coéquipiers</button>`;
   } else if (tab === 'notes' && peut) {
     h += sec('Noter mes coéquipiers') + `<p class="muted" style="margin-top:-6px;margin-bottom:12px">Facultatif. Laisse « – » pour ne pas noter.</p>`;
@@ -506,7 +506,7 @@ function pageJoueur(id) {
     <div class="photo-wrap">${avatar(id, 'xl')}${peutPhoto ? `<button class="photo-btn" onclick="changerPhoto('${id}')" aria-label="Changer la photo">${ic('photo_camera')}</button>` : ''}</div>
     ${peutPhoto ? `<button class="lien-btn mt12" onclick="changerPhoto('${id}')">${ic('add_a_photo')} Changer la photo de profil</button>` : ''}
     <h2>${esc(j.nom)}</h2>
-    <div class="chips">${j.role === 'capitaine' ? '<span class="chip plein">C · Capitaine</span>' : ''}<span class="chip or">#${esc(j.numero ?? '–')}</span>${chipPoste(j.poste)}</div>
+    <div class="chips">${j.role === 'capitaine' ? '<span class="chip plein">C · Capitaine</span>' : ''}${numTxt(j, '') ? `<span class="chip or">#${esc(j.numero)}</span>` : ''}${chipPoste(j.poste)}</div>
     ${Store.capitaine || moi ? `<div class="duo" style="max-width:360px;margin:0 auto">${Store.capitaine ? `<button class="btn" onclick="formJoueur('${id}')">${ic('edit')} Modifier</button>` : ''}${moi && Store.mode === 'firebase' ? `<button class="btn gris" onclick="Store.deconnexion()">${ic('logout')} Déconnexion</button>` : ''}</div>` : ''}
   </section>`;
   h += sec(`Saison ${esc(cfg.saison)}`, 'emoji_events');
@@ -557,7 +557,7 @@ function pagePaiements(ouvert) {
       ${cap ? `<div class="entre mt12"><button class="lien-btn" onclick="location.replace('#/paiements${det ? '' : '/' + p.id}')">${ic(det ? 'expand_less' : 'expand_more')} ${det ? 'Masquer' : 'Détail par joueur'}</button><button class="lien-btn" onclick="formCollecte('${p.id}')">${ic('edit')} Modifier</button></div>` : ''}
     </div>`;
     if (cap && det) {
-      h += `<div class="carte liste" style="margin:-4px 0 14px">${ids.sort((a, b) => (joueur(a).numero || 99) - (joueur(b).numero || 99)).map(j => `<div class="ligne">${avatar(j)}<div class="t"><b class="nom-t">${esc(nomJ(j))} <span class="or-t">#${esc(joueur(j).numero ?? '')}</span></b></div>
+      h += `<div class="carte liste" style="margin:-4px 0 14px">${ids.sort((a, b) => (joueur(a).numero || 99) - (joueur(b).numero || 99)).map(j => `<div class="ligne">${avatar(j)}<div class="t"><b class="nom-t">${esc(nomJ(j))} <span class="or-t">${esc(numTxt(joueur(j), '#'))}</span></b></div>
         <button class="statut ${p.joueurs[j] ? 'ok' : 'ko'}" onclick="basculePaiement('${p.id}','${j}')">${ic(p.joueurs[j] ? 'check_circle' : 'hourglass_empty')} ${p.joueurs[j] ? 'Payé' : 'Pas payé'}</button></div>`).join('')}</div>`;
       const impayes = ids.filter(j => !p.joueurs[j]);
       if (impayes.length) h += `<button class="btn sec" style="margin-top:0;margin-bottom:14px" onclick="relancePaiement('${p.id}')">${ic('chat')} Rappel WhatsApp (${impayes.length} non payés)</button>`;
@@ -579,7 +579,7 @@ function pageReglages(sous) {
   const nbPay = Store.liste('paiements').filter(p => Object.values(p.joueurs || {}).some(v => !v)).length;
   const conv = TYPES.map(t => `${t} : ${Array.isArray(cfg.convocation?.[t]) ? cfg.convocation[t].length + ' joueurs' : 'tous'}`).join(' · ');
   const lim = +cfg.limiteJours < 0 ? 'pas de limite' : `${['le jour même', 'la veille', '2 jours avant', '3 jours avant'][+cfg.limiteJours] || cfg.limiteJours + ' j avant'} à ${cfg.limiteHeure}`;
-  let h = `<section class="carte pad rayures mt16"><div class="flex">${avatar(Store.moi, 'l or')}<div style="min-width:0"><div class="nom-t" style="font-family:var(--titre);font-size:26px;color:var(--blanc);line-height:1">${esc(moi?.nom || '')} <span class="or-t">#${esc(moi?.numero ?? '')}</span></div><span class="label or">Capitaine & gestionnaire</span></div><span class="chip plein" style="margin-left:auto">Admin</span></div></section>`;
+  let h = `<section class="carte pad rayures mt16"><div class="flex">${avatar(Store.moi, 'l or')}<div style="min-width:0"><div class="nom-t" style="font-family:var(--titre);font-size:26px;color:var(--blanc);line-height:1">${esc(moi?.nom || '')} <span class="or-t">${esc(numTxt(moi, '#'))}</span></div><span class="label or">Capitaine & gestionnaire</span></div><span class="chip plein" style="margin-left:auto">Admin</span></div></section>`;
   h += sec('Paiements & trésorerie', 'payments');
   h += `<div class="carte">${ligne('account_balance_wallet', 'Liste des paiements', 'Cotisations, tournois… Suivi manuel, 0 € en ligne', "location.hash='#/paiements'", nbPay ? `<span class="chip or">${nbPay} en cours</span>` : '')}</div>`;
   h += sec('Équipe & identité', 'shield');

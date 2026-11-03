@@ -10,6 +10,8 @@ const prenom = id => id === 'csc' ? 'CSC' : nomJ(id).split(' ')[0];
 const adv = m => Store.get('adversaires', m?.adversaire) || { nom: m?.adversaireNom || 'Adversaire', logo: null };
 const lieuDe = m => Store.get('lieux', m?.lieu) || (m?.lieuNom ? { nom: m.lieuNom } : null);
 const photoJ = j => j?.photo || j?.photoGoogle || (j && j.id === Store.moi && Store.user?.photo) || null;
+// « #10 » seulement si le joueur a un numéro (l'équipe n'a pas de numéros attitrés)
+const numTxt = (j, pre = ' #') => j && j.numero != null && j.numero !== '' ? pre + j.numero : '';
 const tousJoueurs = () => Store.liste('joueurs').sort((a, b) => (a.numero || 99) - (b.numero || 99));
 
 const resultat = m => !m?.joue ? null : m.scoreNous > m.scoreEux ? 'V' : m.scoreNous < m.scoreEux ? 'D' : 'N';

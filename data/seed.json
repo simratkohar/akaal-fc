@@ -4,7 +4,7 @@
     "j1": {
       "id": "j1",
       "nom": "Simrat Kohar",
-      "numero": 10,
+      "numero": null,
       "poste": null,
       "role": "capitaine",
       "email": null

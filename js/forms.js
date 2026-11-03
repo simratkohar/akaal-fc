@@ -25,7 +25,7 @@ function cochesHtml(ids, selection, onclickFn) {
 }
 const val = id => $('#' + id)?.value?.trim() ?? '';
 const optionsJoueurs = (sel, { vide = false, csc = false, videTxt = '— aucun —' } = {}) =>
-  `${vide ? `<option value="">${videTxt}</option>` : ''}${csc ? `<option value="csc" ${sel === 'csc' ? 'selected' : ''}>CSC (contre son camp)</option>` : ''}${tousJoueurs().map(j => `<option value="${j.id}" ${sel === j.id ? 'selected' : ''}>${esc(j.nom)} #${esc(j.numero ?? '')}</option>`).join('')}`;
+  `${vide ? `<option value="">${videTxt}</option>` : ''}${csc ? `<option value="csc" ${sel === 'csc' ? 'selected' : ''}>CSC (contre son camp)</option>` : ''}${tousJoueurs().map(j => `<option value="${j.id}" ${sel === j.id ? 'selected' : ''}>${esc(j.nom)}${esc(numTxt(j))}</option>`).join('')}`;
 
 /* ---------------- Présence ---------------- */
 async function repondre(mid, rep, jid = Store.moi) {
@@ -229,7 +229,7 @@ function formJoueur(id) {
   F = { id, poste: j?.poste || 'Milieu', cap: j?.role === 'capitaine' };
   ouvrirFeuille(`<h3>${j ? 'Modifier le joueur' : 'Nouveau joueur'}</h3>
     <div class="grille3"><div><label class="f">Nom</label><input class="in" id="j-nom" value="${esc(j?.nom || '')}" placeholder="Prénom Nom"></div>
-      <div><label class="f">Numéro</label><input class="in" type="number" min="0" max="99" inputmode="numeric" id="j-num" value="${j?.numero ?? ''}"></div></div>
+      <div><label class="f">Numéro (facultatif)</label><input class="in" type="number" min="0" max="99" inputmode="numeric" id="j-num" value="${j?.numero ?? ''}"></div></div>
     <label class="f">Poste</label>${choixHtml('poste', POSTES, F.poste)}
     <label class="f">E-mail Google (pour se connecter)</label><input class="in" type="email" id="j-email" value="${esc(j?.email || '')}" placeholder="prenom.nom@gmail.com" autocapitalize="off">
     <p class="aide">Le joueur se connecte avec ce compte Google : il est alors reconnu automatiquement.${j?.uid ? ' <b class="or-t">✓ Compte déjà lié.</b>' : ''}</p>
@@ -296,7 +296,7 @@ function compoFormation(f) {
 function compoChoisir(slot) {
   const c = App.etat.compo, m = Store.get('matchs', c.match), cpt = compteurs(m);
   const ou = j => { const s = Object.entries(c.postes).find(([, x]) => x === j); return s ? s[0] : c.remplacants.includes(j) ? 'Remplaçant' : ''; };
-  const btn = j => `<button class="choix-joueur ${c.postes[slot] === j ? 'on' : ''}" onclick="compoPlacer('${slot}','${j}')">${avatar(j, 's')}<span style="flex:1"><b>${esc(nomJ(j))}</b> <span>#${esc(joueur(j)?.numero ?? '')} · ${esc(joueur(j)?.poste || '')}</span></span><span class="label or">${ou(j)}</span></button>`;
+  const btn = j => `<button class="choix-joueur ${c.postes[slot] === j ? 'on' : ''}" onclick="compoPlacer('${slot}','${j}')">${avatar(j, 's')}<span style="flex:1"><b>${esc(nomJ(j))}</b> <span>${[numTxt(joueur(j), '#'), joueur(j)?.poste].filter(Boolean).map(esc).join(' · ')}</span></span><span class="label or">${ou(j)}</span></button>`;
   ouvrirFeuille(`<h3>Emplacement ${esc(slot)}</h3><p class="aide">Joueurs marqués présents. Toucher un joueur déjà placé l’échange de place.</p>
     ${cpt.p.map(btn).join('') || '<p class="aide">Aucun joueur présent pour l’instant.</p>'}
     ${cpt.q.length ? `<label class="f">Sans réponse</label>${cpt.q.map(btn).join('')}` : ''}
