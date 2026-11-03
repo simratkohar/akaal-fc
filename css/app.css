@@ -425,3 +425,6 @@ input[type=date].in,input[type=time].in{min-height:46px}
 [hidden]{display:none!important}
 
 @media (max-width:380px){.top h1 .tag{display:none}.top h1{font-size:23px}}
+.av-statut{position:relative;flex:none}
+.av-statut .pastille{position:absolute;right:-3px;bottom:-3px;width:19px;height:19px;border-radius:50%;display:grid;place-items:center;color:#fff;border:2px solid var(--carte)}
+.av-statut .pastille .ms{font-size:13px;font-variation-settings:'FILL' 1,'wght' 700}
