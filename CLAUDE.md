@@ -97,6 +97,11 @@ Les stats saison sont **calculées** à partir de ces collections, jamais saisie
 - **Lien visiteur** `?voir` (ancien `?demo` aussi) : lecture seule en direct, sans compte. Lit les collections publiques (matchs, buts, présences, votes, lieux, adversaires, equipe) et `profils/{id}` {nom, numero, poste, role, photo, photoGoogle} = copie publique des fiches **sans e-mail**, tenue à jour automatiquement par l'app du capitaine (`Store._syncProfils`). Restent privés : `joueurs`, `paiements`, `acces`.
 - Mode démo : bouton « ★ Cap. / Joueur » en haut pour basculer de vue ; Réglages → Réinitialiser la démo.
 
+## Vidéos (motion design)
+- Outil : **HyperFrames** (HeyGen, open source, HTML → MP4). Skills `hyperframes`, `hyperframes-cli`, `media-use` installés sur le **compte Claude** de l'utilisateur (pas dans le dépôt) : **les lire avant toute vidéo**.
+- Mode d'emploi du club et astuces de l'environnement (GSAP en local, format 1080×1920) : `videos/README.md`.
+- Première démo faite : résultat Akaal FC 9-4 MAMS (story 10 s). Idée validée : bouton « Créer la vidéo » sur la fiche match.
+
 ## Fonctionnalités en plus (validées par l'utilisateur)
 - **Rappels / notifications push** (PWA, service worker + Firebase Cloud Messaging, gratuit) : nouveau match créé, relance la veille aux joueurs sans réponse, résultat publié.
 - **Bilan des présences** : taux de présence par joueur sur la saison (onglet Stats).
