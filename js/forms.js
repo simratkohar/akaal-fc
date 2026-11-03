@@ -64,6 +64,37 @@ async function definirPresence(mid, jid, statut) {
   if (await Store.batch(ops)) { fermerFeuille(); toast(`${prenom(jid)} : ${statut === 'present' ? (m.joue ? 'a joué ✓' : 'présent ✓') : statut === 'absent' ? 'absent' : 'sans réponse'}`); }
 }
 
+/* Capitaine : ajouter au match un joueur occasionnel (vient dépanner) */
+function formOccasionnel(mid) {
+  const m = Store.get('matchs', mid), deja = new Set(compteurs(m).p);
+  const anciens = tousJoueurs().filter(j => j.role === 'invite' && !deja.has(j.id));
+  ouvrirFeuille(`<h3>Joueur occasionnel</h3>
+    <p class="aide">Quelqu’un qui vient dépanner : ses buts comptent pour le match, mais il n’entre ni dans l’effectif ni dans les classements.</p>
+    ${anciens.length ? `<label class="f">Déjà venu</label>${anciens.map(j => `<button class="choix-joueur" onclick="ajouterOccasionnel('${mid}','${j.id}')">${avatar(j.id, 's rond')}<span style="flex:1"><b>${esc(j.nom)}</b></span><span class="label or">${ic('add')} Ajouter</span></button>`).join('')}<label class="f">Ou quelqu’un de nouveau</label>` : `<label class="f">Prénom et nom</label>`}
+    <input class="in" id="o-nom" placeholder="Ex. Lovely Aujla">
+    <input class="in mt8" id="o-email" type="email" autocapitalize="off" placeholder="E-mail Google (facultatif)">
+    <p class="aide">Avec son e-mail, il pourra se connecter et répondre lui-même aux prochains matchs.</p>
+    <button class="btn" onclick="ajouterOccasionnel('${mid}')">${ic('person_add')} Ajouter au match</button>`);
+}
+async function ajouterOccasionnel(mid, jid) {
+  if (!Store.capitaine) return;
+  const m = Store.get('matchs', mid), ops = [];
+  if (!jid) {
+    const nom = val('o-nom'); if (!nom) return toast('Indique son prénom et son nom');
+    const email = val('o-email').toLowerCase() || null;
+    if (email && Store.liste('joueurs').some(x => x.email === email)) return toast('Cet e-mail est déjà utilisé par un autre joueur');
+    const exist = Store.liste('joueurs').find(x => x.nom.toLowerCase() === nom.toLowerCase());
+    if (exist) jid = exist.id;
+    else { jid = nouvelId(); ops.push({ op: 'set', col: 'joueurs', id: jid, obj: { nom, numero: null, poste: null, role: 'invite', email } }); }
+  }
+  const conv = new Set(convoques(m)); conv.add(jid);
+  const modif = { convoques: [...conv] };
+  if (m.joue) { const oj = new Set(m.ontJoue || []); oj.add(jid); modif.ontJoue = [...oj]; }
+  ops.push({ op: 'patch', col: 'matchs', id: mid, obj: modif });
+  ops.push({ op: 'set', col: 'presences', id: `${mid}_${jid}`, obj: { match: mid, joueur: jid, reponse: 'present', maj: Date.now() } });
+  if (await Store.batch(ops)) { fermerFeuille(); toast(`${nomJ(jid) === 'Ancien joueur' ? 'Joueur' : prenom(jid)} ajouté au match ✓`); }
+}
+
 /* ---------------- Match (créer / modifier) ---------------- */
 function formMatch(id) {
   if (!Store.capitaine) return;
@@ -94,7 +125,7 @@ function formMatch(id) {
 function convocParDefaut(type) {
   const c = Store.config().convocation?.[type];
   const ids = Object.keys(Store.data.joueurs);
-  return Array.isArray(c) ? c.filter(x => ids.includes(x)) : ids;
+  return Array.isArray(c) ? c.filter(x => ids.includes(x)) : ids.filter(id => joueur(id)?.role !== 'invite');
 }
 function majTypeMatch() {
   $('#f-journee-bloc').hidden = F.type !== 'Championnat';
@@ -202,6 +233,7 @@ function formJoueur(id) {
     <label class="f">Poste</label>${choixHtml('poste', POSTES, F.poste)}
     <label class="f">E-mail Google (pour se connecter)</label><input class="in" type="email" id="j-email" value="${esc(j?.email || '')}" placeholder="prenom.nom@gmail.com" autocapitalize="off">
     <p class="aide">Le joueur se connecte avec ce compte Google : il est alors reconnu automatiquement.${j?.uid ? ' <b class="or-t">✓ Compte déjà lié.</b>' : ''}</p>
+    <div class="inter"><span><b style="color:var(--blanc)">Joueur occasionnel</b><br><span class="aide">Vient dépanner : hors effectif et hors classements</span></span><label class="switch"><input type="checkbox" id="j-occ" ${j?.role === 'invite' ? 'checked' : ''}><i></i></label></div>
     <div class="inter"><span><b style="color:var(--blanc)">Capitaine</b><br><span class="aide">Accès à tous les réglages et à la saisie</span></span><label class="switch"><input type="checkbox" id="j-cap" ${F.cap ? 'checked' : ''}><i></i></label></div>
     <button class="btn" onclick="enregistrerJoueur()">${ic('check')} Enregistrer</button>
     ${j && id !== Store.moi ? `<button class="btn danger" onclick="supprimerJoueur('${id}')">${ic('person_remove')} Retirer de l’effectif</button>` : ''}`);
@@ -211,7 +243,7 @@ async function enregistrerJoueur() {
   const email = val('j-email').toLowerCase();
   if (email && Store.liste('joueurs').some(x => x.email === email && x.id !== F.id)) return toast('Cet e-mail est déjà utilisé par un autre joueur');
   const ancien = F.id ? joueur(F.id) : null;
-  const role = $('#j-cap').checked ? 'capitaine' : 'joueur';
+  const role = $('#j-cap').checked ? 'capitaine' : $('#j-occ').checked ? 'invite' : 'joueur';
   if (ancien && F.id === Store.moi && role !== 'capitaine' && !confirm('Tu vas perdre tes droits de capitaine. Continuer ?')) return;
   const id = F.id || nouvelId();
   const obj = { ...(ancien || {}), nom, numero: val('j-num') === '' ? null : +val('j-num'), poste: F.poste, email, role };
