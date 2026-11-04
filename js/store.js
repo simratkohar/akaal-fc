@@ -79,24 +79,18 @@ const Store = {
   },
 
   /* ---------------- Mode démo ---------------- */
-  // Visite (?demo alors que Firebase est configuré) : vraies données de data/seed.json, sans compte
-  get visite() { return false; }, // ancien aperçu figé, remplacé par le mode visiteur en direct
-  async _initDemo() {
+  get visite() { return false; },
+  _initDemo() {
     let d = null;
-    if (this.visite) {
-      try { d = normaliserSeed(await (await fetch('data/seed.json', { cache: 'no-store' })).json()); } catch (e) { console.error(e); }
-    } else {
-      try { d = JSON.parse(localStorage.getItem(CLE_DEMO)); } catch {}
-    }
+    try { d = JSON.parse(localStorage.getItem(CLE_DEMO)); } catch {}
     if (!d || !d.joueurs) d = donneesDemo();
     COLLECTIONS.forEach(c => this.data[c] = d[c] || {});
     const cap = this.liste('joueurs').find(j => j.role === 'capitaine');
-    if (this.visite) { this.moi = null; this.role = 'joueur'; this.user = { uid: 'visite', email: null, nom: 'Visiteur', photo: null }; }
-    else { this.moi = cap?.id; this.role = 'capitaine'; this.user = { uid: 'demo', email: cap?.email, nom: cap?.nom, photo: null }; }
+    this.moi = cap?.id; this.role = 'capitaine'; this.user = { uid: 'demo', email: cap?.email, nom: cap?.nom, photo: null };
     this.etat = 'pret';
     this._notifie();
   },
-  _sauveDemo() { if (this.visite) return; try { localStorage.setItem(CLE_DEMO, JSON.stringify(this.data)); } catch {} },
+  _sauveDemo() { try { localStorage.setItem(CLE_DEMO, JSON.stringify(this.data)); } catch {} },
   basculeDemo() { // capitaine ↔ vue d'un joueur (ou visiteur)
     const js = this.liste('joueurs');
     if (this.role === 'capitaine') {
@@ -216,52 +210,14 @@ const Store = {
     }, 1500);
   },
   /* Premier lancement : le capitaine (e-mail autorisé dans les règles) crée l'équipe */
-  /* Opérations pour écrire les vraies données SportEasy (data/seed.json) */
-  async _opsSeed() {
-    const seed = await (await fetch('data/seed.json', { cache: 'no-store' })).json();
-    const ops = [];
-    const cfg = { ...CONFIG_DEFAUT, ...(this.data.equipe.config || {}), ...(seed.equipe?.config || {}) }; delete cfg.id;
-    ops.push({ op: 'set', col: 'equipe', id: 'config', obj: cfg });
-    const cap = Object.values(seed.joueurs || {}).find(j => j.role === 'capitaine');
-    ['joueurs', 'lieux', 'adversaires', 'matchs', 'buts', 'presences', 'paiements'].forEach(col => {
-      Object.values(seed[col] || {}).forEach(o => {
-        const x = { ...o }; delete x.id;
-        if (col === 'matchs') {
-          if (!x.format) x.format = x.type === 'Championnat' ? '7' : (cfg.formatParDefaut || '8');
-          if (!x.saison) x.saison = saisonDe(x.date);
-          if (!x.limite) x.limite = new Date(x.date).getTime();
-        }
-        if (col === 'joueurs' && cap && o.id === cap.id) Object.assign(x, { email: this.user.email, uid: this.user.uid, photoGoogle: this.user.photo || null, role: 'capitaine' });
-        ops.push({ op: 'set', col, id: o.id, obj: x });
-      });
-    });
-    return { ops, capId: cap?.id };
-  },
-  async creerEquipe(nom, numero, avecDonnees = false) {
+  async creerEquipe(nom, numero) {
     try {
-      let ops = [], moiId = nouvelId();
-      if (avecDonnees) { const r = await this._opsSeed(); ops = r.ops; if (r.capId) moiId = r.capId; }
-      if (!ops.some(o => o.col === 'joueurs' && o.id === moiId))
-        ops.push({ op: 'set', col: 'joueurs', id: moiId, obj: { nom, numero: +numero || 10, poste: 'Milieu', role: 'capitaine', email: this.user.email, uid: this.user.uid, photoGoogle: this.user.photo || null } });
-      if (!ops.some(o => o.col === 'equipe')) ops.push({ op: 'set', col: 'equipe', id: 'config', obj: { ...CONFIG_DEFAUT } });
+      const ops = [], moiId = nouvelId();
+      ops.push({ op: 'set', col: 'joueurs', id: moiId, obj: { nom, numero: +numero || 10, poste: 'Milieu', role: 'capitaine', email: this.user.email, uid: this.user.uid, photoGoogle: this.user.photo || null } });
+      ops.push({ op: 'set', col: 'equipe', id: 'config', obj: { ...CONFIG_DEFAUT } });
       ops.push({ op: 'set', col: 'acces', id: this.user.uid, obj: { joueur: moiId, role: 'capitaine', email: this.user.email } });
       if (!(await this.batch(ops))) return;
       toast('Équipe créée ✓');
-      return this._surCompte(this.auth.currentUser);
-    } catch (e) { console.error(e); toast('Erreur : ' + e.message); }
-  },
-  /* Équipe déjà créée : on ajoute les données SportEasy et on relie le capitaine à sa fiche SportEasy */
-  async importerDonnees() {
-    try {
-      const { ops, capId } = await this._opsSeed();
-      const ancien = this.moi;
-      if (capId && ancien && ancien !== capId) {
-        ops.push({ op: 'set', col: 'acces', id: this.user.uid, obj: { joueur: capId, role: 'capitaine', email: this.user.email } });
-        const utilise = ['matchs', 'buts', 'presences', 'votes'].some(c => this.liste(c).some(x => JSON.stringify(x).includes('"' + ancien + '"')));
-        if (!utilise) ops.push({ op: 'del', col: 'joueurs', id: ancien });
-      }
-      if (!(await this.batch(ops))) return;
-      toast('Données SportEasy importées ✓');
       return this._surCompte(this.auth.currentUser);
     } catch (e) { console.error(e); toast('Erreur : ' + e.message); }
   },
@@ -276,21 +232,6 @@ const Store = {
 /* =========================================================
    Données fictives pour le mode démo
    ========================================================= */
-/* Données SportEasy (data/seed.json) au format de l'app */
-function normaliserSeed(seed) {
-  const d = Object.fromEntries(COLLECTIONS.map(c => [c, {}]));
-  const cfg = { ...CONFIG_DEFAUT, ...(seed.equipe?.config || {}), id: 'config' };
-  COLLECTIONS.forEach(c => Object.values(seed[c] || {}).forEach(o => { d[c][o.id] = { ...o }; }));
-  d.equipe.config = cfg;
-  Object.values(d.matchs).forEach(m => {
-    if (!m.format) m.format = m.type === 'Championnat' ? '7' : (cfg.formatParDefaut || '8');
-    if (!m.saison) m.saison = saisonDe(m.date);
-    if (!m.limite) m.limite = new Date(m.date).getTime();
-  });
-  Object.values(d.joueurs).forEach(j => { j.email = null; });
-  return d;
-}
-
 function donneesDemo() {
   const d = Object.fromEntries(COLLECTIONS.map(c => [c, {}]));
   const jour = (n, h) => { const x = new Date(); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() + n); const [hh, mm] = h.split(':'); x.setHours(+hh, +mm); return x.toISOString(); };

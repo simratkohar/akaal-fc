@@ -126,15 +126,10 @@ Les stats saison sont **calculées** à partir de ces collections, jamais saisie
 4. Bouton « Créer la vidéo » sur la fiche match (modèle : vidéo HyperFrames 9-4 MAMS).
 5. Plus tard : notifications push (FCM ; envoi programmé = serveur, piste gratuite : GitHub Actions planifiée).
 
-## Vraies données (`data/seed.json`)
-- Reprises de SportEasy et complétées par le capitaine (2 novembre 2026), **au même format que `donneesDemo()`** de `js/store.js` (collections → `{id: doc}`).
-- Équipe : Akaal FC, Football, Masculin, Adultes tous âges, Association loisir, format par défaut 8 contre 8, créée en 2019.
-- 13 membres : Simrat Kohar (capitaine et joueur, #10), Gurnoor, Gagan, Guransh, Harkarandeep, **Harman Blankok**, **Harman Sidhu**, Harmanjeet, Jasmeet, Karn, Rajguru, Sehaj Singh, Tal Sidhu. **Pas de postes** dans l'équipe : le champ poste doit être facultatif (effectif non groupé par poste si vide).
-- 1 invité : Lovely Aujla (`role: 'invite'`), venu dépanner : ses buts comptent dans le match mais il n'apparaît pas dans l'effectif ni dans les classements par défaut. Prévoir la possibilité d'ajouter un invité lors de la saisie d'un résultat.
-- 1 lieu, 11 adversaires, 6 matchs joués (4 amicaux, FSGT J1 et J2) avec scores et buts.
-- Buts : m3 à m6 complets ; m1 (4 connus sur 5) et m2 (8 connus sur 11) incomplets. Association buteur ↔ passeur arbitraire (seuls les totaux par joueur sont connus). `ontJoue` ne contient que les buteurs/passeurs connus.
-- Inconnu (null) : numéros (sauf Simrat), e-mails, lieux et format des amicaux.
-- À faire : un bouton capitaine « Importer les données réelles » ; à l'import Firebase, écrire chaque collection telle quelle.
+## Vraies données
+- Reprises de SportEasy le 2 novembre 2026 et **importées dans Firestore** (équipe, 13 joueurs + 1 occasionnel, 11 adversaires, 6 matchs, buts, présences). Le fichier d'import `data/seed.json` a été **supprimé du dépôt** (public) une fois l'import fait ; les données vivent uniquement dans Firebase.
+- Pas de postes dans l'équipe (champ facultatif), pas de numéros attitrés pour l'instant.
+- Joueur occasionnel : `role: 'invite'` (ex. Lovely Aujla), hors effectif, convocations et classements.
 
 ## Écran « Mes statistiques » (référence SportEasy)
 - Matchs joués, puis 3 anneaux Victoires / Nuls / Défaites, cartes Buts et Passes décisives, bloc Homme du match (avatar + nombre de fois élu, ou « pas encore élu »), Mes notes (max / moy / min), Mes derniers matchs (pastilles V/N/D colorées).

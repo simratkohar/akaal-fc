@@ -141,7 +141,7 @@ function pageAccueil() {
   h += `<div class="duo"><a class="btn sec" href="#/classement">${ic('format_list_numbered')} Classement</a><a class="btn sec" href="#/bilan">${ic('auto_awesome')} Bilan saison</a></div>`;
   h += `</div></div>`;
   if (Store.visiteur) h += `<p class="note-bas">APERÇU EN DIRECT · LECTURE SEULE</p><a class="btn gris" href="./">${ic('login')} Je suis dans l’équipe : me connecter</a>`;
-  if (Store.mode === 'demo') h += `<p class="note-bas">${Store.visite ? 'APERÇU · VRAIES DONNÉES SPORTEASY · SANS LES PHOTOS' : 'MODE DÉMO · DONNÉES FICTIVES · RIEN N\'EST PARTAGÉ'}</p>${typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG ? `<a class="btn gris" href="./">${ic('login')} Se connecter</a>` : ''}`;
+  if (Store.mode === 'demo') h += `<p class="note-bas">MODE DÉMO · DONNÉES FICTIVES · RIEN N'EST PARTAGÉ</p>${typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG ? `<a class="btn gris" href="./">${ic('login')} Se connecter</a>` : ''}`;
   return h;
 }
 function compteARebours(iso) {
@@ -626,7 +626,6 @@ function pageReglages(sous) {
     ${ligne('event_available', 'Gestion des présences', `Réponse ${lim}${+cfg.maxJoueurs > 0 ? ' · max ' + cfg.maxJoueurs + ' joueurs' : ''}`, 'formPresences()')}
     ${ligne('format_list_numbered', 'Classement ' + esc(cfg.championnat), 'Tableau du groupe + lien officiel', "location.hash='#/classement'")}
   </div>`;
-  if (Store.mode === 'firebase' && !Store.get('joueurs', 'j1')) h += `<button class="btn" onclick="if(confirm('Importer les joueurs, adversaires et matchs repris de SportEasy ? Ta fiche sera remplacée par « Simrat Kohar ».'))Store.importerDonnees()">${ic('cloud_download')} Importer les données SportEasy</button>`;
   h += `<button class="btn sec" onclick="partagerLien()">${ic('share')} Partager le lien de l’app à l’équipe</button>`;
   if (Store.mode === 'demo') h += `<button class="btn danger" onclick="if(confirm('Remettre les données de démo à zéro ?'))Store.reinitDemo()">${ic('restart_alt')} Réinitialiser la démo</button>`;
   else h += `<button class="btn danger" onclick="Store.deconnexion()">${ic('logout')} Se déconnecter</button>`;
