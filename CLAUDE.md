@@ -66,7 +66,7 @@ Contexte pour Claude Code. Lis ce fichier avant de travailler sur le dépôt.
 
 ## Stack (décidée, 0 €)
 - HTML/CSS/JS simple, **sans framework, sans build**.
-- Code sur ce dépôt public (`simratkohar/akaal-fc`). Hébergement : **Firebase Hosting** (gratuit, offre Spark), URL **`https://akaal-fc.web.app`**, publié automatiquement à chaque push sur `main` par `.github/workflows/firebase-hosting.yml` (secret GitHub `FIREBASE_SERVICE_ACCOUNT_AKAAL_FC`). Ancienne adresse GitHub Pages : `https://simratkohar.github.io/akaal-fc/`.
+- Code sur ce dépôt public (`simratkohar/akaal-fc`). Hébergement : **Firebase Hosting** (gratuit, offre Spark), URL **`https://akaal-fc.web.app`**, publié automatiquement à chaque push sur `main` par `.github/workflows/firebase-hosting.yml` (secret GitHub `FIREBASE_SERVICE_ACCOUNT_AKAAL_FC`). Ancienne adresse GitHub Pages `https://simratkohar.github.io/akaal-fc/` : redirige vers akaal-fc.web.app (script en tête de `index.html`).
 - Données et connexion : **Firebase, offre Spark** (gratuite, sans carte bancaire) — Firestore + Authentication Google. **Ne jamais passer en offre Blaze.**
 
 ## Modèle de données (Firestore)
@@ -92,7 +92,7 @@ Les stats saison sont **calculées** à partir de ces collections, jamais saisie
   - Maquettes Stitch rangées dans `maquettes/` (captures + code exporté + `DESIGN.md`).
 - Fonctionnalités faites : tous les écrans (accueil, calendrier, fiche match Infos/Présences/Compo/Stats, stats + classements, effectif, fiche joueur enrichie avec forme/note/présence/badges, photo de profil), compo (formations, placement auto, remplaçants), votes HDM + notes, paiements, réglages (équipe, lieux, adversaires, votes, membres concernés, présences), classement FSGT saisi + lien officiel, face-à-face, archives par saison, bilan « Wrapped », relances WhatsApp.
 - Accès : collection `acces/<uid>` {joueur, role, email} créée à la 1re connexion (le capitaine ajoute le joueur avec son e-mail Gmail → champ `joueurs.email`). Champs ajoutés : `matchs.journee`, `matchs.saison`, `matchs.convoques`, `matchs.limite` (ms, date limite de réponse), `matchs.votesFin` (ms), `buts.minute`, `paiements.echeance`, `paiements.saison`, doc `equipe/classement` {lignes, maj}.
-- `firestore.rules` : règles complètes (placeholder `TON_EMAIL@gmail.com` = compte fondateur/capitaine). Testées : `tests/regles` (49 tests, émulateur local). Les votes ne sont lisibles que par les membres.
+- `firestore.rules` : règles complètes (placeholder `TON_EMAIL@gmail.com` = compte fondateur/capitaine). Testées : `tests/regles` (52 tests, émulateur local). Les votes ne sont lisibles que par les membres.
 - À chaque mise en ligne d'une modif CSS/JS : augmenter `?v=` dans `index.html` et `sw.js` + le nom `CACHE` dans `sw.js` (sinon les téléphones gardent l'ancienne version).
 - **Lien visiteur** `?voir` (ancien `?demo` aussi) : lecture seule en direct, sans compte. Lit les collections publiques (matchs, buts, présences, lieux, adversaires, equipe) et `profils/{id}` {nom, numero, poste, role, photo, photoGoogle} = copie publique des fiches **sans e-mail**, tenue à jour automatiquement par l'app du capitaine (`Store._syncProfils`). Restent privés : `joueurs`, `paiements`, `acces`.
 - Mode démo : bouton « ★ Cap. / Joueur » en haut pour basculer de vue ; Réglages → Réinitialiser la démo.
