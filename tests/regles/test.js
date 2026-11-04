@@ -55,7 +55,10 @@ async function t(nom, p) { try { await p; ok++; console.log('✓', nom); } catch
   await t('joueur ne répond pas pour un autre', assertFails(j.doc('presences/m1_p3').set({ match: 'm1', joueur: 'p3', reponse: 'absent' })));
   await t('joueur bloqué après la date limite', assertFails(j.doc('presences/m2_p2').set({ match: 'm2', joueur: 'p2', reponse: 'present' })));
   await t('capitaine change une réponse après la limite', assertSucceeds(cap.doc('presences/m2_p2').set({ match: 'm2', joueur: 'p2', reponse: 'absent' })));
-  await t('joueur vote', assertSucceeds(j.doc('votes/m3_p2').set({ match: 'm3', joueur: 'p2', hommeDuMatch: 'p3', notes: { p3: 8 } })));
+  await t('joueur vote', assertSucceeds(j.doc('votes/m3_p2').set({ match: 'm3', joueur: 'p2', hommeDuMatch: 'p3' })));
+  await t('joueur ne met pas de notes', assertFails(j.doc('votes/m3_p2').set({ match: 'm3', joueur: 'p2', hommeDuMatch: 'p3', notes: { p3: 8 } })));
+  await t('joueur ne note pas dans le match', assertFails(j.doc('matchs/m3').update({ notes: { p2: 10 } })));
+  await t('capitaine note tout le monde, lui compris', assertSucceeds(cap.doc('matchs/m3').update({ notes: { p1: 6.5, p2: 8 } })));
   await t('joueur ne vote pas pour lui-même', assertFails(j.doc('votes/m3_p2').set({ match: 'm3', joueur: 'p2', hommeDuMatch: 'p2', notes: {} })));
   await t('pas de vote si pas joué', assertFails(j.doc('votes/m4_p2').set({ match: 'm4', joueur: 'p2', hommeDuMatch: 'p3', notes: {} })));
   await t('pas de vote après clôture', assertFails(j.doc('votes/m5_p2').set({ match: 'm5', joueur: 'p2', hommeDuMatch: 'p3', notes: {} })));

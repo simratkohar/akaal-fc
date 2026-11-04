@@ -83,6 +83,7 @@ service cloud.firestore {
       allow create, update: if membre()
         && vid == request.resource.data.match + '_' + moi()
         && request.resource.data.joueur == moi()
+        && request.resource.data.keys().hasOnly(['match', 'joueur', 'hommeDuMatch', 'maj'])
         && request.resource.data.hommeDuMatch != moi()
         && matchDoc(request.resource.data.match).joue == true
         && moi() in matchDoc(request.resource.data.match).ontJoue

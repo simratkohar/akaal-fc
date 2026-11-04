@@ -338,10 +338,24 @@ async function enregistrerVote() {
   const v = App.etat.vote, m = Store.get('matchs', v.match);
   if (!votesOuverts(m)) return toast('Les votes sont clos');
   if (!v.hdm) { App.etat.voteTab = 'hdm'; render(); return toast('Choisis d’abord ton homme du match'); }
-  const notes = {}; Object.entries(v.notes).forEach(([j, n]) => { if (+n >= 1 && +n <= 10 && j !== Store.moi) notes[j] = +n; });
-  if (await Store.set('votes', `${v.match}_${Store.moi}`, { match: v.match, joueur: Store.moi, hommeDuMatch: v.hdm, notes, maj: Date.now() })) {
+  if (await Store.set('votes', `${v.match}_${Store.moi}`, { match: v.match, joueur: Store.moi, hommeDuMatch: v.hdm, maj: Date.now() })) {
     toast('Vote enregistré ✓'); App.etat.voteTab = 'resultats'; render();
   }
+}
+
+/* Notes sur 10 : le capitaine note tous ceux qui ont joué, lui compris */
+function formNotes(mid) {
+  if (!Store.capitaine) return;
+  const m = Store.get('matchs', mid);
+  F = { notes: { ...(m.notes || {}) } };
+  const ids = [...aJoueSet(m)].sort((a, b) => nomJ(a).localeCompare(nomJ(b)));
+  ouvrirFeuille(`<h3>Notes du match</h3><p class="aide">Note sur 10 chaque joueur, toi compris. Laisse « – » pour ne pas noter. Seul le capitaine peut noter.</p>
+    <div class="carte mt12">${ids.map(j => `<div class="note-ligne">${avatar(j, 's')}<b style="flex:0 0 110px;color:var(--blanc);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(prenom(j))}${j === Store.moi ? ' (toi)' : ''}</b>
+      <input type="range" min="0" max="10" step="0.5" value="${F.notes[j] ?? 0}" oninput="const v=+this.value;if(v)F.notes['${j}']=v;else delete F.notes['${j}'];this.nextElementSibling.textContent=v?String(v).replace('.',','):'–'"><output>${F.notes[j] != null ? String(F.notes[j]).replace('.', ',') : '–'}</output></div>`).join('') || '<p class="aide" style="padding:14px">Coche d’abord qui a joué (onglet Présences).</p>'}</div>
+    <button class="btn" onclick="enregistrerNotes('${mid}')">${ic('check')} Enregistrer les notes</button>`);
+}
+async function enregistrerNotes(mid) {
+  if (await Store.patch('matchs', mid, { notes: F.notes })) { fermerFeuille(); toast('Notes enregistrées ✓'); }
 }
 
 /* ---------------- Paiements ---------------- */
@@ -446,7 +460,7 @@ function formEquipe() {
 async function logoEquipe() { const p = await choisirPhoto(); if (p) { F.logo = p; $('#e-logo').innerHTML = `<div class="ecusson nous" style="width:64px;height:64px"><img src="${p}"></div>`; } }
 function formVotes() {
   const c = Store.config(); F = { hdmMode: c.hdmMode, votesHeures: String(c.votesHeures) };
-  ouvrirFeuille(`<h3>Votes et notes</h3><p class="aide">Après un match, chaque joueur qui a joué vote pour l’homme du match et peut noter ses coéquipiers sur 10.</p>
+  ouvrirFeuille(`<h3>Votes et notes</h3><p class="aide">Après un match, chaque joueur qui a joué vote pour l’homme du match. Les notes sur 10 sont données par le capitaine seul (fiche match → Stats → « Noter les joueurs »).</p>
     <label class="f">Homme du match =</label>${choixHtml('hdmMode', ['vote', 'capitaine'], F.hdmMode, x => x === 'vote' ? 'Résultat du vote' : 'Mon choix')}
     <label class="f">Fermeture des votes après</label>${choixHtml('votesHeures', ['24', '48', '72'], F.votesHeures, x => x + ' h')}
     <button class="btn" onclick="sauverConfig({hdmMode:F.hdmMode,votesHeures:+F.votesHeures})">${ic('check')} Enregistrer</button>`);

@@ -130,9 +130,10 @@ function hommeDuMatch(m) {
   if (cfg.hdmMode === 'vote' && votesOuverts(m)) return null; // vote en cours
   return m.hommeDuMatch || null;
 }
+// Notes sur 10 : données par le capitaine seul (lui compris), rangées dans le match
 function noteMatch(jid, mid) {
-  const n = votesDe(mid).map(v => v.notes?.[jid]).filter(x => typeof x === 'number');
-  return n.length ? n.reduce((a, b) => a + b, 0) / n.length : null;
+  const n = Store.get('matchs', mid)?.notes?.[jid];
+  return typeof n === 'number' ? n : null;
 }
 function noteMoyenne(jid, matchs) {
   const n = matchs.map(m => noteMatch(jid, m.id)).filter(x => x != null);
