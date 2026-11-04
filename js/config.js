@@ -29,3 +29,7 @@ const FIREBASE_CONFIG = {
   appId: "1:123456789:web:abc123"
 };
 */
+
+/* Sur Firebase Hosting (akaal-fc.web.app), la connexion Google passe par le même domaine que l'app :
+   plus fiable sur iPhone (Safari bloque les cookies d'un autre site). */
+if (FIREBASE_CONFIG && /(\.web\.app|\.firebaseapp\.com)$/.test(location.hostname)) FIREBASE_CONFIG.authDomain = location.hostname;
