@@ -43,7 +43,7 @@ Contexte pour Claude Code. Lis ce fichier avant de travailler sur le dépôt.
 ### Autres réglages capitaine (repris de SportEasy, sauf « Gestion des tâches » et « Abonnement »)
 - **Paiements** : suivi des cotisations / frais (ex. cotisation saison, inscription tournoi) : montant, joueurs concernés, statut payé / pas payé coché par le capitaine. **Aucun paiement en ligne** (suivi seulement, 0 €). Chaque joueur voit ce qu'il doit.
 - **Détails de l'équipe** : nom, logo, couleurs, saison en cours, championnat (FSGT).
-- **Votes et notes du match** : après un match terminé, chaque joueur qui a joué vote pour l'homme du match et peut noter ses coéquipiers sur 10. Fermeture des votes au bout de 48 h (réglable). Le capitaine choisit si l'homme du match = résultat du vote ou son propre choix. Notes moyennes visibles dans les stats.
+- **Votes et notes du match** : après un match terminé, chaque joueur qui a joué vote pour l'homme du match. **Les notes sur 10 sont données par le capitaine seul, lui compris** (champ `matchs.notes` {joueurId: n}, demi-points). Fermeture des votes au bout de 48 h (réglable). Le capitaine choisit si l'homme du match = résultat du vote ou son propre choix. Notes moyennes visibles dans les stats.
 - **Membres concernés** : par type de match, quels joueurs sont convoqués par défaut (tout l'effectif, ou une sélection).
 - **Gestion des présences** : date limite de réponse (ex. la veille à 20 h), nombre max de joueurs, le capitaine peut changer la réponse d'un joueur.
 - Données : `paiements` {libelle, montant, joueurs: {id: paye(bool)}}, `votes` doc `<matchId>_<joueurId>` {hommeDuMatch, notes: {joueurId: n}}, réglages dans un doc `equipe/config`.
