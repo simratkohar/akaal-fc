@@ -43,7 +43,7 @@ Contexte pour Claude Code. Lis ce fichier avant de travailler sur le dépôt.
 ### Autres réglages capitaine (repris de SportEasy, sauf « Gestion des tâches » et « Abonnement »)
 - **Paiements** : suivi des cotisations / frais (ex. cotisation saison, inscription tournoi) : montant, joueurs concernés, statut payé / pas payé coché par le capitaine. **Aucun paiement en ligne** (suivi seulement, 0 €). Chaque joueur voit ce qu'il doit.
 - **Détails de l'équipe** : nom, logo, couleurs, saison en cours, championnat (FSGT).
-- **Votes et notes du match** : après un match terminé, chaque joueur qui a joué vote pour l'homme du match et peut noter ses coéquipiers sur 10. Fermeture des votes au bout de 48 h (réglable). Le capitaine choisit si l'homme du match = résultat du vote ou son propre choix. Notes moyennes visibles dans les stats.
+- **Votes et notes du match** : après un match terminé, chaque joueur qui a joué vote pour l'homme du match. **Les notes sur 10 sont données par le capitaine seul, lui compris** (champ `matchs.notes` {joueurId: n}, demi-points). Fermeture des votes au bout de 48 h (réglable). Le capitaine choisit si l'homme du match = résultat du vote ou son propre choix. Notes moyennes visibles dans les stats.
 - **Membres concernés** : par type de match, quels joueurs sont convoqués par défaut (tout l'effectif, ou une sélection).
 - **Gestion des présences** : date limite de réponse (ex. la veille à 20 h), nombre max de joueurs, le capitaine peut changer la réponse d'un joueur.
 - Données : `paiements` {libelle, montant, joueurs: {id: paye(bool)}}, `votes` doc `<matchId>_<joueurId>` {hommeDuMatch, notes: {joueurId: n}}, réglages dans un doc `equipe/config`.
@@ -92,9 +92,9 @@ Les stats saison sont **calculées** à partir de ces collections, jamais saisie
   - Maquettes Stitch rangées dans `maquettes/` (captures + code exporté + `DESIGN.md`).
 - Fonctionnalités faites : tous les écrans (accueil, calendrier, fiche match Infos/Présences/Compo/Stats, stats + classements, effectif, fiche joueur enrichie avec forme/note/présence/badges, photo de profil), compo (formations, placement auto, remplaçants), votes HDM + notes, paiements, réglages (équipe, lieux, adversaires, votes, membres concernés, présences), classement FSGT saisi + lien officiel, face-à-face, archives par saison, bilan « Wrapped », relances WhatsApp.
 - Accès : collection `acces/<uid>` {joueur, role, email} créée à la 1re connexion (le capitaine ajoute le joueur avec son e-mail Gmail → champ `joueurs.email`). Champs ajoutés : `matchs.journee`, `matchs.saison`, `matchs.convoques`, `matchs.limite` (ms, date limite de réponse), `matchs.votesFin` (ms), `buts.minute`, `paiements.echeance`, `paiements.saison`, doc `equipe/classement` {lignes, maj}.
-- `firestore.rules` : règles complètes (placeholder `TON_EMAIL@gmail.com` = compte fondateur/capitaine). Testées : `tests/regles` (36 tests, émulateur local).
+- `firestore.rules` : règles complètes (placeholder `TON_EMAIL@gmail.com` = compte fondateur/capitaine). Testées : `tests/regles` (49 tests, émulateur local). Les votes ne sont lisibles que par les membres.
 - À chaque mise en ligne d'une modif CSS/JS : augmenter `?v=` dans `index.html` et `sw.js` + le nom `CACHE` dans `sw.js` (sinon les téléphones gardent l'ancienne version).
-- **Lien visiteur** `?voir` (ancien `?demo` aussi) : lecture seule en direct, sans compte. Lit les collections publiques (matchs, buts, présences, votes, lieux, adversaires, equipe) et `profils/{id}` {nom, numero, poste, role, photo, photoGoogle} = copie publique des fiches **sans e-mail**, tenue à jour automatiquement par l'app du capitaine (`Store._syncProfils`). Restent privés : `joueurs`, `paiements`, `acces`.
+- **Lien visiteur** `?voir` (ancien `?demo` aussi) : lecture seule en direct, sans compte. Lit les collections publiques (matchs, buts, présences, lieux, adversaires, equipe) et `profils/{id}` {nom, numero, poste, role, photo, photoGoogle} = copie publique des fiches **sans e-mail**, tenue à jour automatiquement par l'app du capitaine (`Store._syncProfils`). Restent privés : `joueurs`, `paiements`, `acces`.
 - Mode démo : bouton « ★ Cap. / Joueur » en haut pour basculer de vue ; Réglages → Réinitialiser la démo.
 
 ## Vidéos (motion design)
@@ -120,11 +120,11 @@ Les stats saison sont **calculées** à partir de ces collections, jamais saisie
 - Automatique seulement si la FSGT IDF donne son accord ou propose un flux.
 
 ## Prochaines étapes
-1. ✅ Maquettes rangées, code restructuré, design Stitch, PWA, règles écrites et testées, toutes les fonctionnalités en mode démo.
-2. ✅ GitHub Pages activé, démo installée sur l'iPhone du capitaine.
-3. Firebase (voir `GUIDE-FIREBASE.md`, offre Spark) : ✅ projet `akaal-fc` créé, ✅ app web ajoutée et config collée dans `js/config.js`. Reste : Auth Google + domaine autorisé, Firestore, règles, puis mise en ligne et « Je suis le capitaine ».
-4. Importer les vraies données de `data/seed.json` (voir ci-dessous), compléter ce qui manque (e-mails Gmail, numéros, postes…), puis partager le lien à l'équipe.
-5. Plus tard : notifications push (FCM ; l'envoi programmé demande un serveur — piste gratuite : GitHub Actions planifiée), visuel Instagram du résultat.
+1. ✅ Code, design, PWA, Firebase (Spark) en production, règles publiées, données SportEasy importées, e-mails des joueurs enregistrés, lien visiteur `?voir`, version PC, classement par copier-coller.
+2. ✅ Audit (4 nov. 2026) : votes privés (règles), résultat du vote reporté sur le match par l'app du capitaine, poste facultatif, bandeau d'installation, « Je suis le capitaine » caché si l'équipe existe.
+3. Envoyer le lien de l'app à toute l'équipe ; compléter les présences des 6 matchs importés (onglet Présences, menu ⋮).
+4. Bouton « Créer la vidéo » sur la fiche match (modèle : vidéo HyperFrames 9-4 MAMS).
+5. Plus tard : notifications push (FCM ; envoi programmé = serveur, piste gratuite : GitHub Actions planifiée).
 
 ## Vraies données (`data/seed.json`)
 - Reprises de SportEasy et complétées par le capitaine (2 novembre 2026), **au même format que `donneesDemo()`** de `js/store.js` (collections → `{id: doc}`).

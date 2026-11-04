@@ -99,7 +99,7 @@ function pageNonLie() {
     <p>Ton compte <b class="or-t">${esc(Store.user?.email)}</b> n'est pas encore dans l'effectif.<br>Envoie cette adresse au capitaine pour qu'il t'ajoute, puis reconnecte-toi.</p>
     ${Store.erreur ? `<p style="font-size:11px">(${esc(Store.erreur)})</p>` : ''}
     <button class="btn" style="max-width:320px" onclick="location.reload()">${ic('refresh')} Réessayer</button>
-    <button class="btn gris" style="max-width:320px" onclick="formCreerEquipe()">${ic('shield_person')} Je suis le capitaine</button>
+    ${Store.equipeExiste ? '' : `<button class="btn gris" style="max-width:320px" onclick="formCreerEquipe()">${ic('shield_person')} Je suis le capitaine</button>`}
     <button class="lien-btn" onclick="Store.deconnexion()">Changer de compte</button>
   </div>`;
 }
@@ -120,6 +120,7 @@ function pageAccueil() {
 
   // Sur PC : prochain match à gauche, le reste à droite (sur téléphone : l'un sous l'autre)
   h += `<div class="cols-pc"><div class="col-pc">`;
+  h += bandeauInstall();
   const m = prochain();
   if (m) h += heroMatch(m);
   else h += `<div class="hero rayures">${vide('Aucun match prévu pour l’instant', 'event_busy')}${Store.capitaine ? `<button class="btn" onclick="formMatch()">${ic('add')} Planifier un match</button>` : ''}</div>`;
@@ -130,7 +131,7 @@ function pageAccueil() {
 
   const ms = matchsJoues(cfg.saison), s = bilan(ms);
   const cl = classementFSGT(), pos = cl.findIndex(l => estNous(l.equipe));
-  h += sec(`Bilan saison ${esc(cfg.saison)}`, 'emoji_events', pos >= 0 ? `<a href="#/classement" class="chip plein">${pos + 1}${pos ? 'e' : 'er'} · ${cl[pos].pts} pts</a>` : '');
+  h += sec(`Bilan saison ${esc(cfg.saison)}`, 'emoji_events', pos >= 0 ? `<a href="#/classement" class="chip plein">${pos + 1}${pos ? 'e' : 'er'} · ${cl[pos].pts} pt${cl[pos].pts > 1 ? 's' : ''}</a>` : '');
   h += `<div class="kpis"><div class="kpi"><b>${s.j}</b><span>Joués</span></div><div class="kpi v"><b>${s.v}</b><span>Victoires</span></div><div class="kpi"><b>${s.n}</b><span>Nuls</span></div><div class="kpi d"><b>${s.d}</b><span>Défaites</span></div></div>`;
 
   const top = classement('buts', ms).slice(0, 3), max = top[0]?.v || 1;
@@ -200,6 +201,20 @@ function rangLigne(x, i, max, type, ms = []) {
     <div class="pos">${i + 1}</div>${avatar(x.id)}
     <div class="t"><b>${esc(j?.nom)}${capC(j)}</b><span>${[j?.poste, numTxt(j, '#')].filter(Boolean).map(esc).join(' · ')}</span><div class="barre-p"><i style="width:${(type === 'notes' ? x.v / 10 : type === 'presence' ? x.v / 100 : x.v / max) * 100}%"></i></div></div>
     <div class="val"><b>${val}</b><span>${x.v === 1 && ['buts', 'passes', 'matchs'].includes(type) ? UNITES[type].slice(0, -1) : UNITES[type]}</span>${sous ? `<div class="label" style="font-size:9px">${sous}</div>` : ''}</div></a>`;
+}
+
+/* Bandeau « Installer l'app » sur téléphone, tant qu'elle n'est pas sur l'écran d'accueil */
+let _promptInstall = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); _promptInstall = e; rafRender(); });
+function bandeauInstall() {
+  const installee = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+  let ferme = false; try { ferme = localStorage.getItem('akaal-install-ferme') === '1'; } catch {}
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  if (installee || ferme || !(ios || _promptInstall)) return '';
+  const fermer = `<button class="lien-btn" style="color:var(--gris)" onclick="try{localStorage.setItem('akaal-install-ferme','1')}catch(e){};render()">Plus tard</button>`;
+  return `<div class="alerte or">${ic('install_mobile')}<span style="flex:1"><b>Installe l’app sur ton téléphone</b><br>${ios
+    ? `Dans Safari : bouton Partager ${ic('ios_share')} puis « Sur l’écran d’accueil ».`
+    : `<button class="lien-btn" onclick="_promptInstall.prompt();_promptInstall=null;">${ic('download')} Installer</button>`}</span>${fermer}</div>`;
 }
 
 /* ---------------- Calendrier ---------------- */
@@ -359,22 +374,23 @@ function ongletStats(m) {
     const s = statsJoueur(h_, [m]), n = noteMatch(h_, m.id);
     h += `<a class="carte hdm-carte clic" style="color:inherit" href="#/joueur/${h_}">${avatar(h_, 'l or')}<div class="t" style="min-width:0"><div class="nom-t">${esc(nomJ(h_))}${capC(joueur(h_))}</div><span class="label">${esc(joueur(h_)?.poste || '')}</span><div class="chips mt8">${s.g ? `<span class="chip">${ic('sports_soccer')} ${s.g} but${s.g > 1 ? 's' : ''}</span>` : ''}${s.a ? `<span class="chip">${s.a} passe${s.a > 1 ? 's' : ''}</span>` : ''}</div></div>${n != null ? `<div class="note-box"><span>NOTE</span><b>${fmtNote(n)}</b></div>` : ''}</a>`;
   } else h += `<div class="carte">${vide(ouvert ? 'Le vote est en cours…' : 'Pas d’homme du match désigné', 'how_to_vote')}</div>`;
-  if (m.votesFin) {
+  if (m.votesFin && !Store.visiteur) {
     const nb = votesDe(m.id).length, peut = (m.ontJoue || []).includes(moi);
     const aVote = !!Store.get('votes', m.id + '_' + moi);
     h += `<div class="alerte ${ouvert ? 'vert' : 'or'}">${ic(ouvert ? 'how_to_vote' : 'lock')}<span>${ouvert ? `Votes ouverts jusqu’au <b>${fmtDateCourte(m.votesFin)}</b>` : 'Votes clos'} · ${nb} vote${nb > 1 ? 's' : ''}${ouvert && peut ? (aVote ? ' · tu as voté ✓' : '') : ''}</span></div>
-      <a class="btn ${ouvert && peut && !aVote ? '' : 'sec'}" href="#/votes/${m.id}">${ic(ouvert && peut ? 'how_to_vote' : 'bar_chart')} ${ouvert && peut ? (aVote ? 'Modifier mon vote' : 'Voter et noter') : 'Voir les votes et notes'}</a>`;
+      <a class="btn ${ouvert && peut && !aVote ? '' : 'sec'}" href="#/votes/${m.id}">${ic(ouvert && peut ? 'how_to_vote' : 'bar_chart')} ${ouvert && peut ? (aVote ? 'Modifier mon vote' : 'Voter') : 'Voir les votes'}</a>`;
   }
   // Buts
   h += sec('Buts', 'sports_soccer', `${bs.length} but${bs.length > 1 ? 's' : ''}`);
   let n = 0;
   h += `<div class="carte">${bs.map(b => { n++; return `<div class="but"><span class="min">${b.minute != null ? b.minute + '’' : n}</span><div class="t"><b>${esc(nomJ(b.buteur))}${b.buteur !== 'csc' ? esc(numTxt(joueur(b.buteur))) : ''}</b><span>${b.buteur === 'csc' ? 'But contre son camp adverse' : b.passeur ? 'Passe décisive : ' + esc(nomJ(b.passeur)) : 'Sans passe'}</span></div></div>`; }).join('') || vide('Aucun but marqué', 'sports_soccer')}</div>`;
   // Effectif & notes
-  const voirNotes = !ouvert || Store.capitaine;
+  const voirNotes = true;
   const oj = (m.ontJoue || []).filter(joueur).sort((a, b) => (joueur(a).numero || 99) - (joueur(b).numero || 99));
   h += sec(`Ont joué (${oj.length})`, 'groups');
   h += `<div class="carte liste">${oj.map(j => { const s = statsJoueur(j, [m]), nt = voirNotes ? noteMatch(j, m.id) : null; return `<a class="ligne clic" style="color:inherit" href="#/joueur/${j}"><span class="maillot-num" style="font-size:30px;width:34px;text-align:center">${esc(joueur(j).numero ?? '')}</span><div class="t"><b>${esc(nomJ(j))}${capC(joueur(j))} ${chipPoste(joueur(j).poste)}</b><span>${[s.g && `${s.g} but${s.g > 1 ? 's' : ''}`, s.a && `${s.a} passe${s.a > 1 ? 's' : ''}`, h_ === j && 'Homme du match'].filter(Boolean).join(' · ') || '—'}</span></div>${nt != null ? `<span class="note-box" style="padding:4px 8px"><b style="font-size:22px">${fmtNote(nt)}</b></span>` : ''}</a>`; }).join('') || vide('Liste non renseignée', 'group_off')}</div>`;
-  if (Store.capitaine) h += `<button class="btn" onclick="formResultat('${m.id}')">${ic('edit_note')} Modifier la feuille de match</button>`;
+  if (Store.capitaine) h += `<button class="btn" onclick="formNotes('${m.id}')">${ic('grade')} ${Object.keys(m.notes || {}).length ? 'Modifier les notes' : 'Noter les joueurs'}</button>
+    <button class="btn sec" onclick="formResultat('${m.id}')">${ic('edit_note')} Modifier la feuille de match</button>`;
   if (navigator.share) h += `<button class="btn sec" onclick="partagerResultat('${m.id}')">${ic('share')} Partager le résumé</button>`;
   return h;
 }
@@ -385,7 +401,7 @@ function pageVotes(mid) {
   const moi = Store.moi, ouvert = votesOuverts(m), peut = ouvert && (m.ontJoue || []).includes(moi);
   if (!App.etat.vote || App.etat.vote.match !== mid) {
     const v = Store.get('votes', mid + '_' + moi);
-    App.etat.vote = { match: mid, hdm: v?.hommeDuMatch || null, notes: { ...(v?.notes || {}) } };
+    App.etat.vote = { match: mid, hdm: v?.hommeDuMatch || null };
     App.etat.voteTab = peut ? 'hdm' : 'resultats';
   }
   const ev = App.etat.vote, tab = App.etat.voteTab;
@@ -394,15 +410,10 @@ function pageVotes(mid) {
   let h = `<a class="retour" href="#/match/${mid}/stats">${ic('arrow_back')} Fiche match</a>
   <section class="carte entete-match rayures or"><div class="entre"><span class="label or">● ${esc(typeCourt(m))} · ${RES_TXT[resultat(m)]}</span><span class="label">${ic('schedule')} ${ouvert ? 'Clôture ' + fmtDateCourte(m.votesFin) : 'Votes clos'}</span></div>
   <div class="score-bloc mt12"><div class="eq"><b>${esc(g.nom)}</b></div><div class="res" style="font-family:var(--titre);font-size:48px;color:var(--blanc)"><span class="${g.nous ? 'or-t' : ''}">${g.score}</span> : <span class="${d.nous ? 'or-t' : ''}">${d.score}</span></div><div class="eq"><b>${esc(d.nom)}</b></div></div></section>
-  <div class="seg">${peut ? `<button class="${tab === 'hdm' ? 'on' : ''}" onclick="App.etat.voteTab='hdm';render()">Vote HDM</button><button class="${tab === 'notes' ? 'on' : ''}" onclick="App.etat.voteTab='notes';render()">Noter (1-10)</button>` : ''}<button class="${tab === 'resultats' ? 'on' : ''}" onclick="App.etat.voteTab='resultats';render()">Résultats</button></div>`;
+  <div class="seg">${peut ? `<button class="${tab === 'hdm' ? 'on' : ''}" onclick="App.etat.voteTab='hdm';render()">Vote HDM</button>` : ''}<button class="${tab === 'resultats' ? 'on' : ''}" onclick="App.etat.voteTab='resultats';render()">Résultats</button></div>`;
   if (tab === 'hdm' && peut) {
     h += sec('Homme du match') + `<p class="muted" style="margin-top:-6px;margin-bottom:12px">Choisis le joueur le plus décisif (un seul vote, pas toi-même).</p>`;
     h += `<div class="votes-grille">${autres.map(j => { const s = statsJoueur(j, [m]); return `<button class="carte vcarte ${ev.hdm === j ? 'on' : ''}" onclick="App.etat.vote.hdm='${j}';render()">${ev.hdm === j ? `<span class="ok">${ic('check')}</span>` : ''}${avatar(j)}<b>${esc(prenom(j))}</b><span>${[s.g && `${s.g} but${s.g > 1 ? 's' : ''}`, s.a && `${s.a} passe${s.a > 1 ? 's' : ''}`].filter(Boolean).join(' · ') || esc(numTxt(joueur(j), '#'))}</span><div class="mt8">${chipPoste(joueur(j).poste)}</div></button>`; }).join('')}</div>`;
-    h += `<button class="btn" onclick="App.etat.voteTab='notes';render();scrollTo(0,0)">${ic('arrow_forward')} Suivant : noter les coéquipiers</button>`;
-  } else if (tab === 'notes' && peut) {
-    h += sec('Noter mes coéquipiers') + `<p class="muted" style="margin-top:-6px;margin-bottom:12px">Facultatif. Laisse « – » pour ne pas noter.</p>`;
-    h += `<div class="carte">${autres.map(j => `<div class="note-ligne">${avatar(j, 's')}<b style="flex:0 0 90px;color:var(--blanc);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(prenom(j))}</b>
-      <input type="range" min="0" max="10" step="1" value="${ev.notes[j] ?? 0}" oninput="App.etat.vote.notes['${j}']=+this.value||undefined;if(!+this.value)delete App.etat.vote.notes['${j}'];this.nextElementSibling.textContent=+this.value||'–'"><output>${ev.notes[j] ?? '–'}</output></div>`).join('')}</div>`;
     h += `<button class="btn" onclick="enregistrerVote()">${ic('how_to_vote')} Valider mon vote</button>`;
   } else {
     const voirTout = !ouvert || Store.capitaine;
@@ -412,7 +423,7 @@ function pageVotes(mid) {
     else {
       h += `<div class="carte liste">${r.map(x => `<div class="ligne">${avatar(x.id)}<div class="t"><b>${esc(nomJ(x.id))}</b><div class="barre-p" style="max-width:none"><i style="width:${x.n / (r[0].n || 1) * 100}%"></i></div></div><b class="maillot-num" style="font-size:28px">${x.n}</b></div>`).join('') || vide('Aucun vote', 'how_to_vote')}</div>`;
       const notes = (m.ontJoue || []).filter(joueur).map(j => ({ j, n: noteMatch(j, mid) })).filter(x => x.n != null).sort((a, b) => b.n - a.n);
-      h += sec('Notes moyennes', 'grade');
+      h += sec('Notes du capitaine', 'grade');
       h += `<div class="carte liste">${notes.map(x => `<div class="ligne">${avatar(x.j, 's')}<div class="t"><b>${esc(nomJ(x.j))}</b></div><b class="or-t" style="font-family:var(--titre);font-size:24px">${fmtNote(x.n)}</b></div>`).join('') || vide('Aucune note', 'grade')}</div>`;
     }
     if (Store.capitaine && Store.config().hdmMode === 'capitaine') h += `<p class="aide mt12">Réglage actuel : l’homme du match est le choix du capitaine (le vote est indicatif).</p>`;
@@ -509,7 +520,7 @@ function pageEffectif() {
       <span class="maillot-num">${esc(j.numero ?? '')}</span></a>`; }).join('')}</div>`;
   });
   const sansPoste = tousJoueurs().filter(j => !POSTES.includes(j.poste) && j.role !== 'invite');
-  if (sansPoste.length) h += sec('Poste à définir', null, `${sansPoste.length}`) + `<div class="carte liste">${sansPoste.map(j => { const s = statsJoueur(j.id, ms); return `<a class="ligne clic" style="color:inherit" href="#/joueur/${j.id}">${avatar(j.id)}<div class="t"><b class="nom-t">${esc(j.nom)}${capC(j)}</b><span>${s.j} match${s.j > 1 ? 's' : ''} · ${s.g} but${s.g > 1 ? 's' : ''}</span></div><span class="maillot-num">${esc(j.numero ?? '')}</span></a>`; }).join('')}</div>`;
+  if (sansPoste.length) h += sec(sansPoste.length === tousJoueurs().filter(j => j.role !== 'invite').length ? 'Joueurs' : 'Sans poste', null, `${sansPoste.length}`) + `<div class="carte liste">${sansPoste.map(j => { const s = statsJoueur(j.id, ms); return `<a class="ligne clic" style="color:inherit" href="#/joueur/${j.id}">${avatar(j.id)}<div class="t"><b class="nom-t">${esc(j.nom)}${capC(j)}</b><span>${s.j} match${s.j > 1 ? 's' : ''} · ${s.g} but${s.g > 1 ? 's' : ''}</span></div><span class="maillot-num">${esc(j.numero ?? '')}</span></a>`; }).join('')}</div>`;
   const invites = tousJoueurs().filter(j => j.role === 'invite');
   if (invites.length) h += sec('Joueurs occasionnels', null, `${invites.length}`) + `<div class="carte liste">${invites.map(j => `<a class="ligne clic" style="color:inherit" href="#/joueur/${j.id}">${avatar(j.id)}<div class="t"><b>${esc(j.nom)}</b><span>Vient dépanner · hors classements</span></div></a>`).join('')}</div>`;
   if (!h) h = `<div class="carte mt16">${vide('Aucun joueur dans l’effectif', 'group_off')}</div>`;

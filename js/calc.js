@@ -48,7 +48,7 @@ function lireClassementColle(texte) {
   return lignes;
 }
 
-const tousJoueurs = () => Store.liste('joueurs').sort((a, b) => (a.numero || 99) - (b.numero || 99));
+const tousJoueurs = () => Store.liste('joueurs').sort((a, b) => (a.numero ?? 999) - (b.numero ?? 999) || String(a.nom).localeCompare(String(b.nom)));
 
 const resultat = m => !m?.joue ? null : m.scoreNous > m.scoreEux ? 'V' : m.scoreNous < m.scoreEux ? 'D' : 'N';
 const RES_TXT = { V: 'Victoire', N: 'Nul', D: 'Défaite' };
@@ -130,9 +130,10 @@ function hommeDuMatch(m) {
   if (cfg.hdmMode === 'vote' && votesOuverts(m)) return null; // vote en cours
   return m.hommeDuMatch || null;
 }
+// Notes sur 10 : données par le capitaine seul (lui compris), rangées dans le match
 function noteMatch(jid, mid) {
-  const n = votesDe(mid).map(v => v.notes?.[jid]).filter(x => typeof x === 'number');
-  return n.length ? n.reduce((a, b) => a + b, 0) / n.length : null;
+  const n = Store.get('matchs', mid)?.notes?.[jid];
+  return typeof n === 'number' ? n : null;
 }
 function noteMoyenne(jid, matchs) {
   const n = matchs.map(m => noteMatch(jid, m.id)).filter(x => x != null);

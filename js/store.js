@@ -8,7 +8,7 @@
 
 const COLLECTIONS = ['joueurs', 'profils', 'matchs', 'buts', 'presences', 'lieux', 'adversaires', 'paiements', 'votes', 'equipe'];
 // Lisibles sans compte (lien visiteur ?voir) : pas d'e-mails ni de paiements
-const PUBLIQUES = ['profils', 'matchs', 'buts', 'presences', 'lieux', 'adversaires', 'votes', 'equipe'];
+const PUBLIQUES = ['profils', 'matchs', 'buts', 'presences', 'lieux', 'adversaires', 'equipe']; // pas les votes : qui a noté qui reste dans l'équipe
 const CHAMPS_PROFIL = ['nom', 'numero', 'poste', 'role', 'photo', 'photoGoogle'];
 const CLE_DEMO = 'akaal-demo-v1';
 const FB_VERSION = '10.12.2';
@@ -157,7 +157,10 @@ const Store = {
       if (!acces.exists) {
         // Première connexion : on cherche la fiche joueur créée par le capitaine avec cet e-mail
         const q = await this.fs.collection('joueurs').where('email', '==', this.user.email).limit(1).get();
-        if (q.empty) { this.etat = 'non-lie'; return this._notifie(); }
+        if (q.empty) {
+          try { this.equipeExiste = (await this.fs.collection('equipe').doc('config').get()).exists; } catch { this.equipeExiste = false; }
+          this.etat = 'non-lie'; return this._notifie();
+        }
         const j = q.docs[0];
         await this.fs.collection('acces').doc(u.uid).set({ joueur: j.id, role: j.data().role || 'joueur', email: this.user.email });
         await this.fs.collection('joueurs').doc(j.id).update({ uid: u.uid, photoGoogle: u.photoURL || null });
@@ -185,9 +188,19 @@ const Store = {
       this._unsubs.push(un);
     });
   },
+  /* Vote clos : le capitaine reporte l'homme du match élu sur le match (visible par les visiteurs) */
+  _syncHdm() {
+    if (!this.fs || typeof hommeDuMatch !== 'function') return;
+    this.liste('matchs').forEach(m => {
+      if (!m.joue || !m.votesFin || votesOuverts(m)) return;
+      const h = hommeDuMatch(m);
+      if (h && h !== m.hommeDuMatch) this.fs.collection('matchs').doc(m.id).update({ hommeDuMatch: h }).catch(e => console.warn('hdm', e.code || e));
+    });
+  },
   /* Le capitaine tient à jour la copie publique des fiches (sans e-mail) */
   _syncProfils() {
     if (!this.capitaine || this.visiteur) return;
+    this._syncHdm();
     clearTimeout(this._tSync);
     this._tSync = setTimeout(() => {
       const ops = [];
