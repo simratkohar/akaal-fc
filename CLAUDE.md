@@ -66,7 +66,7 @@ Contexte pour Claude Code. Lis ce fichier avant de travailler sur le dépôt.
 
 ## Stack (décidée, 0 €)
 - HTML/CSS/JS simple, **sans framework, sans build**.
-- Code et hébergement : **GitHub Pages** sur ce dépôt public (`simratkohar/akaal-fc`), URL `https://simratkohar.github.io/akaal-fc/`.
+- Code sur ce dépôt public (`simratkohar/akaal-fc`). Hébergement : **Firebase Hosting** (gratuit, offre Spark), URL **`https://akaal-fc.web.app`**, publié automatiquement à chaque push sur `main` par `.github/workflows/firebase-hosting.yml` (secret GitHub `FIREBASE_SERVICE_ACCOUNT_AKAAL_FC`). Ancienne adresse GitHub Pages : `https://simratkohar.github.io/akaal-fc/`.
 - Données et connexion : **Firebase, offre Spark** (gratuite, sans carte bancaire) — Firestore + Authentication Google. **Ne jamais passer en offre Blaze.**
 
 ## Modèle de données (Firestore)

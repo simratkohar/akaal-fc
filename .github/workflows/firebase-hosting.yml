@@ -1,0 +1,20 @@
+# Publie l'app sur https://akaal-fc.web.app à chaque mise à jour de la branche main.
+# Nécessite le secret FIREBASE_SERVICE_ACCOUNT_AKAAL_FC (clé du compte de service Firebase).
+name: Publication sur akaal-fc.web.app
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  publier:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_AKAAL_FC }}
+          projectId: akaal-fc
+          channelId: live
