@@ -47,7 +47,7 @@ function render() {
   document.body.classList.remove('sans-nav');
   const { page, args } = App.route;
   const pages = { accueil: pageAccueil, calendrier: pageCalendrier, stats: pageStats, effectif: pageEffectif, match: pageMatch, joueur: pageJoueur,
-    votes: pageVotes, reglages: pageReglages, emails: pageEmails, paiements: pagePaiements, classement: pageClassement, bilan: pageBilan, profil: () => pageJoueur(Store.moi) };
+    votes: pageVotes, reglages: pageReglages, emails: pageEmails, presences: pagePresencesLien, paiements: pagePaiements, classement: pageClassement, bilan: pageBilan, profil: () => pageJoueur(Store.moi) };
   let contenu;
   try { contenu = (pages[page] || pageAccueil)(...args); }
   catch (e) { console.error(e); contenu = vide('Oups, une erreur est survenue sur cet écran.', 'error'); }
@@ -57,7 +57,7 @@ let _rafPrevu = false;
 function rafRender() { if (_rafPrevu) return; _rafPrevu = true; requestAnimationFrame(() => { _rafPrevu = false; render(); }); }
 
 const SOUS_TITRES = { accueil: 'Accueil', calendrier: 'Calendrier', stats: 'Statistiques', effectif: 'Effectif', match: 'Fiche match', joueur: 'Fiche joueur',
-  votes: 'Votes du match', reglages: 'Réglages', emails: 'Accès joueurs', paiements: 'Paiements', classement: 'Classement', bilan: 'Bilan de saison', profil: 'Mon profil' };
+  votes: 'Votes du match', reglages: 'Réglages', emails: 'Accès joueurs', presences: 'Présences', paiements: 'Paiements', classement: 'Classement', bilan: 'Bilan de saison', profil: 'Mon profil' };
 function entete() {
   const cfg = Store.config(), moi = joueur(Store.moi);
   const demo = Store.mode === 'demo' ? `<button class="demo-btn ${Store.capitaine ? 'cap' : ''}" onclick="Store.basculeDemo();toast(Store.capitaine?'Vue capitaine':'Aperçu : vue d’un joueur')">${Store.capitaine ? '★ Cap.' : 'Joueur'}</button>` : '';
@@ -656,6 +656,37 @@ async function enregistrerEmails(code) {
   const ops = Object.entries(liste).filter(([id, e]) => joueur(id) && joueur(id).email !== String(e).trim().toLowerCase())
     .map(([id, e]) => ({ op: 'patch', col: 'joueurs', id, obj: { email: String(e).trim().toLowerCase() } }));
   if (await Store.batch(ops)) toast(`${ops.length} e-mail${ops.length > 1 ? 's' : ''} enregistré${ops.length > 1 ? 's' : ''} ✓`);
+}
+
+/* Lien #/presences/<code> : remplit d'un coup qui a joué / qui était absent sur des matchs passés
+   code = {matchId: {p: [présents], a: [absents]}} */
+function pagePresencesLien(code) {
+  if (!Store.capitaine) return vide('Réservé au capitaine', 'lock');
+  const liste = decodeEmails(code || '');
+  if (!liste || typeof liste !== 'object') return vide('Lien invalide', 'link_off');
+  let h = `<a class="retour" href="#/calendrier">${ic('arrow_back')} Calendrier</a>${sec('Présences des matchs', 'event_available', `${Object.keys(liste).length} matchs`)}`;
+  Object.entries(liste).forEach(([mid, x]) => {
+    const m = Store.get('matchs', mid);
+    if (!m) { h += `<div class="carte pad mt8">${vide('Match introuvable : ' + esc(mid), 'search_off')}</div>`; return; }
+    const noms = ids => ids.filter(joueur).map(j => esc(prenom(j))).join(', ') || '—';
+    h += `<div class="carte pad mt8"><div class="entre"><b style="color:var(--blanc)">${esc(adv(m).nom)} · ${m.scoreNous}-${m.scoreEux}</b><span class="label">${fmtJourC(m.date)}</span></div>
+      <p class="aide"><b style="color:var(--vert)">Ont joué (${(x.p || []).length})</b> : ${noms(x.p || [])}</p>
+      <p class="aide"><b style="color:var(--rouge)">Absents (${(x.a || []).length})</b> : ${noms(x.a || [])}</p></div>`;
+  });
+  return h + `<button class="btn" onclick="enregistrerPresencesLien('${esc(code)}')">${ic('save')} Enregistrer les présences</button>`;
+}
+async function enregistrerPresencesLien(code) {
+  const liste = decodeEmails(code); if (!liste) return;
+  const ops = [];
+  Object.entries(liste).forEach(([mid, x]) => {
+    const m = Store.get('matchs', mid); if (!m) return;
+    const p = (x.p || []).filter(joueur), a = (x.a || []).filter(joueur);
+    const conv = new Set([...convoques(m), ...p, ...a]);
+    ops.push({ op: 'patch', col: 'matchs', id: mid, obj: { ontJoue: p, convoques: [...conv] } });
+    p.forEach(j => ops.push({ op: 'set', col: 'presences', id: `${mid}_${j}`, obj: { match: mid, joueur: j, reponse: 'present', maj: Date.now() } }));
+    a.forEach(j => ops.push({ op: 'set', col: 'presences', id: `${mid}_${j}`, obj: { match: mid, joueur: j, reponse: 'absent', maj: Date.now() } }));
+  });
+  if (await Store.batch(ops)) { toast('Présences enregistrées ✓'); location.hash = '#/stats'; }
 }
 
 function pageLieux() {
