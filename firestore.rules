@@ -9,7 +9,7 @@ rules_version = '2';
 // Principe :
 // - Tout le monde peut LIRE (lien visiteur) : matchs, buts, présences, votes,
 //   lieux, adversaires, équipe et « profils » (nom, numéro, photo — sans e-mail).
-// - Restent privés (membres connectés) : joueurs (avec e-mails), paiements, accès.
+// - Restent privés (membres connectés) : joueurs (avec e-mails), paiements, accès, votes.
 // - Le capitaine écrit tout.
 // - Un joueur écrit seulement : sa présence (avant la date limite),
 //   son vote (s'il a joué, avant la clôture), sa photo de profil.
@@ -77,8 +77,9 @@ service cloud.firestore {
       allow delete: if capitaine();
     }
 
+    // Votes et notes : visibles par l'équipe seulement (pas par les visiteurs)
     match /votes/{vid} {
-      allow read: if true;
+      allow read: if membre();
       allow create, update: if membre()
         && vid == request.resource.data.match + '_' + moi()
         && request.resource.data.joueur == moi()

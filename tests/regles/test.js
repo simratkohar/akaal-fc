@@ -26,6 +26,7 @@ async function t(nom, p) { try { await p; ok++; console.log('✓', nom); } catch
   await t('visiteur lit les matchs', assertSucceeds(anon.doc('matchs/m1').get()));
   await t('visiteur lit la liste des matchs', assertSucceeds(anon.collection('matchs').get()));
   await t('visiteur ne lit pas les paiements', assertFails(anon.doc('paiements/c1').get()));
+  await t('visiteur ne lit pas les votes', assertFails(anon.collection('votes').get()));
   await t('visiteur ne lit pas les accès', assertFails(anon.doc('acces/uA').get()));
   await t('visiteur ne lit pas la liste des joueurs (e-mails)', assertFails(anon.collection('joueurs').get()));
   await t('visiteur ne modifie pas un match', assertFails(anon.doc('matchs/m1').update({ joue: true })));

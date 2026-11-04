@@ -48,7 +48,7 @@ function lireClassementColle(texte) {
   return lignes;
 }
 
-const tousJoueurs = () => Store.liste('joueurs').sort((a, b) => (a.numero || 99) - (b.numero || 99));
+const tousJoueurs = () => Store.liste('joueurs').sort((a, b) => (a.numero ?? 999) - (b.numero ?? 999) || String(a.nom).localeCompare(String(b.nom)));
 
 const resultat = m => !m?.joue ? null : m.scoreNous > m.scoreEux ? 'V' : m.scoreNous < m.scoreEux ? 'D' : 'N';
 const RES_TXT = { V: 'Victoire', N: 'Nul', D: 'Défaite' };
