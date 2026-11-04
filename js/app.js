@@ -96,10 +96,11 @@ function pageNonLie() {
   return `<div class="connexion">
     <img class="logo" src="assets/logo-256.png" alt="" style="width:120px;height:120px">
     <h1 style="font-size:36px">Presque prêt</h1>
-    <p>Ton compte <b class="or-t">${esc(Store.user?.email)}</b> n'est pas encore dans l'effectif.<br>Envoie cette adresse au capitaine pour qu'il t'ajoute, puis reconnecte-toi.</p>
+    ${Store.erreur ? `<p>Petit souci de connexion avec ton compte <b class="or-t">${esc(Store.user?.email)}</b>.<br>Appuie sur « Réessayer ». Si ça continue, envoie une capture de cet écran au capitaine.</p>`
+      : `<p>Ton compte <b class="or-t">${esc(Store.user?.email)}</b> n'est pas encore dans l'effectif.<br>Envoie cette adresse au capitaine pour qu'il t'ajoute, puis reconnecte-toi.</p>`}
     ${Store.erreur ? `<p style="font-size:11px">(${esc(Store.erreur)})</p>` : ''}
-    <button class="btn" style="max-width:320px" onclick="location.reload()">${ic('refresh')} Réessayer</button>
-    ${Store.equipeExiste ? '' : `<button class="btn gris" style="max-width:320px" onclick="formCreerEquipe()">${ic('shield_person')} Je suis le capitaine</button>`}
+    <button class="btn" style="max-width:320px" onclick="try{sessionStorage.setItem('akaal-sans-cache','1')}catch(e){};location.reload()">${ic('refresh')} Réessayer</button>
+    ${Store.equipeExiste !== false ? '' : `<button class="btn gris" style="max-width:320px" onclick="formCreerEquipe()">${ic('shield_person')} Je suis le capitaine</button>`}
     <button class="lien-btn" onclick="Store.deconnexion()">Changer de compte</button>
   </div>`;
 }
