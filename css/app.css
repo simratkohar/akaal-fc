@@ -475,7 +475,7 @@ nav.bas button.on .ms{background:rgba(201,162,74,.16);border-radius:10px;padding
   .top .wrap{height:72px}
   /* Barre du bas → menu à gauche */
   nav.bas{top:0;bottom:0;right:auto;width:232px;padding:24px 14px;border-top:0;border-right:1px solid var(--ligne-or);display:flex;flex-direction:column}
-  nav.bas::before{content:"";display:block;height:112px;margin:0 auto 18px;width:112px;border-radius:50%;background:url(../assets/logo-256.png) center/118% no-repeat;box-shadow:0 0 30px rgba(201,162,74,.2)}
+  nav.bas::before{content:"";display:block;height:112px;margin:0 auto 18px;width:112px;border-radius:50%;background:url(../assets/logo-256.png) center/contain no-repeat;box-shadow:0 0 30px rgba(201,162,74,.2)}
   nav.bas .wrap{display:flex;flex-direction:column;gap:6px;padding:0;max-width:none;align-items:stretch}
   nav.bas button{flex-direction:row;justify-content:flex-start;gap:14px;font-size:13px;padding:12px 14px;border-radius:10px}
   nav.bas button .ms{font-size:24px}
