@@ -121,7 +121,9 @@ const Store = {
     firebase.initializeApp(FIREBASE_CONFIG);
     this.auth = firebase.auth();
     this.fs = firebase.firestore();
-    try { await this.fs.enablePersistence({ synchronizeTabs: true }); } catch {}
+    // Cache hors ligne ; désactivé si ce téléphone a déjà posé problème (voir _surCompte)
+    let sansCache = false; try { sansCache = sessionStorage.getItem('akaal-sans-cache') === '1'; } catch {}
+    if (!sansCache) { try { await this.fs.enablePersistence({ synchronizeTabs: true }); } catch {} }
     if (this.visiteur) { this.user = null; this.moi = null; this.role = 'visiteur'; return this._ecoute(PUBLIQUES); }
     try { await this.auth.getRedirectResult(); } catch (e) { console.warn(e); }
     this.auth.onAuthStateChanged(u => this._surCompte(u));
@@ -146,16 +148,19 @@ const Store = {
     if (!u) { this.user = null; this.moi = null; this.role = null; this.etat = 'connexion'; return this._notifie(); }
     this.user = { uid: u.uid, email: (u.email || '').toLowerCase(), nom: u.displayName, photo: u.photoURL };
     this.etat = 'chargement'; this._notifie();
+    let etape = 'acces';
     try {
       let acces = await this.fs.collection('acces').doc(u.uid).get();
       if (!acces.exists) {
         // Première connexion : on cherche la fiche joueur créée par le capitaine avec cet e-mail
+        etape = 'recherche';
         const q = await this.fs.collection('joueurs').where('email', '==', this.user.email).limit(1).get();
         if (q.empty) {
           try { this.equipeExiste = (await this.fs.collection('equipe').doc('config').get()).exists; } catch { this.equipeExiste = false; }
           this.etat = 'non-lie'; return this._notifie();
         }
         const j = q.docs[0];
+        etape = 'liaison';
         await this.fs.collection('acces').doc(u.uid).set({ joueur: j.id, role: j.data().role || 'joueur', email: this.user.email });
         await this.fs.collection('joueurs').doc(j.id).update({ uid: u.uid, photoGoogle: u.photoURL || null });
         try { await this.fs.collection('profils').doc(j.id).update({ photoGoogle: u.photoURL || null }); } catch {}
@@ -164,8 +169,14 @@ const Store = {
       this.moi = acces.data().joueur; this.role = acces.data().role;
       this._ecoute();
     } catch (e) {
-      console.error(e);
-      this.etat = 'non-lie'; this.erreur = e.code || e.message; this._notifie();
+      console.error(etape, e);
+      // Souci de cache sur certains téléphones : on recharge une fois sans le cache hors ligne
+      let dejaEssaye = false; try { dejaEssaye = sessionStorage.getItem('akaal-sans-cache') === '1'; } catch {}
+      if (['failed-precondition', 'unavailable'].includes(e.code) && !dejaEssaye) {
+        try { sessionStorage.setItem('akaal-sans-cache', '1'); } catch {}
+        return location.reload();
+      }
+      this.etat = 'non-lie'; this.erreur = (e.code || e.message) + ' · ' + etape; this._notifie();
     }
   },
   _ecoute(cols = COLLECTIONS) {
