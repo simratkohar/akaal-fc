@@ -143,7 +143,7 @@ async function dessinerCompo(mid, avecPhotosGoogle = true) {
   ctx.fillStyle = VIS.or2; ctx.font = '44px "Bebas Neue"';
   ctx.fillText('AKAAL FC  ·  EST. 2019', W / 2, 1830);
   ctx.fillStyle = 'rgba(255,255,255,.45)'; ctx.font = '700 24px Manrope';
-  ctx.fillText(location.host || 'akaal-fc.web.app', W / 2, 1868);
+  ctx.fillText('akaal-fc.web.app', W / 2, 1868);
   return cv;
 }
 
