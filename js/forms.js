@@ -297,13 +297,16 @@ function compoChoisir(slot) {
   const c = App.etat.compo, m = Store.get('matchs', c.match), cpt = compteurs(m);
   const ou = j => { const s = Object.entries(c.postes).find(([, x]) => x === j); return s ? s[0] : c.remplacants.includes(j) ? 'Remplaçant' : ''; };
   const btn = j => `<button class="choix-joueur ${c.postes[slot] === j ? 'on' : ''}" onclick="compoPlacer('${slot}','${j}')">${avatar(j, 's')}<span style="flex:1"><b>${esc(nomJ(j))}</b> <span>${[numTxt(joueur(j), '#'), joueur(j)?.poste].filter(Boolean).map(esc).join(' · ')}</span></span><span class="label or">${ou(j)}</span></button>`;
-  ouvrirFeuille(`<h3>Emplacement ${esc(slot)}</h3><p class="aide">Joueurs marqués présents. Toucher un joueur déjà placé l’échange de place.</p>
+  const actuel = c.postes[slot];
+  ouvrirFeuille(`<h3>Emplacement ${esc(slot)}</h3>
+    ${actuel ? `<button class="btn sec" style="margin:8px 0 14px" onclick="compoPlacer('${slot}',null)">${ic('airline_seat_recline_normal')} Mettre ${esc(prenom(actuel))} en remplaçant</button>` : ''}
+    <p class="aide">Joueurs marqués présents. Toucher un joueur déjà placé l’échange de place ; toucher le joueur de ce poste l’envoie en remplaçant.</p>
     ${cpt.p.map(btn).join('') || '<p class="aide">Aucun joueur présent pour l’instant.</p>'}
-    ${cpt.q.length ? `<label class="f">Sans réponse</label>${cpt.q.map(btn).join('')}` : ''}
-    ${c.postes[slot] ? `<button class="btn danger" onclick="compoPlacer('${slot}',null)">Vider l’emplacement</button>` : ''}`);
+    ${cpt.q.length ? `<label class="f">Sans réponse</label>${cpt.q.map(btn).join('')}` : ''}`);
 }
 function compoPlacer(slot, j) {
   const c = App.etat.compo, actuel = c.postes[slot];
+  if (j && j === actuel) j = null; // toucher le joueur déjà à ce poste = l'envoyer en remplaçant
   if (j) {
     const ancienSlot = Object.keys(c.postes).find(s => c.postes[s] === j);
     if (ancienSlot) { if (actuel) c.postes[ancienSlot] = actuel; else delete c.postes[ancienSlot]; }
