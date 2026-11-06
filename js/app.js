@@ -357,7 +357,7 @@ function ongletCompo(m) {
     ${edit ? `<button class="carte" style="color:var(--or)" onclick="compoAjouterRemp()">${ic('person_add')} Ajouter</button>` : ''}</div>`;
   if (edit) h += `<div class="duo"><button class="btn gris" onclick="App.etat.compo=null;render()">Annuler</button><button class="btn" onclick="compoEnregistrer()">${ic('check')} Enregistrer</button></div>
     ${m.compo ? `<button class="btn danger" onclick="compoSupprimer('${m.id}')">Supprimer la compo</button>` : ''}`;
-  else if (navigator.share) h += `<button class="btn sec" onclick="partagerCompo('${m.id}')">${ic('share')} Partager la compo</button>`;
+  else h += `<button class="btn sec" onclick="partagerCompo('${m.id}')">${ic('image')} Partager l’image de la compo</button>`;
   return h;
 }
 function terrainSvg() {
