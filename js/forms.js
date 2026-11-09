@@ -113,7 +113,9 @@ function formMatch(id) {
     <label class="f">Format</label>${choixHtml('format', FORMATS, F.format, x => 'Foot à ' + x)}
     <label class="f">Terrain</label>${choixHtml('domicile', [true, false], F.domicile, x => x ? 'Domicile' : 'Extérieur')}
     <div class="grille2"><div><label class="f">Date</label><input class="in" type="date" id="f-date" value="${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}"></div>
-      <div><label class="f">Heure</label><input class="in" type="time" id="f-heure" value="${m ? pad(d.getHours()) + ':' + pad(d.getMinutes()) : '20:30'}"></div></div>
+      <div><label class="f">Coup d’envoi</label><input class="in" type="time" id="f-heure" value="${m ? pad(d.getHours()) + ':' + pad(d.getMinutes()) : '20:30'}"></div></div>
+    <label class="f">Heure de fin (facultatif)</label><input class="in" type="time" id="f-fin" value="${m?.fin ? pad(D(m.fin).getHours()) + ':' + pad(D(m.fin).getMinutes()) : ''}">
+    <p class="aide">Sans heure de fin, le match est considéré terminé 1 h 30 après le coup d’envoi.</p>
     <label class="f">Lieu</label>
     <select class="in" id="f-lieu" onchange="$('#f-lieu-new').hidden=this.value!=='__new'"><option value="">À préciser</option>${lieux.map(l => `<option value="${l.id}" ${m?.lieu === l.id ? 'selected' : ''}>${esc(l.nom)}</option>`).join('')}<option value="__new">+ Nouveau lieu…</option></select>
     <div id="f-lieu-new" hidden><input class="in mt8" id="f-lieu-nom" placeholder="Nom (ex. Stade Léo Lagrange)"><input class="in mt8" id="f-lieu-adr" placeholder="Adresse (facultatif)"></div>
@@ -148,13 +150,19 @@ async function enregistrerMatch() {
   }
   if (!val('f-date') || !val('f-heure')) return toast('Indique la date et l’heure');
   const date = new Date(`${val('f-date')}T${val('f-heure')}`).toISOString();
+  let fin = null;
+  if (val('f-fin')) {
+    const f = new Date(`${val('f-date')}T${val('f-fin')}`);
+    if (f <= D(date)) f.setDate(f.getDate() + 1); // fin après minuit
+    fin = f.toISOString();
+  }
   const ancien = F.id ? Store.get('matchs', F.id) : null;
   const id = F.id || nouvelId();
   const obj = {
     scoreNous: null, scoreEux: null, joue: false, hommeDuMatch: null, ontJoue: [], compo: null,
     ...(ancien || {}),
     type: F.type, journee: F.type === 'Championnat' ? (+val('f-journee') || null) : null,
-    format: F.format, domicile: !!F.domicile, date, lieu, adversaire,
+    format: F.format, domicile: !!F.domicile, date, fin, lieu, adversaire,
     saison: saisonDe(date), convoques: [...F.convoques], limite: limiteReponse({ date })
   };
   if (obj.compo && ancien && ancien.format !== F.format) obj.compo = null; // la formation ne colle plus

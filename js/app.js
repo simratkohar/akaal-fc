@@ -126,6 +126,7 @@ function pageAccueil() {
   if (m) h += heroMatch(m);
   else h += `<div class="hero rayures">${vide('Aucun match prévu pour l’instant', 'event_busy')}${Store.capitaine ? `<button class="btn" onclick="formMatch()">${ic('add')} Planifier un match</button>` : ''}</div>`;
 
+  enAttente().slice(-2).reverse().forEach(x => { h += carteAttente(x); });
   const der = termines()[0];
   if (der) h += carteDernier(der);
   h += `</div><div class="col-pc">`;
@@ -145,8 +146,9 @@ function pageAccueil() {
   if (Store.mode === 'demo') h += `<p class="note-bas">MODE DÉMO · DONNÉES FICTIVES · RIEN N'EST PARTAGÉ</p>${typeof FIREBASE_CONFIG !== 'undefined' && FIREBASE_CONFIG ? `<a class="btn gris" href="./">${ic('login')} Se connecter</a>` : ''}`;
   return h;
 }
-function compteARebours(iso) {
+function compteARebours(iso, m) {
   const ms = D(iso) - Date.now();
+  if (m && etatMatch(m) === 'attente') return `<div class="compte"><div><b>${ic('flag')}</b><span>TERMINÉ</span></div></div>`;
   if (ms < 0) return `<div class="compte"><div><b>${ic('sports')}</b><span>EN COURS</span></div></div>`;
   const j = Math.floor(ms / 864e5), hh = Math.floor(ms % 864e5 / 36e5), mi = Math.floor(ms % 36e5 / 6e4);
   return `<div class="compte"><div><b>${j}</b><span>JOURS</span></div><div><b>${pad(hh)}</b><span>HEURES</span></div><div><b>${pad(mi)}</b><span>MIN</span></div></div>`;
@@ -157,7 +159,7 @@ function heroMatch(m) {
   return `<section class="hero rayures">
     <div class="tete"><div class="chips"><span class="chip plein">${esc(typeCourt(m))}</span><span class="chip">Foot à ${esc(m.format)}</span></div>
       <div class="when">${ic('schedule')}${fmtJourC(m.date)} · ${fmtHeure(m.date)}</div></div>
-    <div class="face">${eq(g)}<div class="mil"><div class="vs">VS</div>${compteARebours(m.date)}</div>${eq(d)}</div>
+    <div class="face">${eq(g)}<div class="mil"><div class="vs">VS</div>${compteARebours(m.date, m)}</div>${eq(d)}</div>
     ${lienLieu(m)}
     <div class="tricolore fin mt16"></div>
     ${blocPresence(m)}
@@ -166,6 +168,16 @@ function heroMatch(m) {
     <div class="entre mt12"><div class="pile">${c.p.slice(0, 6).map(j => avatar(j, 's rond')).join('')}${c.p.length > 6 ? `<div class="av s rond">+${c.p.length - 6}</div>` : ''}</div>
       <a class="lien-btn" href="#/match/${m.id}/presences">Voir la feuille ${ic('chevron_right')}</a></div>
   </section>`;
+}
+/* Match terminé dont le score n'est pas encore saisi */
+function carteAttente(m) {
+  const [g, d] = equipesOrdre(m);
+  return `${sec('Match terminé', 'flag', `<span class="chip orange">Score à saisir</span>`)}
+  <a class="carte pad clic" style="display:block;color:inherit;border-color:rgba(245,158,11,.5)" href="#/match/${m.id}/stats">
+    <div class="chips"><span class="chip or">${esc(typeCourt(m))}</span><span class="label">${fmtJourC(m.date)} · ${fmtHeure(m.date)}</span></div>
+    <div class="score-bloc mt12"><div class="eq"><b>${esc(g.nom)}</b><div class="num ${g.nous ? 'nous' : ''}">?</div></div><div class="mid">MATCH<br>TERMINÉ</div><div class="eq"><b>${esc(d.nom)}</b><div class="num ${d.nous ? 'nous' : ''}">?</div></div></div>
+    ${Store.capitaine ? `<button class="btn" onclick="event.preventDefault();formResultat('${m.id}')">${ic('scoreboard')} Saisir le score</button>` : `<p class="aide" style="text-align:center">Le capitaine va bientôt saisir le score.</p>`}
+  </a>`;
 }
 function blocPresence(m, jid = Store.moi) {
   if (!jid || !joueur(jid)) return '';
@@ -225,10 +237,12 @@ function filtres(cle, val) {
 function pageCalendrier() {
   const f = App.etat.calFiltre;
   const ms = matchsTries().filter(m => f === 'Tous' || m.type === f);
-  const up = ms.filter(m => !m.joue), fin = ms.filter(m => m.joue).reverse(), b = bilan(fin);
+  const att = ms.filter(m => etatMatch(m) === 'attente').reverse();
+  const up = ms.filter(m => !m.joue && etatMatch(m) !== 'attente'), fin = ms.filter(m => m.joue).reverse(), b = bilan(fin);
   let h = filtres('calFiltre', f);
   h += sec('À venir', null, `${up.length} match${up.length > 1 ? 's' : ''}`);
   h += up.length ? `<div class="grille-pc">${up.map((m, i) => carteMatch(m, i === 0)).join('')}</div>` : `<div class="carte">${vide('Aucun match prévu', 'event_busy')}</div>`;
+  if (att.length) h += sec('Score à saisir', null, `${att.length}`) + `<div class="grille-pc">${att.map(m => carteMatch(m)).join('')}</div>`;
   h += sec('Terminés', null, `<span class="chips"><span class="chip vert">${b.v}V</span><span class="chip">${b.n}N</span><span class="chip rouge">${b.d}D</span></span>`);
   h += fin.length ? `<div class="grille-pc">${fin.map(m => carteMatch(m)).join('')}</div>` : `<div class="carte">${vide('Aucun résultat pour l’instant')}</div>`;
   if (Store.capitaine) h += `<button class="btn" onclick="formMatch()">${ic('add_circle')} Planifier un match</button>`;
@@ -238,6 +252,7 @@ function carteMatch(m, estProchain = false) {
   const r = resultat(m), d = D(m.date), eqs = equipesOrdre(m);
   let droiteHaut = '';
   if (m.joue) droiteHaut = `<span class="chip ${r === 'V' ? 'vert' : r === 'D' ? 'rouge' : ''}">${r}</span>`;
+  else if (etatMatch(m) === 'attente') droiteHaut = `<span class="chip orange">Terminé</span>`;
   else { const x = reponse(m.id, Store.moi); droiteHaut = x === 'present' ? `<span class="chip vert">Présent</span>` : x === 'absent' ? `<span class="chip rouge">Absent</span>` : `<span class="chip orange">En attente</span>`; }
   const c = !m.joue ? compteurs(m) : null;
   const bs = m.joue ? butsDe(m.id).filter(b => b.buteur) : [];
@@ -250,6 +265,7 @@ function carteMatch(m, estProchain = false) {
       <div class="date"><span>${JOURS_C[d.getDay()]}</span><b>${pad(d.getDate())}</b><span>${MOIS_C[d.getMonth()]}</span><i>${fmtHeure2(m.date)}</i></div>
       <div class="equipes">${eqs.map(e => `<div class="equipe ${e.nous ? 'nous' : ''}">${e.ec(22)}<b>${esc(e.nom)}</b></div>`).join('')}</div>
       ${m.joue ? `<div class="scores">${eqs.map(e => `<b class="${e.nous ? 'nous' : 'eux'}">${e.score}</b>`).join('')}</div>`
+        : etatMatch(m) === 'attente' ? `<div style="text-align:right"><div class="heure">? - ?</div><div class="label mt8" style="color:var(--orange)">Score à saisir</div></div>`
         : `<div style="text-align:right"><div class="heure">${fmtHeure2(m.date)}</div><div class="label mt8" style="color:var(--vert)">${c.p.length} présent${c.p.length > 1 ? 's' : ''}</div></div>`}
     </div>
     <div class="bas">${m.joue && butTxt ? `${ic('sports_soccer')}<span>${butTxt}</span>` : `${ic('location_on')}<span>${esc(l?.nom || 'Lieu à préciser')}</span>`}
@@ -266,8 +282,8 @@ function pageMatch(id, onglet) {
   const eq = e => `<div class="eq">${e.ec(58)}<b>${esc(e.nom)}</b><span>${e.nous ? (m.domicile ? 'Domicile' : 'Extérieur') : (m.domicile ? 'Extérieur' : 'Domicile')}</span></div>`;
   let h = `<a class="retour" href="#/calendrier">${ic('arrow_back')} Calendrier</a>
   <section class="carte entete-match rayures or">
-    <div class="entre"><div class="ligne-date">${ic('calendar_today')}${maj1(fmtJour(m.date))} · ${fmtHeure(m.date)}</div>${r ? `<span class="chip ${r === 'V' ? 'vert' : r === 'D' ? 'rouge' : ''}">${RES_TXT[r]}</span>` : `<span class="chip orange">À venir</span>`}</div>
-    <div class="sb">${eq(g)}<div>${m.joue ? `<div class="res"><span class="${g.nous ? 'nous' : ''}">${g.score}</span> - <span class="${d.nous ? 'nous' : ''}">${d.score}</span><small>Score final</small></div>` : `<div class="heure-grande">${fmtHeure2(m.date)}</div>`}</div>${eq(d)}</div>
+    <div class="entre"><div class="ligne-date">${ic('calendar_today')}${maj1(fmtJour(m.date))} · ${fmtHeure(m.date)}</div>${r ? `<span class="chip ${r === 'V' ? 'vert' : r === 'D' ? 'rouge' : ''}">${RES_TXT[r]}</span>` : ({ attente: `<span class="chip orange">Terminé</span>`, encours: `<span class="chip vert">En cours</span>` })[etatMatch(m)] || `<span class="chip orange">À venir</span>`}</div>
+    <div class="sb">${eq(g)}<div>${m.joue ? `<div class="res"><span class="${g.nous ? 'nous' : ''}">${g.score}</span> - <span class="${d.nous ? 'nous' : ''}">${d.score}</span><small>Score final</small></div>` : etatMatch(m) === 'attente' ? `<div class="res">? - ?<small>Score à saisir</small></div>` : `<div class="heure-grande">${fmtHeure2(m.date)}</div>`}</div>${eq(d)}</div>
     <div class="tricolore fin mt16"></div>
     <div class="chips mt12" style="justify-content:center"><span class="chip plein">${esc(typeCourt(m))}</span><span class="chip">Foot à ${esc(m.format)}</span></div>
   </section>
@@ -366,7 +382,7 @@ function terrainSvg() {
 
 /* ----- Stats du match ----- */
 function ongletStats(m) {
-  if (!m.joue) return `<div class="carte mt16">${vide('Le match n’est pas encore joué.', 'hourglass_empty')}</div>${Store.capitaine ? `<button class="btn" onclick="formResultat('${m.id}')">${ic('scoreboard')} Saisir le résultat</button>` : ''}`;
+  if (!m.joue) return `<div class="carte mt16">${etatMatch(m) === 'attente' ? vide(Store.capitaine ? 'Match terminé : saisis le score, les buteurs et qui a joué.' : 'Match terminé : le capitaine va bientôt saisir le score.', 'flag') : vide('Le match n’est pas encore joué.', 'hourglass_empty')}</div>${Store.capitaine ? `<button class="btn" onclick="formResultat('${m.id}')">${ic('scoreboard')} Saisir le résultat</button>` : ''}`;
   const bs = butsDe(m.id), h_ = hommeDuMatch(m), ouvert = votesOuverts(m), moi = Store.moi;
   let h = '';
   // Homme du match

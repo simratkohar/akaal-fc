@@ -57,7 +57,18 @@ const typeCourt = m => m.type === 'Championnat' ? `${Store.config().championnat 
 const matchsTries = () => Store.liste('matchs').sort((a, b) => a.date.localeCompare(b.date));
 const aVenir = () => matchsTries().filter(m => !m.joue);
 const termines = () => matchsTries().filter(m => m.joue).reverse();
-const prochain = () => aVenir().find(m => D(m.date) > Date.now() - 3 * 3600e3) || aVenir()[0];
+// Fin du match : heure de fin saisie, sinon 1 h 30 après le coup d'envoi
+const DUREE_MATCH = 90 * 6e4;
+const finMatch = m => m.fin ? D(m.fin).getTime() : D(m.date).getTime() + DUREE_MATCH;
+// 'avenir' | 'encours' | 'attente' (fini, score pas saisi) | 'joue'
+function etatMatch(m) {
+  if (m.joue) return 'joue';
+  const t = Date.now();
+  if (t >= finMatch(m)) return 'attente';
+  return t >= D(m.date).getTime() ? 'encours' : 'avenir';
+}
+const enAttente = () => matchsTries().filter(m => etatMatch(m) === 'attente');
+const prochain = () => aVenir().find(m => etatMatch(m) !== 'attente');
 
 function saisons() {
   const s = new Set(Store.liste('matchs').map(m => m.saison || saisonDe(m.date)));
