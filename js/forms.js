@@ -36,7 +36,7 @@ async function repondre(mid, rep, jid = Store.moi) {
   const max = +Store.config().maxJoueurs;
   if (rep === 'present' && max > 0 && !cap && reponse(mid, jid) !== 'present' && compteurs(m).p.length >= max) return toast(`Complet : ${max} joueurs maximum. Préviens le capitaine.`);
   const ok = await Store.set('presences', `${mid}_${jid}`, { match: mid, joueur: jid, reponse: rep, maj: Date.now() });
-  if (ok) toast(rep === 'present' ? 'Présence enregistrée ✓' : 'Absence enregistrée');
+  if (ok) { toast(rep === 'present' ? 'Présence enregistrée ✓' : 'Absence enregistrée'); Store._syncCompos(); }
 }
 
 /* Capitaine : changer le statut d'un joueur (match à venir ou déjà joué) */
@@ -61,7 +61,7 @@ async function definirPresence(mid, jid, statut) {
     ops.push({ op: 'patch', col: 'matchs', id: mid, obj: { ontJoue: [...oj] } });
   }
   if (!ops.length) return fermerFeuille();
-  if (await Store.batch(ops)) { fermerFeuille(); toast(`${prenom(jid)} : ${statut === 'present' ? (m.joue ? 'a joué ✓' : 'présent ✓') : statut === 'absent' ? 'absent' : 'sans réponse'}`); }
+  if (await Store.batch(ops)) { Store._syncCompos(); fermerFeuille(); toast(`${prenom(jid)} : ${statut === 'present' ? (m.joue ? 'a joué ✓' : 'présent ✓') : statut === 'absent' ? 'absent' : 'sans réponse'}`); }
 }
 
 /* Capitaine : ajouter au match un joueur occasionnel (vient dépanner) */
@@ -270,12 +270,12 @@ async function changerPhoto(jid) {
 /* ---------------- Compo ---------------- */
 function compoCreer(mid) {
   const m = Store.get('matchs', mid), f = (FORMATIONS[m.format] || FORMATIONS['7'])[0];
-  App.etat.compo = { match: mid, nom: 'Compo ' + (m.journee ? 'J' + m.journee : adv(m).nom), formation: f, postes: {}, remplacants: [] };
+  App.etat.compo = { match: mid, nom: 'Compo ' + (m.journee ? 'J' + m.journee : adv(m).nom), formation: f, postes: {}, remplacants: [], vus: [...compteurs(m).p] };
   autoPlacer(); render();
 }
 function compoModifier(mid) {
-  const c = Store.get('matchs', mid).compo;
-  App.etat.compo = { match: mid, nom: c.nom || '', formation: c.formation, postes: { ...(c.postes || {}) }, remplacants: [...(c.remplacants || [])] };
+  const c = compoAJour(Store.get('matchs', mid));
+  App.etat.compo = { match: mid, nom: c.nom || '', formation: c.formation, postes: { ...(c.postes || {}) }, remplacants: [...(c.remplacants || [])], vus: [...(c.vus || [])] };
   render();
 }
 /* Place automatiquement les présents selon leur poste (modifiable ensuite) */
@@ -328,7 +328,7 @@ function basculeRemp(j, btn) { F.remp.has(j) ? F.remp.delete(j) : F.remp.add(j);
 function compoRetirerRemp(j) { App.etat.compo.remplacants = App.etat.compo.remplacants.filter(x => x !== j); render(); }
 async function compoEnregistrer() {
   const c = App.etat.compo;
-  const compo = { nom: c.nom || 'Composition', formation: c.formation, postes: c.postes, remplacants: c.remplacants };
+  const compo = { nom: c.nom || 'Composition', formation: c.formation, postes: c.postes, remplacants: c.remplacants, vus: [...new Set([...(c.vus || []), ...Object.values(c.postes), ...c.remplacants])] };
   if (await Store.patch('matchs', c.match, { compo })) { App.etat.compo = null; toast('Compo enregistrée ✓'); render(); }
 }
 async function compoSupprimer(mid) {

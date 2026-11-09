@@ -326,7 +326,7 @@ function ongletPresences(m) {
 function ongletCompo(m) {
   const N = +m.format || 7, presents = compteurs(m).p;
   const edit = App.etat.compo && App.etat.compo.match === m.id ? App.etat.compo : null;
-  const compo = edit || m.compo;
+  const compo = edit || compoAJour(m);
   let h = '';
   if (!m.joue && presents.length < N) h += `<div class="alerte">${ic('warning')}<span>Il manque <b>${N - presents.length} joueur${N - presents.length > 1 ? 's' : ''}</b> (sur ${N}) pour une compo complète.</span></div>`;
   if (!compo) {
