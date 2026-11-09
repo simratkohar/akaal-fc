@@ -565,11 +565,6 @@ function partagerResultat(mid) {
   const bs = butsDe(mid).map(b => `⚽ ${nomJ(b.buteur)}${b.minute != null ? ' ' + b.minute + "'" : ''}${b.passeur ? ' (passe ' + prenom(b.passeur) + ')' : ''}`).join('\n');
   partager(`${typeCourt(m)} — ${g.nom} ${g.score} - ${d.score} ${d.nom}\n\n${bs}${h ? `\n\n⭐ Homme du match : ${nomJ(h)}` : ''}\n\n${urlApp()}`);
 }
-function partagerCompo(mid) {
-  const m = Store.get('matchs', mid), c = m.compo;
-  const ordre = emplacements(c.formation).map(s => c.postes[s.id] ? `${s.role} : ${nomJ(c.postes[s.id])}` : null).filter(Boolean).join('\n');
-  partager(`📋 ${c.nom || 'Compo'} (${c.formation}) — ${NOUS()} vs ${adv(m).nom}, ${fmtJourC(m.date)} ${fmtHeure(m.date)}\n\n${ordre}${c.remplacants?.length ? `\n\nRemplaçants : ${c.remplacants.map(prenom).join(', ')}` : ''}\n\n${urlApp()}`);
-}
 async function partagerLien() {
   const t = `Rejoins l'app d'${NOUS()} ⚽ : ${urlApp()}\nConnecte-toi avec ton compte Google, puis ajoute l'app à ton écran d'accueil (iPhone : Safari → Partager → Sur l'écran d'accueil).`;
   if (navigator.share) { try { await navigator.share({ title: NOUS(), text: t }); return; } catch (e) { if (e.name === 'AbortError') return; } }
