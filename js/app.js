@@ -385,6 +385,18 @@ function ongletStats(m) {
   if (!m.joue) return `<div class="carte mt16">${etatMatch(m) === 'attente' ? vide(Store.capitaine ? 'Match terminé : saisis le score, les buteurs et qui a joué.' : 'Match terminé : le capitaine va bientôt saisir le score.', 'flag') : vide('Le match n’est pas encore joué.', 'hourglass_empty')}</div>${Store.capitaine ? `<button class="btn" onclick="formResultat('${m.id}')">${ic('scoreboard')} Saisir le résultat</button>` : ''}`;
   const bs = butsDe(m.id), h_ = hommeDuMatch(m), ouvert = votesOuverts(m), moi = Store.moi;
   let h = '';
+  // Buteurs et passeurs, façon « cartes joueurs »
+  const compte = cle => { const t = {}; bs.forEach(b => { const j = b[cle]; if (j) t[j] = (t[j] || 0) + 1; }); return Object.entries(t).sort((x, y) => (x[0] === 'csc') - (y[0] === 'csc') || y[1] - x[1] || nomJ(x[0]).localeCompare(nomJ(y[0]))); }; // CSC toujours en dernier
+  const nomCourt = j => { if (j === 'csc') return 'CSC'; const n = nomJ(j).split(' '); return n[0] + (n[1] ? ' ' + n[1][0] + '.' : ''); };
+  const rangee = (liste, classe) => `<div class="podium">${liste.map(([j, n]) => `<a class="podium-j" ${j === 'csc' ? '' : `href="#/joueur/${j}"`}><div class="podium-av">${j === 'csc' ? `<div class="av rond">${ic('sports_soccer')}</div>` : avatar(j, 'rond')}<span class="podium-n ${classe}">${n}</span></div><b>${esc(nomCourt(j))}</b></a>`).join('')}</div>`;
+  const buteurs = compte('buteur'), passeurs = compte('passeur');
+  h += sec('Buteurs', 'sports_soccer', `${bs.length} but${bs.length > 1 ? 's' : ''}`);
+  h += bs.length ? `<div class="carte">${rangee(buteurs, 'but-n')}</div>` : `<div class="carte">${vide('Aucun but marqué', 'sports_soccer')}</div>`;
+  if (passeurs.length) h += sec('Passes décisives', 'handshake', `${passeurs.reduce((x, [, n]) => x + n, 0)}`) + `<div class="carte">${rangee(passeurs, 'passe-n')}</div>`;
+  if (bs.length) {
+    let k = 0;
+    h += `<details class="carte deroule"><summary>${ic('format_list_numbered')} Détail des buts ${ic('expand_more')}</summary>${bs.map(b => { k++; return `<div class="but"><span class="min">${b.minute != null ? b.minute + '’' : k}</span>${b.buteur === 'csc' ? `<div class="av s rond">${ic('sports_soccer')}</div>` : avatar(b.buteur, 's rond')}<div class="t"><b>${esc(nomJ(b.buteur))}</b><span>${b.buteur === 'csc' ? 'But contre son camp adverse' : b.passeur ? ic('subdirectory_arrow_right') + ' ' + esc(nomJ(b.passeur)) : 'Sans passe'}</span></div></div>`; }).join('')}</details>`;
+  }
   // Homme du match
   h += sec('Homme du match', 'star', ouvert ? 'Vote en cours' : Store.config().hdmMode === 'vote' ? 'Vote joueurs' : 'Choix capitaine');
   if (h_) {
@@ -397,10 +409,6 @@ function ongletStats(m) {
     h += `<div class="alerte ${ouvert ? 'vert' : 'or'}">${ic(ouvert ? 'how_to_vote' : 'lock')}<span>${ouvert ? `Votes ouverts jusqu’au <b>${fmtDateCourte(m.votesFin)}</b>` : 'Votes clos'} · ${nb} vote${nb > 1 ? 's' : ''}${ouvert && peut ? (aVote ? ' · tu as voté ✓' : '') : ''}</span></div>
       <a class="btn ${ouvert && peut && !aVote ? '' : 'sec'}" href="#/votes/${m.id}">${ic(ouvert && peut ? 'how_to_vote' : 'bar_chart')} ${ouvert && peut ? (aVote ? 'Modifier mon vote' : 'Voter') : 'Voir les votes'}</a>`;
   }
-  // Buts
-  h += sec('Buts', 'sports_soccer', `${bs.length} but${bs.length > 1 ? 's' : ''}`);
-  let n = 0;
-  h += `<div class="carte">${bs.map(b => { n++; return `<div class="but"><span class="min">${b.minute != null ? b.minute + '’' : n}</span><div class="t"><b>${esc(nomJ(b.buteur))}${b.buteur !== 'csc' ? esc(numTxt(joueur(b.buteur))) : ''}</b><span>${b.buteur === 'csc' ? 'But contre son camp adverse' : b.passeur ? 'Passe décisive : ' + esc(nomJ(b.passeur)) : 'Sans passe'}</span></div></div>`; }).join('') || vide('Aucun but marqué', 'sports_soccer')}</div>`;
   // Effectif & notes
   const voirNotes = true;
   const oj = (m.ontJoue || []).filter(joueur).sort((a, b) => (joueur(a).numero || 99) - (joueur(b).numero || 99));
