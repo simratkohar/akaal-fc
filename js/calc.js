@@ -243,6 +243,38 @@ function emplacements(formation) {
   return out;
 }
 
+/* ---------- Compo tenue à jour avec les présences (matchs à venir) ----------
+   - un joueur passé Absent sort de la compo (titulaire ou remplaçant) ;
+   - un joueur qui passe Présent entre sur un poste libre (de préférence le sien ;
+     la cage seulement pour un gardien), sinon dans les remplaçants.
+   « vus » = joueurs déjà pris en compte : un joueur que le capitaine a retiré
+   à la main ne revient pas tout seul. */
+const ROLE_POSTE = { GAR: 'Gardien', DEF: 'Défenseur', MIL: 'Milieu', ATT: 'Attaquant' };
+function compoAJour(m) {
+  const c = m?.compo;
+  if (!c || m.joue) return c;
+  const absent = j => reponse(m.id, j) === 'absent';
+  const presents = compteurs(m).p;
+  const postes = { ...(c.postes || {}) };
+  let remp = [...(c.remplacants || [])];
+  let vus = Array.isArray(c.vus) ? [...c.vus] : [...new Set([...Object.values(postes), ...remp, ...presents])];
+  Object.keys(postes).forEach(s => { if (!joueur(postes[s]) || absent(postes[s])) delete postes[s]; });
+  remp = remp.filter(j => joueur(j) && !absent(j));
+  vus = vus.filter(j => !absent(j));
+  const places = new Set([...Object.values(postes), ...remp]);
+  const maj = j => Store.get('presences', m.id + '_' + j)?.maj || 0;
+  const nouveaux = presents.filter(j => !vus.includes(j) && !places.has(j)).sort((a, b) => maj(a) - maj(b));
+  const slots = emplacements(c.formation);
+  nouveaux.forEach(j => {
+    const libres = slots.filter(s => !postes[s.id]), p = joueur(j)?.poste;
+    const s = libres.find(s => ROLE_POSTE[s.role] === p) || libres.find(s => s.id !== 'G');
+    if (s) postes[s.id] = j; else remp.push(j);
+    vus.push(j);
+  });
+  return { ...c, postes, remplacants: remp, vus: [...new Set(vus)] };
+}
+const memeCompo = (a, b) => JSON.stringify([a?.postes, a?.remplacants, [...(a?.vus || [])].sort()]) === JSON.stringify([b?.postes, b?.remplacants, Array.isArray(b?.vus) ? [...b.vus].sort() : null]);
+
 /* ---------- Paiements ---------- */
 function dettesDe(jid) {
   return Store.liste('paiements').filter(p => p.joueurs && jid in p.joueurs && !p.joueurs[jid]);

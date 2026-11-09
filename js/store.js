@@ -188,10 +188,28 @@ const Store = {
         this.data[col] = o;
         if (this.visiteur && col === 'profils') this.data.joueurs = o; // le visiteur ne voit que les profils publics
         fini();
-        if (this.etat === 'pret') { if (col === 'joueurs' || col === 'profils') this._syncProfils(); this._notifie(); }
+        if (this.etat === 'pret') { if (col === 'joueurs' || col === 'profils') this._syncProfils(); if (col === 'presences' || col === 'matchs') this._syncCompos(); this._notifie(); }
       }, e => { console.error(col, e); fini(); if (this.etat === 'pret') this._notifie(); });
       this._unsubs.push(un);
     });
+  },
+  /* Le capitaine tient les compos à jour avec les présences (un joueur ne peut pas écrire le match) */
+  _syncCompos() {
+    if (!this.capitaine || this.visiteur || typeof compoAJour !== 'function') return;
+    clearTimeout(this._tCompo);
+    this._tCompo = setTimeout(() => {
+      const ops = [];
+      this.liste('matchs').forEach(m => {
+        if (!m.compo || m.joue) return;
+        const n = compoAJour(m);
+        if (!memeCompo(n, m.compo)) ops.push({ op: 'patch', col: 'matchs', id: m.id, obj: { compo: n } });
+      });
+      if (!ops.length) return;
+      if (this.mode === 'demo') return this.batch(ops);
+      const b = this.fs.batch();
+      ops.forEach(o => b.update(this.fs.collection('matchs').doc(o.id), { compo: nettoie(o.obj.compo) }));
+      b.commit().catch(e => console.warn('compo', e.code || e));
+    }, 800);
   },
   /* Vote clos : le capitaine reporte l'homme du match élu sur le match (visible par les visiteurs) */
   _syncHdm() {

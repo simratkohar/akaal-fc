@@ -58,7 +58,7 @@ function avatarRond(ctx, cx, cy, r, img, initiales, bordure = VIS.or) {
 
 /* Dessine la compo d'un match. avecPhotosGoogle = false si le navigateur refuse les photos d'un autre site. */
 async function dessinerCompo(mid, avecPhotosGoogle = true) {
-  const m = Store.get('matchs', mid), c = m.compo, a = adv(m), l = lieuDe(m);
+  const m = Store.get('matchs', mid), c = compoAJour(m), a = adv(m), l = lieuDe(m);
   await Promise.all(['80px "Bebas Neue"', '800 40px Manrope', '700 40px Manrope'].map(f => document.fonts.load(f).catch(() => {})));
   const logo = await chargerImage('assets/logo-256.png');
   const W = 1080, H = 1920, cv = document.createElement('canvas');
