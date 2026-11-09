@@ -1,9 +1,9 @@
 /* Service worker : rend l'app installable et utilisable hors connexion.
    Stratégie « réseau d'abord » pour nos fichiers (les mises à jour arrivent
    tout de suite), cache en secours. Firebase n'est jamais mis en cache ici. */
-const CACHE = 'akaal-v30';
-const FICHIERS = ['./', 'index.html', 'manifest.json', 'css/app.css?v=30',
-  'js/config.js?v=30', 'js/utils.js?v=30', 'js/store.js?v=30', 'js/calc.js?v=30', 'js/app.js?v=30', 'js/forms.js?v=30', 'js/visuel.js?v=30',
+const CACHE = 'akaal-v31';
+const FICHIERS = ['./', 'index.html', 'manifest.json', 'css/app.css?v=31',
+  'js/config.js?v=31', 'js/utils.js?v=31', 'js/store.js?v=31', 'js/calc.js?v=31', 'js/app.js?v=31', 'js/forms.js?v=31', 'js/visuel.js?v=31',
   'assets/logo-256.png', 'icons/icon-192.png', 'icons/icon-180.png', 'icons/icon-96.png'];
 
 self.addEventListener('install', e => {
