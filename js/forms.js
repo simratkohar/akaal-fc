@@ -24,8 +24,9 @@ function cochesHtml(ids, selection, onclickFn) {
   return `<div class="coches">${ids.map(j => `<button type="button" class="${selection.has(j) ? 'on' : ''}" onclick="${onclickFn}('${j}',this)">${esc(nomJ(j))}</button>`).join('')}</div>`;
 }
 const val = id => $('#' + id)?.value?.trim() ?? '';
-const optionsJoueurs = (sel, { vide = false, csc = false, videTxt = '— aucun —' } = {}) =>
-  `${vide ? `<option value="">${videTxt}</option>` : ''}${csc ? `<option value="csc" ${sel === 'csc' ? 'selected' : ''}>CSC (contre son camp)</option>` : ''}${tousJoueurs().map(j => `<option value="${j.id}" ${sel === j.id ? 'selected' : ''}>${esc(j.nom)}${esc(numTxt(j))}</option>`).join('')}`;
+// ids : limiter la liste à ces joueurs (ex. ceux qui ont joué) ; le joueur déjà choisi reste toujours dans la liste
+const optionsJoueurs = (sel, { vide = false, csc = false, videTxt = '— aucun —', ids = null } = {}) =>
+  `${vide ? `<option value="">${videTxt}</option>` : ''}${csc ? `<option value="csc" ${sel === 'csc' ? 'selected' : ''}>CSC (contre son camp)</option>` : ''}${tousJoueurs().filter(j => !ids || ids.has(j.id) || j.id === sel).map(j => `<option value="${j.id}" ${sel === j.id ? 'selected' : ''}>${esc(j.nom)}${esc(numTxt(j))}</option>`).join('')}`;
 
 /* ---------------- Présence ---------------- */
 async function repondre(mid, rep, jid = Store.moi) {
@@ -197,19 +198,20 @@ function rendreResultat() {
   ouvrirFeuille(`<h3>Feuille de match</h3><p class="aide">${esc(NOUS())} ${m.domicile ? 'reçoit' : 'chez'} ${esc(a.nom)} · ${fmtJourC(m.date)}</p>
     <div class="grille2"><div><label class="f">${esc(NOUS())}</label><input class="in" type="number" min="0" inputmode="numeric" id="r-nous" value="${F.nous}" style="font-family:var(--titre);font-size:34px;text-align:center;color:var(--or-2)"></div>
       <div><label class="f">${esc(a.nom)}</label><input class="in" type="number" min="0" inputmode="numeric" id="r-eux" value="${F.eux}" style="font-family:var(--titre);font-size:34px;text-align:center"></div></div>
-    <label class="f">Buts (minute · buteur · passeur)</label>
-    ${F.buts.map((b, i) => `<div class="ligne-but"><input class="in" type="number" min="0" max="130" placeholder="min" value="${b.minute}"><select class="in">${optionsJoueurs(b.buteur, { csc: true })}</select><select class="in">${optionsJoueurs(b.passeur, { vide: true, videTxt: 'Sans passe' })}</select><button onclick="syncResultat();F.buts.splice(${i},1);rendreResultat()" aria-label="Retirer">×</button></div>`).join('')}
-    <button class="ajout" onclick="syncResultat();F.buts.push({buteur:tousJoueurs()[0]?.id||'csc',passeur:'',minute:''});rendreResultat()">${ic('add')} Ajouter un but</button>
     <label class="f">Ont joué (<span id="r-noj">${F.ontJoue.size}</span>)</label>
     ${cochesHtml(tousJoueurs().map(j => j.id), F.ontJoue, 'basculeOntJoue')}
+    <label class="f">Buts (minute · buteur · passeur)</label>
+    ${F.ontJoue.size ? '' : '<p class="aide">Coche d’abord qui a joué : seuls ces joueurs apparaissent comme buteurs et passeurs.</p>'}
+    ${F.buts.map((b, i) => `<div class="ligne-but"><input class="in" type="number" min="0" max="130" placeholder="min" value="${b.minute}"><select class="in">${optionsJoueurs(b.buteur, { csc: true, ids: F.ontJoue })}</select><select class="in">${optionsJoueurs(b.passeur, { vide: true, videTxt: 'Sans passe', ids: F.ontJoue })}</select><button onclick="syncResultat();F.buts.splice(${i},1);rendreResultat()" aria-label="Retirer">×</button></div>`).join('')}
+    <button class="ajout" onclick="syncResultat();F.buts.push({buteur:tousJoueurs().find(j=>F.ontJoue.has(j.id))?.id||'csc',passeur:'',minute:''});rendreResultat()">${ic('add')} Ajouter un but</button>
     <label class="f">Homme du match ${cfg.hdmMode === 'vote' ? '(si personne ne vote)' : '(ton choix)'}</label>
-    <select class="in" id="r-hdm">${optionsJoueurs(F.hdm, { vide: true })}</select>
+    <select class="in" id="r-hdm">${optionsJoueurs(F.hdm, { vide: true, ids: F.ontJoue })}</select>
     ${cfg.hdmMode === 'vote' ? `<p class="aide">Réglage : l’homme du match sera le résultat du vote des joueurs (${cfg.votesHeures} h après la validation).</p>` : ''}
     <button class="btn" onclick="enregistrerResultat()">${ic('sports_score')} Valider le résultat</button>
     ${m.joue ? `<button class="btn danger" onclick="annulerResultat('${m.id}')">Remettre le match « à venir »</button>` : ''}`);
   $('#feuille').scrollTop = scroll;
 }
-function basculeOntJoue(j, btn) { F.ontJoue.has(j) ? F.ontJoue.delete(j) : F.ontJoue.add(j); btn.classList.toggle('on'); $('#r-noj').textContent = F.ontJoue.size; }
+function basculeOntJoue(j) { syncResultat(); F.ontJoue.has(j) ? F.ontJoue.delete(j) : F.ontJoue.add(j); rendreResultat(); } // les listes buteurs / passeurs suivent
 async function enregistrerResultat() {
   syncResultat();
   const m = Store.get('matchs', F.id);
