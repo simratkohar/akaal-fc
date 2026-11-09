@@ -1,9 +1,9 @@
 /* Service worker : rend l'app installable et utilisable hors connexion.
    Stratégie « réseau d'abord » pour nos fichiers (les mises à jour arrivent
    tout de suite), cache en secours. Firebase n'est jamais mis en cache ici. */
-const CACHE = 'akaal-v29';
-const FICHIERS = ['./', 'index.html', 'manifest.json', 'css/app.css?v=29',
-  'js/config.js?v=29', 'js/utils.js?v=29', 'js/store.js?v=29', 'js/calc.js?v=29', 'js/app.js?v=29', 'js/forms.js?v=29', 'js/visuel.js?v=29',
+const CACHE = 'akaal-v30';
+const FICHIERS = ['./', 'index.html', 'manifest.json', 'css/app.css?v=30',
+  'js/config.js?v=30', 'js/utils.js?v=30', 'js/store.js?v=30', 'js/calc.js?v=30', 'js/app.js?v=30', 'js/forms.js?v=30', 'js/visuel.js?v=30',
   'assets/logo-256.png', 'icons/icon-192.png', 'icons/icon-180.png', 'icons/icon-96.png'];
 
 self.addEventListener('install', e => {
@@ -22,7 +22,8 @@ self.addEventListener('fetch', e => {
     e.respondWith(caches.match(req).then(r => r || fetch(req).then(res => { const copie = res.clone(); caches.open(CACHE).then(c => c.put(req, copie)); return res; })));
     return;
   }
-  e.respondWith(fetch(req).then(res => {
+  // Toujours vérifier auprès du serveur (pas la mémoire du navigateur) pour avoir la dernière version
+  e.respondWith(fetch(req, { cache: 'no-cache' }).then(res => {
     if (res.ok) { const copie = res.clone(); caches.open(CACHE).then(c => c.put(req, copie)); }
     return res;
   }).catch(() => caches.match(req).then(r => r || caches.match('index.html'))));

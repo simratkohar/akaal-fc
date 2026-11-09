@@ -630,7 +630,7 @@ function pageReglages(sous) {
   h += `<button class="btn sec" onclick="partagerLien()">${ic('share')} Partager le lien de l’app à l’équipe</button>`;
   if (Store.mode === 'demo') h += `<button class="btn danger" onclick="if(confirm('Remettre les données de démo à zéro ?'))Store.reinitDemo()">${ic('restart_alt')} Réinitialiser la démo</button>`;
   else h += `<button class="btn danger" onclick="Store.deconnexion()">${ic('logout')} Se déconnecter</button>`;
-  h += `<p class="note-bas">AKAAL FC · EST. 2019 · ${Store.mode === 'demo' ? 'MODE DÉMO' : 'CONNECTÉ'}</p>`;
+  h += `<p class="note-bas">AKAAL FC · EST. 2019 · ${Store.mode === 'demo' ? 'MODE DÉMO' : 'CONNECTÉ'} · VERSION ${(document.querySelector('script[src*="app.js"]')?.src.match(/v=(\d+)/) || [])[1] || '?'}</p>`;
   return h;
 }
 /* Lien spécial #/emails/<code> : enregistre d'un coup les e-mails Google des joueurs.
