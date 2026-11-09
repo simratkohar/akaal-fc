@@ -514,3 +514,22 @@ nav.bas button.on .ms{background:rgba(201,162,74,.16);border-radius:10px;padding
   .connexion{padding-left:0}
 }
 body.sans-nav{padding-left:0}
+
+/* Buteurs / passeurs d'un match (rangée d'avatars avec compteur) */
+.podium{display:flex;gap:18px;overflow-x:auto;padding:16px 14px 12px;scrollbar-width:none}
+.podium::-webkit-scrollbar{display:none}
+.podium-j{flex:none;width:74px;text-align:center;color:inherit;text-decoration:none}
+.podium-av{position:relative;width:64px;height:64px;margin:0 auto}
+.podium-av .av{width:64px;height:64px;font-size:26px;border:2px solid rgba(201,162,74,.55)}
+.podium-av .av .ms{font-size:30px;color:var(--gris)}
+.podium-n{position:absolute;right:-6px;bottom:-4px;min-width:28px;height:28px;padding:0 6px;border-radius:14px;display:grid;place-items:center;font-family:var(--titre);font-size:19px;line-height:1;border:3px solid var(--carte)}
+.podium-n.but-n{background:var(--or);color:var(--noir)}
+.podium-n.passe-n{background:#E8E8EE;color:var(--noir)}
+.podium-j b{display:block;margin-top:9px;font-size:12px;font-weight:700;color:var(--creme);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.deroule{margin-top:10px}
+.deroule summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:12px 14px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--or)}
+.deroule summary::-webkit-details-marker{display:none}
+.deroule summary .ms:last-child{margin-left:auto;transition:transform .2s}
+.deroule[open] summary .ms:last-child{transform:rotate(180deg)}
+.deroule .but{gap:12px}
+.deroule .but .t span .ms{font-size:14px;vertical-align:-2px;color:var(--or)}
