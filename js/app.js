@@ -310,7 +310,7 @@ function ongletInfos(m) {
       : `<div class="carte">${vide('Première rencontre contre cette équipe', 'handshake')}</div>`;
   }
   if (Store.capitaine) h += `<button class="btn" onclick="formResultat('${m.id}')">${ic('scoreboard')} ${m.joue ? 'Modifier le résultat' : 'Saisir le résultat'}</button>
-    <button class="btn gris" onclick="formMatch('${m.id}')">${ic('edit')} Modifier le match</button>`;
+    <button class="btn gris" onclick="formMatch('${m.id}')">${ic('edit')} Modifier le match</button>${m.joue ? '' : `<button class="btn sec" onclick="relanceWhatsApp('${m.id}')">${ic('share')} Inviter les joueurs (WhatsApp, Snap…)</button>`}`;
   return h;
 }
 function ongletPresences(m) {
@@ -334,7 +334,7 @@ function ongletPresences(m) {
     h += `<div class="carte liste">${c.q.map(j => ligne(j, 'q')).join('') || vide('Tout le monde a répondu', 'done_all')}</div>`;
   }
   if (cap) h += `<button class="btn sec" onclick="formOccasionnel('${m.id}')">${ic('person_add')} Ajouter un joueur occasionnel</button>`;
-  if (cap && !m.joue && c.q.length) h += `<button class="btn sec" onclick="relanceWhatsApp('${m.id}')">${ic('chat')} Relancer sur WhatsApp</button>`;
+  if (cap && !m.joue) h += `<button class="btn sec" onclick="relanceWhatsApp('${m.id}')">${ic('share')} Inviter les joueurs (WhatsApp, Snap…)</button>`;
   return h;
 }
 
