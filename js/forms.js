@@ -556,16 +556,30 @@ function formCreerEquipe() {
 }
 
 /* ---------------- Partage / WhatsApp ---------------- */
-const urlApp = () => location.origin + location.pathname;
+const urlApp = () => 'https://akaal-fc.web.app/'; // adresse officielle, même si l'app est ouverte ailleurs
 function whatsapp(texte) { window.open('https://wa.me/?text=' + encodeURIComponent(texte), '_blank'); }
 async function partager(texte, titre = 'Akaal FC') {
   if (navigator.share) { try { await navigator.share({ title: titre, text: texte }); return; } catch (e) { if (e.name === 'AbortError') return; } }
   whatsapp(texte);
 }
-function relanceWhatsApp(mid) {
-  const m = Store.get('matchs', mid), c = compteurs(m), l = lieuDe(m);
-  whatsapp(`⚽ ${NOUS()} vs ${adv(m).nom} — ${maj1(fmtJour(m.date))} à ${fmtHeure(m.date)}${l ? ' · ' + l.nom : ''}\n\nOn attend encore la réponse de : ${c.q.map(prenom).join(', ')}.\nRépondez Présent / Absent sur l'app 👉 ${urlApp()}\n\n✅ ${c.p.length} présents pour l'instant.`);
+/* Invitation au match : message général + lien direct vers la feuille de présence du match */
+function texteInvitation(mid) {
+  const m = Store.get('matchs', mid), l = lieuDe(m), u = l ? lienMaps(l) : null;
+  const lim = limiteDe(m);
+  return [
+    `⚽ ${typeCourt(m)} · ${NOUS()} vs ${adv(m).nom}`,
+    ``,
+    `📅 ${maj1(fmtJour(m.date))} à ${fmtHeure(m.date)}`,
+    l ? `📍 ${l.nom}${l.adresse ? ' (' + l.adresse + ')' : ''}` : null,
+    u ? `🗺️ ${u}` : null,
+    `👕 Foot à ${m.format} · ${m.domicile ? 'à domicile' : 'à l’extérieur'}`,
+    ``,
+    `Présent ou absent ? Réponds ici 👇`,
+    `${urlApp()}#/match/${mid}/presences`,
+    lim < D(m.date).getTime() ? `⏰ Avant le ${fmtDateCourte(lim)}` : null
+  ].filter(x => x !== null).join('\n');
 }
+function relanceWhatsApp(mid) { partager(texteInvitation(mid), 'Match Akaal FC'); }
 function relancePaiement(pid) {
   const p = Store.get('paiements', pid), imp = Object.keys(p.joueurs).filter(j => !p.joueurs[j] && joueur(j));
   whatsapp(`💰 ${p.libelle} (${p.montant} €)${p.echeance ? ' — avant le ' + p.echeance.split('-').reverse().join('/') : ''}\n\nPas encore reçu de : ${imp.map(prenom).join(', ')}.\nMerci de régler au capitaine (espèces ou virement) 🙏`);
