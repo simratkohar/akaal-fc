@@ -33,8 +33,10 @@ function lienLieu(m) {
 }
 function equipesOrdre(m) { // domicile en haut / à gauche
   const a = adv(m);
-  const nous = { nom: NOUS(), nous: true, ec: t => ecussonNous(t), score: m.scoreNous };
-  const eux = { nom: a.nom, nous: false, ec: t => ecussonAdv(a, t), score: m.scoreEux };
+  // Forfait : « F » pour l'équipe qui a déclaré forfait, « – » pour l'autre
+  const sc = (moi, n) => !m.forfait ? n : m.forfait === moi ? 'F' : '–';
+  const nous = { nom: NOUS(), nous: true, ec: t => ecussonNous(t), score: sc('nous', m.scoreNous) };
+  const eux = { nom: a.nom, nous: false, ec: t => ecussonAdv(a, t), score: sc('eux', m.scoreEux) };
   return m.domicile ? [nous, eux] : [eux, nous];
 }
 
@@ -283,7 +285,7 @@ function pageMatch(id, onglet) {
   let h = `<a class="retour" href="#/calendrier">${ic('arrow_back')} Calendrier</a>
   <section class="carte entete-match rayures or">
     <div class="entre"><div class="ligne-date">${ic('calendar_today')}${maj1(fmtJour(m.date))} · ${fmtHeure(m.date)}</div>${r ? `<span class="chip ${r === 'V' ? 'vert' : r === 'D' ? 'rouge' : ''}">${RES_TXT[r]}</span>` : ({ attente: `<span class="chip orange">Terminé</span>`, encours: `<span class="chip vert">En cours</span>` })[etatMatch(m)] || `<span class="chip orange">À venir</span>`}</div>
-    <div class="sb">${eq(g)}<div>${m.joue ? `<div class="res"><span class="${g.nous ? 'nous' : ''}">${g.score}</span> - <span class="${d.nous ? 'nous' : ''}">${d.score}</span><small>Score final</small></div>` : etatMatch(m) === 'attente' ? `<div class="res">? - ?<small>Score à saisir</small></div>` : `<div class="heure-grande">${fmtHeure2(m.date)}</div>`}</div>${eq(d)}</div>
+    <div class="sb">${eq(g)}<div>${m.forfait ? `<div class="res" style="font-size:46px;color:var(--or-2)">FORFAIT<small>${m.forfait === 'nous' ? esc(NOUS()) : esc(adv(m).nom)}</small></div>` : m.joue ? `<div class="res"><span class="${g.nous ? 'nous' : ''}">${g.score}</span> - <span class="${d.nous ? 'nous' : ''}">${d.score}</span><small>${m.forfait ? (m.forfait === 'nous' ? `Forfait ${esc(NOUS())}` : `Forfait ${esc(adv(m).nom)}`) : 'Score final'}</small></div>` : etatMatch(m) === 'attente' ? `<div class="res">? - ?<small>Score à saisir</small></div>` : `<div class="heure-grande">${fmtHeure2(m.date)}</div>`}</div>${eq(d)}</div>
     <div class="tricolore fin mt16"></div>
     <div class="chips mt12" style="justify-content:center"><span class="chip plein">${esc(typeCourt(m))}</span><span class="chip">Foot à ${esc(m.format)}</span></div>
   </section>
@@ -306,11 +308,11 @@ function ongletInfos(m) {
   if (ff) {
     h += sec(`Face-à-face`, 'swords', esc(a.nom));
     h += ff.j ? `<div class="kpis"><div class="kpi"><b>${ff.j}</b><span>Matchs</span></div><div class="kpi v"><b>${ff.v}</b><span>V</span></div><div class="kpi"><b>${ff.n}</b><span>N</span></div><div class="kpi d"><b>${ff.d}</b><span>D</span></div></div>
-      <div class="carte liste mt8">${ff.ms.slice(0, 5).map(x => `<a class="ligne clic" style="color:inherit" href="#/match/${x.id}"><span class="chip ${resultat(x) === 'V' ? 'vert' : resultat(x) === 'D' ? 'rouge' : ''}">${resultat(x)}</span><div class="t"><b>${x.scoreNous} - ${x.scoreEux}</b><span>${fmtJourC(x.date)} ${new Date(x.date).getFullYear()} · ${esc(typeCourt(x))}</span></div>${ic('chevron_right')}</a>`).join('')}</div>`
+      <div class="carte liste mt8">${ff.ms.slice(0, 5).map(x => `<a class="ligne clic" style="color:inherit" href="#/match/${x.id}"><span class="chip ${resultat(x) === 'V' ? 'vert' : resultat(x) === 'D' ? 'rouge' : ''}">${resultat(x)}</span><div class="t"><b>${scoreTxt(x)}</b><span>${fmtJourC(x.date)} ${new Date(x.date).getFullYear()} · ${esc(typeCourt(x))}</span></div>${ic('chevron_right')}</a>`).join('')}</div>`
       : `<div class="carte">${vide('Première rencontre contre cette équipe', 'handshake')}</div>`;
   }
   if (Store.capitaine) h += `<button class="btn" onclick="formResultat('${m.id}')">${ic('scoreboard')} ${m.joue ? 'Modifier le résultat' : 'Saisir le résultat'}</button>
-    <button class="btn gris" onclick="formMatch('${m.id}')">${ic('edit')} Modifier le match</button>${m.joue ? '' : `<button class="btn sec" onclick="relanceWhatsApp('${m.id}')">${ic('share')} Inviter les joueurs (WhatsApp, Snap…)</button>`}`;
+    <button class="btn gris" onclick="formMatch('${m.id}')">${ic('edit')} Modifier le match</button>${m.joue ? '' : `<button class="btn sec" onclick="relanceWhatsApp('${m.id}')">${ic('share')} Inviter les joueurs (WhatsApp, Snap…)</button><button class="btn sec" onclick="inviterParMail('${m.id}')">${ic('mail')} Inviter par e-mail</button>`}`;
   return h;
 }
 function ongletPresences(m) {
@@ -383,6 +385,8 @@ function terrainSvg() {
 /* ----- Stats du match ----- */
 function ongletStats(m) {
   if (!m.joue) return `<div class="carte mt16">${etatMatch(m) === 'attente' ? vide(Store.capitaine ? 'Match terminé : saisis le score, les buteurs et qui a joué.' : 'Match terminé : le capitaine va bientôt saisir le score.', 'flag') : vide('Le match n’est pas encore joué.', 'hourglass_empty')}</div>${Store.capitaine ? `<button class="btn" onclick="formResultat('${m.id}')">${ic('scoreboard')} Saisir le résultat</button>` : ''}`;
+  if (m.forfait) return `<div class="alerte or mt16">${ic('flag')}<span><b>Match perdu par forfait</b> ${m.forfait === 'nous' ? `: ${esc(NOUS())} n’a pas pu jouer.` : `: forfait de ${esc(adv(m).nom)}, victoire sur tapis vert.`} Pas de buts ni de stats joueurs pour ce match.</span></div>`.replace('Match perdu par forfait', m.forfait === 'nous' ? 'Défaite par forfait' : 'Victoire par forfait')
+    + (Store.capitaine ? `<button class="btn sec" onclick="formResultat('${m.id}')">${ic('edit_note')} Modifier la feuille de match</button>` : '');
   const bs = butsDe(m.id), h_ = hommeDuMatch(m), ouvert = votesOuverts(m), moi = Store.moi;
   let h = '';
   // Buteurs et passeurs, façon « cartes joueurs »
@@ -582,7 +586,7 @@ function pageJoueur(id) {
   const derniers = ms.filter(m => (m.ontJoue || []).includes(id)).reverse().slice(0, 5);
   if (derniers.length) {
     h += sec('Derniers matchs', 'history');
-    h += `<div class="carte liste">${derniers.map(m => { const x = statsJoueur(id, [m]), nt = noteMatch(id, m.id); return `<a class="ligne clic" style="color:inherit" href="#/match/${m.id}"><span class="chip ${resultat(m) === 'V' ? 'vert' : resultat(m) === 'D' ? 'rouge' : ''}">${resultat(m)}</span><div class="t"><b>${esc(adv(m).nom)} · ${m.scoreNous}-${m.scoreEux}</b><span>${fmtJourC(m.date)} · ${[x.g && x.g + ' but' + (x.g > 1 ? 's' : ''), x.a && x.a + ' passe' + (x.a > 1 ? 's' : ''), x.hdm && '★ HDM'].filter(Boolean).join(' · ') || '—'}</span></div>${nt != null ? `<b class="or-t" style="font-family:var(--titre);font-size:22px">${fmtNote(nt)}</b>` : ''}</a>`; }).join('')}</div>`;
+    h += `<div class="carte liste">${derniers.map(m => { const x = statsJoueur(id, [m]), nt = noteMatch(id, m.id); return `<a class="ligne clic" style="color:inherit" href="#/match/${m.id}"><span class="chip ${resultat(m) === 'V' ? 'vert' : resultat(m) === 'D' ? 'rouge' : ''}">${resultat(m)}</span><div class="t"><b>${esc(adv(m).nom)} · ${scoreTxt(m, '-')}</b><span>${fmtJourC(m.date)} · ${[x.g && x.g + ' but' + (x.g > 1 ? 's' : ''), x.a && x.a + ' passe' + (x.a > 1 ? 's' : ''), x.hdm && '★ HDM'].filter(Boolean).join(' · ') || '—'}</span></div>${nt != null ? `<b class="or-t" style="font-family:var(--titre);font-size:22px">${fmtNote(nt)}</b>` : ''}</a>`; }).join('')}</div>`;
   }
   if (moi && Store.mode === 'firebase') h += `<p class="note-bas">Connecté avec ${esc(Store.user?.email)}</p>`;
   return h;

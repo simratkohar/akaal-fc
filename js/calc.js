@@ -50,7 +50,9 @@ function lireClassementColle(texte) {
 
 const tousJoueurs = () => Store.liste('joueurs').sort((a, b) => (a.numero ?? 999) - (b.numero ?? 999) || String(a.nom).localeCompare(String(b.nom)));
 
-const resultat = m => !m?.joue ? null : m.scoreNous > m.scoreEux ? 'V' : m.scoreNous < m.scoreEux ? 'D' : 'N';
+// m.forfait : 'nous' (on a déclaré forfait → défaite) ou 'eux' (l'adversaire → victoire)
+const resultat = m => !m?.joue ? null : m.forfait === 'nous' ? 'D' : m.forfait === 'eux' ? 'V' : m.scoreNous > m.scoreEux ? 'V' : m.scoreNous < m.scoreEux ? 'D' : 'N';
+const scoreTxt = (m, sep = ' - ') => m.forfait ? 'Forfait' : `${m.scoreNous}${sep}${m.scoreEux}`;
 const RES_TXT = { V: 'Victoire', N: 'Nul', D: 'Défaite' };
 const typeCourt = m => m.type === 'Championnat' ? `${Store.config().championnat || 'FSGT'}${m.journee ? ' · J' + m.journee : ''}` : m.type;
 
@@ -155,7 +157,7 @@ const fmtNote = n => n == null ? '–' : n.toFixed(1).replace('.', ',');
 /* ---------- Bilan équipe ---------- */
 function bilan(matchs) {
   const s = { j: matchs.length, v: 0, n: 0, d: 0, bp: 0, bc: 0 };
-  matchs.forEach(m => { const r = resultat(m); s[r === 'V' ? 'v' : r === 'N' ? 'n' : 'd']++; s.bp += +m.scoreNous || 0; s.bc += +m.scoreEux || 0; });
+  matchs.forEach(m => { const r = resultat(m); s[r === 'V' ? 'v' : r === 'N' ? 'n' : 'd']++; if (m.forfait) return; s.bp += +m.scoreNous || 0; s.bc += +m.scoreEux || 0; }); // un forfait compte au bilan, pas dans les buts
   return s;
 }
 
@@ -224,7 +226,7 @@ function wrapped(saison) {
   const ms = matchsJoues(saison);
   const top = t => classement(t, ms)[0];
   const ecart = m => (m.scoreNous || 0) - (m.scoreEux || 0);
-  const plusGros = [...ms].filter(m => resultat(m) === 'V').sort((a, b) => ecart(b) - ecart(a) || b.scoreNous - a.scoreNous)[0];
+  const plusGros = [...ms].filter(m => resultat(m) === 'V' && !m.forfait).sort((a, b) => ecart(b) - ecart(a) || b.scoreNous - a.scoreNous)[0];
   const votes = {}; ms.forEach(m => votesDe(m.id).forEach(v => { if (v.hommeDuMatch) votes[v.hommeDuMatch] = (votes[v.hommeDuMatch] || 0) + 1; }));
   const plusVote = Object.entries(votes).sort((a, b) => b[1] - a[1])[0];
   const presents = tousJoueurs().map(j => ({ id: j.id, ...tauxPresence(j.id, ms) })).filter(x => x.convoc).sort((a, b) => b.pres - a.pres || b.taux - a.taux)[0];

@@ -168,7 +168,10 @@ async function enregistrerMatch() {
   };
   if (obj.compo && ancien && ancien.format !== F.format) obj.compo = null; // la formation ne colle plus
   ops.push({ op: 'set', col: 'matchs', id, obj });
-  if (await Store.batch(ops)) { fermerFeuille(); toast('Match enregistré'); if (!F.id) location.hash = '#/match/' + id + '/infos'; }
+  if (await Store.batch(ops)) {
+    fermerFeuille(); toast('Match enregistré');
+    if (!F.id) { location.hash = '#/match/' + id + '/infos'; setTimeout(() => proposerInvitation(id), 400); }
+  }
 }
 async function supprimerMatch(id) {
   if (!confirm('Supprimer ce match, ses buts, présences et votes ?')) return;
@@ -182,23 +185,27 @@ function formResultat(id) {
   if (!Store.capitaine) return;
   const m = Store.get('matchs', id);
   const presents = compteurs(m).p;
-  F = { id, nous: m.scoreNous ?? '', eux: m.scoreEux ?? '', hdm: m.hommeDuMatch || '',
+  F = { id, forfait: m.forfait || '', nous: m.scoreNous ?? '', eux: m.scoreEux ?? '', hdm: m.hommeDuMatch || '',
     buts: butsDe(id).map(b => ({ buteur: b.buteur, passeur: b.passeur || '', minute: b.minute ?? '' })),
     ontJoue: new Set((m.ontJoue && m.ontJoue.length) ? m.ontJoue : presents) };
   rendreResultat();
 }
 function syncResultat() {
   if (!$('#r-nous')) return;
-  F.nous = $('#r-nous').value; F.eux = $('#r-eux').value; F.hdm = $('#r-hdm').value;
+  F.nous = $('#r-nous').value; F.eux = $('#r-eux').value;
+  if (!$('#r-hdm')) return; // vue « forfait » : pas de buts ni d'homme du match à l'écran
+  F.hdm = $('#r-hdm').value;
   $$('.ligne-but').forEach((l, i) => { const [mi, bu, pa] = l.querySelectorAll('input,select'); F.buts[i] = { minute: mi.value, buteur: bu.value, passeur: pa.value }; });
 }
 function rendreResultat() {
   const m = Store.get('matchs', F.id), a = adv(m), cfg = Store.config();
   const scroll = $('#feuille')?.scrollTop || 0;
   ouvrirFeuille(`<h3>Feuille de match</h3><p class="aide">${esc(NOUS())} ${m.domicile ? 'reçoit' : 'chez'} ${esc(a.nom)} · ${fmtJourC(m.date)}</p>
+    <label class="f">Forfait</label>${choixHtml('forfait', ['', 'nous', 'eux'], F.forfait, x => x === 'nous' ? esc(NOUS()) : x === 'eux' ? esc(a.nom) : 'Non', "syncResultat();rendreResultat()")}
+    ${F.forfait ? `<p class="aide">${F.forfait === 'nous' ? 'Défaite' : 'Victoire'} par forfait : le match compte dans le bilan (V/N/D) mais pas dans les buts ni les stats des joueurs. Le score est facultatif (celui retenu par la FSGT, s’il y en a un).</p>` : ''}
     <div class="grille2"><div><label class="f">${esc(NOUS())}</label><input class="in" type="number" min="0" inputmode="numeric" id="r-nous" value="${F.nous}" style="font-family:var(--titre);font-size:34px;text-align:center;color:var(--or-2)"></div>
       <div><label class="f">${esc(a.nom)}</label><input class="in" type="number" min="0" inputmode="numeric" id="r-eux" value="${F.eux}" style="font-family:var(--titre);font-size:34px;text-align:center"></div></div>
-    <label class="f">Ont joué (<span id="r-noj">${F.ontJoue.size}</span>)</label>
+    ${F.forfait ? '' : `<label class="f">Ont joué (<span id="r-noj">${F.ontJoue.size}</span>)</label>
     ${cochesHtml(tousJoueurs().map(j => j.id), F.ontJoue, 'basculeOntJoue')}
     <label class="f">Buts (minute · buteur · passeur)</label>
     ${F.ontJoue.size ? '' : '<p class="aide">Coche d’abord qui a joué : seuls ces joueurs apparaissent comme buteurs et passeurs.</p>'}
@@ -206,7 +213,7 @@ function rendreResultat() {
     <button class="ajout" onclick="syncResultat();F.buts.push({buteur:tousJoueurs().find(j=>F.ontJoue.has(j.id))?.id||'csc',passeur:'',minute:''});rendreResultat()">${ic('add')} Ajouter un but</button>
     <label class="f">Homme du match ${cfg.hdmMode === 'vote' ? '(si personne ne vote)' : '(ton choix)'}</label>
     <select class="in" id="r-hdm">${optionsJoueurs(F.hdm, { vide: true, ids: F.ontJoue })}</select>
-    ${cfg.hdmMode === 'vote' ? `<p class="aide">Réglage : l’homme du match sera le résultat du vote des joueurs (${cfg.votesHeures} h après la validation).</p>` : ''}
+    ${cfg.hdmMode === 'vote' ? `<p class="aide">Réglage : l’homme du match sera le résultat du vote des joueurs (${cfg.votesHeures} h après la validation).</p>` : ''}`}
     <button class="btn" onclick="enregistrerResultat()">${ic('sports_score')} Valider le résultat</button>
     ${m.joue ? `<button class="btn danger" onclick="annulerResultat('${m.id}')">Remettre le match « à venir »</button>` : ''}`);
   $('#feuille').scrollTop = scroll;
@@ -215,11 +222,18 @@ function basculeOntJoue(j) { syncResultat(); F.ontJoue.has(j) ? F.ontJoue.delete
 async function enregistrerResultat() {
   syncResultat();
   const m = Store.get('matchs', F.id);
+  if (F.forfait) {
+    const ops = [{ op: 'patch', col: 'matchs', id: m.id, obj: { forfait: F.forfait, joue: true, scoreNous: F.nous === '' ? 0 : +F.nous, scoreEux: F.eux === '' ? 0 : +F.eux,
+      ontJoue: [], hommeDuMatch: null, votesFin: null, notes: {} } }];
+    butsDe(m.id).forEach(b => ops.push({ op: 'del', col: 'buts', id: b.id }));
+    if (await Store.batch(ops)) { fermerFeuille(); toast('Forfait enregistré'); location.replace('#/match/' + m.id + '/stats'); }
+    return;
+  }
   if (F.nous === '' || F.eux === '') return toast('Indique le score');
   const nous = +F.nous, eux = +F.eux;
   if (F.buts.length !== nous && !confirm(`Le score indique ${nous} but(s) pour nous, mais ${F.buts.length} buteur(s) saisi(s). Valider quand même ?`)) return;
   const ops = [{ op: 'patch', col: 'matchs', id: m.id, obj: {
-    scoreNous: nous, scoreEux: eux, joue: true, ontJoue: [...F.ontJoue], hommeDuMatch: F.hdm || null,
+    forfait: null, scoreNous: nous, scoreEux: eux, joue: true, ontJoue: [...F.ontJoue], hommeDuMatch: F.hdm || null,
     votesFin: m.votesFin || Date.now() + (+Store.config().votesHeures || 48) * 3600e3 } }];
   butsDe(m.id).forEach(b => ops.push({ op: 'del', col: 'buts', id: b.id }));
   F.buts.forEach(b => ops.push({ op: 'set', col: 'buts', id: nouvelId(), obj: { match: m.id, buteur: b.buteur, passeur: b.passeur && b.passeur !== b.buteur ? b.passeur : null, minute: b.minute === '' ? null : +b.minute } }));
@@ -578,6 +592,20 @@ function texteInvitation(mid) {
     `${urlApp()}#/match/${mid}/presences`,
     lim < D(m.date).getTime() ? `⏰ Avant le ${fmtDateCourte(lim)}` : null
   ].filter(x => x !== null).join('\n');
+}
+/* E-mail à tous les convoqués (en copie cachée), depuis la messagerie du capitaine */
+function inviterParMail(mid) {
+  const m = Store.get('matchs', mid);
+  const mails = [...new Set(convoques(m).map(j => joueur(j)?.email).filter(e => e && e !== Store.user?.email))];
+  if (!mails.length) return toast('Aucun e-mail enregistré pour les joueurs convoqués');
+  const sujet = `⚽ ${typeCourt(m)} · ${NOUS()} vs ${adv(m).nom} · ${maj1(fmtJour(m.date))} ${fmtHeure(m.date)}`;
+  location.href = `mailto:?bcc=${encodeURIComponent(mails.join(','))}&subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(texteInvitation(mid))}`;
+}
+function proposerInvitation(mid) {
+  ouvrirFeuille(`<h3>Prévenir l’équipe ?</h3><p class="aide">Envoie l’invitation avec le lien direct vers la feuille de présence de ce match.</p>
+    <button class="btn" onclick="fermerFeuille();relanceWhatsApp('${mid}')">${ic('share')} WhatsApp, Snap…</button>
+    <button class="btn sec" onclick="fermerFeuille();inviterParMail('${mid}')">${ic('mail')} Par e-mail</button>
+    <button class="btn gris" onclick="fermerFeuille()">Plus tard</button>`);
 }
 function relanceWhatsApp(mid) { partager(texteInvitation(mid), 'Match Akaal FC'); }
 function relancePaiement(pid) {
