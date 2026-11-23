@@ -49,7 +49,7 @@ function render() {
   document.body.classList.remove('sans-nav');
   const { page, args } = App.route;
   const pages = { accueil: pageAccueil, calendrier: pageCalendrier, stats: pageStats, effectif: pageEffectif, match: pageMatch, joueur: pageJoueur,
-    votes: pageVotes, reglages: pageReglages, emails: pageEmails, presences: pagePresencesLien, paiements: pagePaiements, classement: pageClassement, bilan: pageBilan, profil: () => pageJoueur(Store.moi) };
+    reglages: pageReglages, emails: pageEmails, presences: pagePresencesLien, paiements: pagePaiements, classement: pageClassement, bilan: pageBilan, profil: () => pageJoueur(Store.moi) };
   let contenu;
   try { contenu = (pages[page] || pageAccueil)(...args); }
   catch (e) { console.error(e); contenu = vide('Oups, une erreur est survenue sur cet écran.', 'error'); }
@@ -59,7 +59,7 @@ let _rafPrevu = false;
 function rafRender() { if (_rafPrevu) return; _rafPrevu = true; requestAnimationFrame(() => { _rafPrevu = false; render(); }); }
 
 const SOUS_TITRES = { accueil: 'Accueil', calendrier: 'Calendrier', stats: 'Statistiques', effectif: 'Effectif', match: 'Fiche match', joueur: 'Fiche joueur',
-  votes: 'Votes du match', reglages: 'Réglages', emails: 'Accès joueurs', presences: 'Présences', paiements: 'Paiements', classement: 'Classement', bilan: 'Bilan de saison', profil: 'Mon profil' };
+  reglages: 'Réglages', emails: 'Accès joueurs', presences: 'Présences', paiements: 'Paiements', classement: 'Classement', bilan: 'Bilan de saison', profil: 'Mon profil' };
 function entete() {
   const cfg = Store.config(), moi = joueur(Store.moi);
   const demo = Store.mode === 'demo' ? `<button class="demo-btn ${Store.capitaine ? 'cap' : ''}" onclick="Store.basculeDemo();toast(Store.capitaine?'Vue capitaine':'Aperçu : vue d’un joueur')">${Store.capitaine ? '★ Cap.' : 'Joueur'}</button>` : '';
@@ -111,15 +111,12 @@ function pageNonLie() {
 function pageAccueil() {
   const cfg = Store.config(), moi = Store.moi;
   let h = '';
-  // Alertes perso : paiements, votes
+  // Alertes perso : paiements
   const dettes = dettesDe(moi);
   if (dettes.length) {
     const tot = dettes.reduce((s, p) => s + (+p.montant || 0), 0);
     h += `<a class="alerte or clic" href="#/paiements">${ic('account_balance_wallet')}<span>Tu dois <b>${tot} €</b> · ${dettes.map(p => esc(p.libelle)).join(', ')}</span></a>`;
   }
-  termines().filter(m => votesOuverts(m) && (m.ontJoue || []).includes(moi) && !Store.get('votes', m.id + '_' + moi)).slice(0, 1).forEach(m => {
-    h += `<a class="alerte vert clic" href="#/votes/${m.id}">${ic('how_to_vote')}<span><b>Vote ouvert</b> : homme du match contre ${esc(adv(m).nom)} · clôture ${fmtDateCourte(m.votesFin)}</span></a>`;
-  });
 
   // Sur PC : prochain match à gauche, le reste à droite (sur téléphone : l'un sous l'autre)
   h += `<div class="cols-pc"><div class="col-pc">`;
@@ -204,7 +201,7 @@ function carteDernier(m) {
     <div class="chips"><span class="chip or">${esc(typeCourt(m))}</span><span class="label">${fmtJourC(m.date)}</span></div>
     <div class="score-bloc mt12"><div class="eq"><b>${esc(g.nom)}</b><div class="num ${g.nous ? 'nous' : ''}">${g.score}</div></div><div class="mid">SCORE<br>FINAL</div><div class="eq"><b>${esc(d.nom)}</b><div class="num ${d.nous ? 'nous' : ''}">${d.score}</div></div></div>
     ${txt ? `<div class="buteurs">${ic('sports_soccer')}<span>${txt}</span></div>` : ''}
-    ${h ? `<div class="hdm-ligne">${ic('star', 'fill')} Homme du match : ${esc(nomJ(h))}${noteMatch(h, m.id) != null ? ` <span class="muted" style="margin-left:auto">Note ${fmtNote(noteMatch(h, m.id))}</span>` : ''}</div>` : votesOuverts(m) ? `<div class="hdm-ligne">${ic('how_to_vote')} Vote de l’homme du match en cours</div>` : ''}
+    ${h ? `<div class="hdm-ligne">${ic('star', 'fill')} Homme du match : ${esc(nomJ(h))}${noteMatch(h, m.id) != null ? ` <span class="muted" style="margin-left:auto">Note ${fmtNote(noteMatch(h, m.id))}</span>` : ''}</div>` : ''}
   </a>`;
 }
 const UNITES = { buts: 'buts', passes: 'passes', hdm: 'HDM', matchs: 'matchs', notes: '/10', presence: '%' };
@@ -390,7 +387,7 @@ function ongletStats(m) {
   if (!m.joue) return `<div class="carte mt16">${etatMatch(m) === 'attente' ? vide(Store.capitaine ? 'Match terminé : saisis le score, les buteurs et qui a joué.' : 'Match terminé : le capitaine va bientôt saisir le score.', 'flag') : vide('Le match n’est pas encore joué.', 'hourglass_empty')}</div>${Store.capitaine ? `<button class="btn" onclick="formResultat('${m.id}')">${ic('scoreboard')} Saisir le résultat</button>` : ''}`;
   if (m.forfait) return `<div class="alerte or mt16">${ic('flag')}<span><b>Match perdu par forfait</b> ${m.forfait === 'nous' ? `: ${esc(NOUS())} n’a pas pu jouer.` : `: forfait de ${esc(adv(m).nom)}, victoire sur tapis vert.`} Pas de buts ni de stats joueurs pour ce match.</span></div>`.replace('Match perdu par forfait', m.forfait === 'nous' ? 'Défaite par forfait' : 'Victoire par forfait')
     + (Store.capitaine ? `<button class="btn sec" onclick="formResultat('${m.id}')">${ic('edit_note')} Modifier la feuille de match</button>` : '');
-  const bs = butsDe(m.id), h_ = hommeDuMatch(m), ouvert = votesOuverts(m), moi = Store.moi;
+  const bs = butsDe(m.id), h_ = hommeDuMatch(m);
   let h = '';
   // Buteurs et passeurs, façon « cartes joueurs »
   const compte = cle => { const t = {}; bs.forEach(b => { const j = b[cle]; if (j) t[j] = (t[j] || 0) + 1; }); return Object.entries(t).sort((x, y) => (x[0] === 'csc') - (y[0] === 'csc') || y[1] - x[1] || nomJ(x[0]).localeCompare(nomJ(y[0]))); }; // CSC toujours en dernier
@@ -405,17 +402,12 @@ function ongletStats(m) {
     h += `<details class="carte deroule"><summary>${ic('format_list_numbered')} Détail des buts ${ic('expand_more')}</summary>${bs.map(b => { k++; return `<div class="but"><span class="min">${b.minute != null ? b.minute + '’' : k}</span>${b.buteur === 'csc' ? `<div class="av s rond">${ic('sports_soccer')}</div>` : avatar(b.buteur, 's rond')}<div class="t"><b>${esc(nomJ(b.buteur))}</b><span>${b.buteur === 'csc' ? 'But contre son camp adverse' : b.passeur ? ic('subdirectory_arrow_right') + ' ' + esc(nomJ(b.passeur)) : 'Sans passe'}</span></div></div>`; }).join('')}</details>`;
   }
   // Homme du match
-  h += sec('Homme du match', 'star', ouvert ? 'Vote en cours' : Store.config().hdmMode === 'vote' ? 'Vote joueurs' : 'Choix capitaine');
+  h += sec('Homme du match', 'star', 'Choix du capitaine');
   if (h_) {
     const s = statsJoueur(h_, [m]), n = noteMatch(h_, m.id);
     h += `<a class="carte hdm-carte clic" style="color:inherit" href="#/joueur/${h_}">${avatar(h_, 'l or')}<div class="t" style="min-width:0"><div class="nom-t">${esc(nomJ(h_))}${capC(joueur(h_))}</div><span class="label">${esc(joueur(h_)?.poste || '')}</span><div class="chips mt8">${s.g ? `<span class="chip">${ic('sports_soccer')} ${s.g} but${s.g > 1 ? 's' : ''}</span>` : ''}${s.a ? `<span class="chip">${s.a} passe${s.a > 1 ? 's' : ''}</span>` : ''}</div></div>${n != null ? `<div class="note-box"><span>NOTE</span><b>${fmtNote(n)}</b></div>` : ''}</a>`;
-  } else h += `<div class="carte">${vide(ouvert ? 'Le vote est en cours…' : 'Pas d’homme du match désigné', 'how_to_vote')}</div>`;
-  if (m.votesFin && !Store.visiteur) {
-    const nb = votesDe(m.id).length, peut = (m.ontJoue || []).includes(moi);
-    const aVote = !!Store.get('votes', m.id + '_' + moi);
-    h += `<div class="alerte ${ouvert ? 'vert' : 'or'}">${ic(ouvert ? 'how_to_vote' : 'lock')}<span>${ouvert ? `Votes ouverts jusqu’au <b>${fmtDateCourte(m.votesFin)}</b>` : 'Votes clos'} · ${nb} vote${nb > 1 ? 's' : ''}${ouvert && peut ? (aVote ? ' · tu as voté ✓' : '') : ''}</span></div>
-      <a class="btn ${ouvert && peut && !aVote ? '' : 'sec'}" href="#/votes/${m.id}">${ic(ouvert && peut ? 'how_to_vote' : 'bar_chart')} ${ouvert && peut ? (aVote ? 'Modifier mon vote' : 'Voter') : 'Voir les votes'}</a>`;
-  }
+  } else h += `<div class="carte">${vide('Pas encore désigné par le capitaine', 'star')}</div>`;
+  if (Store.capitaine) h += `<button class="btn ${h_ ? 'sec' : ''}" onclick="choisirHdm('${m.id}')">${ic('star')} ${h_ ? 'Changer l’homme du match' : 'Choisir l’homme du match'}</button>`;
   // Effectif & notes
   const voirNotes = true;
   const oj = (m.ontJoue || []).filter(joueur).sort((a, b) => (joueur(a).numero || 99) - (joueur(b).numero || 99));
@@ -424,42 +416,6 @@ function ongletStats(m) {
   if (Store.capitaine) h += `<button class="btn" onclick="formNotes('${m.id}')">${ic('grade')} ${Object.keys(m.notes || {}).length ? 'Modifier les notes' : 'Noter les joueurs'}</button>
     <button class="btn sec" onclick="formResultat('${m.id}')">${ic('edit_note')} Modifier la feuille de match</button>`;
   if (navigator.share) h += `<button class="btn sec" onclick="partagerResultat('${m.id}')">${ic('share')} Partager le résumé</button>`;
-  return h;
-}
-
-/* ---------------- Votes ---------------- */
-function pageVotes(mid) {
-  const m = Store.get('matchs', mid); if (!m) return vide('Match introuvable', 'search_off');
-  const moi = Store.moi, ouvert = votesOuverts(m), peut = ouvert && (m.ontJoue || []).includes(moi);
-  if (!App.etat.vote || App.etat.vote.match !== mid) {
-    const v = Store.get('votes', mid + '_' + moi);
-    App.etat.vote = { match: mid, hdm: v?.hommeDuMatch || null };
-    App.etat.voteTab = peut ? 'hdm' : 'resultats';
-  }
-  const ev = App.etat.vote, tab = App.etat.voteTab;
-  const [g, d] = equipesOrdre(m);
-  const autres = (m.ontJoue || []).filter(j => j !== moi && joueur(j));
-  let h = `<a class="retour" href="#/match/${mid}/stats">${ic('arrow_back')} Fiche match</a>
-  <section class="carte entete-match rayures or"><div class="entre"><span class="label or">● ${esc(typeCourt(m))} · ${RES_TXT[resultat(m)]}</span><span class="label">${ic('schedule')} ${ouvert ? 'Clôture ' + fmtDateCourte(m.votesFin) : 'Votes clos'}</span></div>
-  <div class="score-bloc mt12"><div class="eq"><b>${esc(g.nom)}</b></div><div class="res" style="font-family:var(--titre);font-size:48px;color:var(--blanc)"><span class="${g.nous ? 'or-t' : ''}">${g.score}</span> : <span class="${d.nous ? 'or-t' : ''}">${d.score}</span></div><div class="eq"><b>${esc(d.nom)}</b></div></div></section>
-  <div class="seg">${peut ? `<button class="${tab === 'hdm' ? 'on' : ''}" onclick="App.etat.voteTab='hdm';render()">Vote HDM</button>` : ''}<button class="${tab === 'resultats' ? 'on' : ''}" onclick="App.etat.voteTab='resultats';render()">Résultats</button></div>`;
-  if (tab === 'hdm' && peut) {
-    h += sec('Homme du match') + `<p class="muted" style="margin-top:-6px;margin-bottom:12px">Choisis le joueur le plus décisif (un seul vote, pas toi-même).</p>`;
-    h += `<div class="votes-grille">${autres.map(j => { const s = statsJoueur(j, [m]); return `<button class="carte vcarte ${ev.hdm === j ? 'on' : ''}" onclick="App.etat.vote.hdm='${j}';render()">${ev.hdm === j ? `<span class="ok">${ic('check')}</span>` : ''}${avatar(j)}<b>${esc(prenom(j))}</b><span>${[s.g && `${s.g} but${s.g > 1 ? 's' : ''}`, s.a && `${s.a} passe${s.a > 1 ? 's' : ''}`].filter(Boolean).join(' · ') || esc(numTxt(joueur(j), '#'))}</span><div class="mt8">${chipPoste(joueur(j).poste)}</div></button>`; }).join('')}</div>`;
-    h += `<button class="btn" onclick="enregistrerVote()">${ic('how_to_vote')} Valider mon vote</button>`;
-  } else {
-    const voirTout = !ouvert || Store.capitaine;
-    const r = resultatVote(mid), tot = votesDe(mid).length;
-    h += sec('Votes homme du match', 'star', `${tot} votant${tot > 1 ? 's' : ''}`);
-    if (!voirTout) h += `<div class="carte">${vide('Les résultats seront visibles à la clôture du vote.', 'lock_clock')}</div>`;
-    else {
-      h += `<div class="carte liste">${r.map(x => `<div class="ligne">${avatar(x.id)}<div class="t"><b>${esc(nomJ(x.id))}</b><div class="barre-p" style="max-width:none"><i style="width:${x.n / (r[0].n || 1) * 100}%"></i></div></div><b class="maillot-num" style="font-size:28px">${x.n}</b></div>`).join('') || vide('Aucun vote', 'how_to_vote')}</div>`;
-      const notes = (m.ontJoue || []).filter(joueur).map(j => ({ j, n: noteMatch(j, mid) })).filter(x => x.n != null).sort((a, b) => b.n - a.n);
-      h += sec('Notes du capitaine', 'grade');
-      h += `<div class="carte liste">${notes.map(x => `<div class="ligne">${avatar(x.j, 's')}<div class="t"><b>${esc(nomJ(x.j))}</b></div><b class="or-t" style="font-family:var(--titre);font-size:24px">${fmtNote(x.n)}</b></div>`).join('') || vide('Aucune note', 'grade')}</div>`;
-    }
-    if (Store.capitaine && Store.config().hdmMode === 'capitaine') h += `<p class="aide mt12">Réglage actuel : l’homme du match est le choix du capitaine (le vote est indicatif).</p>`;
-  }
   return h;
 }
 
@@ -535,7 +491,6 @@ function pageBilan() {
   if (w.plusGros) h += carte('Plus gros score', `%L<b>${w.plusGros.scoreNous} - ${w.plusGros.scoreEux}</b><span class="d">contre ${esc(adv(w.plusGros).nom)} · ${fmtJourC(w.plusGros.date)}</span>`);
   if (w.presents) h += jc('Le plus présent', { id: w.presents.id, v: w.presents }, v => `${v.pres} matchs sur ${v.convoc} (${v.taux} %)`);
   h += jc('Homme du match le plus souvent', w.hdm, v => `${v} fois`);
-  if (w.plusVote) h += jc('Le plus de votes reçus', { id: w.plusVote[0], v: w.plusVote[1] }, v => `${v} vote${v > 1 ? 's' : ''}`);
   h += jc('Meilleure note moyenne', w.note, v => `${fmtNote(v)} / 10`);
   return h + '</div>';
 }
@@ -653,7 +608,6 @@ function pageReglages(sous) {
   h += `<div class="carte">
     ${ligne('location_on', 'Lieux enregistrés', `${Store.liste('lieux').length} stades / gymnases`, "location.hash='#/reglages/lieux'")}
     ${ligne('shield', 'Adversaires', `${Store.liste('adversaires').length} équipes · logos, face-à-face`, "location.hash='#/reglages/adversaires'")}
-    ${ligne('star', 'Votes et notes du match', `${cfg.hdmMode === 'vote' ? 'HDM = vote des joueurs' : 'HDM = choix du capitaine'} · clôture ${cfg.votesHeures} h`, 'formVotes()')}
     ${ligne('person_check', 'Membres concernés', conv, 'formMembres()')}
     ${ligne('event_available', 'Gestion des présences', `Réponse ${lim}${+cfg.maxJoueurs > 0 ? ' · max ' + cfg.maxJoueurs + ' joueurs' : ''}`, 'formPresences()')}
     ${ligne('format_list_numbered', 'Classement ' + esc(cfg.championnat), 'Tableau du groupe + lien officiel', "location.hash='#/classement'")}
@@ -740,7 +694,6 @@ function lireRoute() {
   const avant = App.route.page + '/' + App.route.args[0];
   App.route = { page, args: parts.slice(1) };
   if (page !== 'match') App.etat.compo = null;
-  if (page !== 'votes') App.etat.vote = null;
   render();
   if (avant !== page + '/' + parts[1]) window.scrollTo(0, 0);
 }

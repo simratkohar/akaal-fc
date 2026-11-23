@@ -1,5 +1,5 @@
 /* =========================================================
-   CALCULS : résultats, stats, classements, votes, badges…
+   CALCULS : résultats, stats, classements, badges…
    Tout est déduit des collections (rien n'est saisi deux fois).
    ========================================================= */
 
@@ -125,26 +125,8 @@ const reponsesOuvertes = m => !m.joue && Date.now() < limiteDe(m);
 const butsDe = mid => Store.liste('buts').filter(b => b.match === mid).sort((a, b) => (a.minute ?? 999) - (b.minute ?? 999));
 
 /* ---------- Votes / homme du match / notes ---------- */
-const votesDe = mid => Store.liste('votes').filter(v => v.match === mid);
-const votesOuverts = m => !!(m?.joue && m.votesFin && Date.now() < m.votesFin);
-function resultatVote(mid) {
-  const t = {};
-  votesDe(mid).forEach(v => { if (v.hommeDuMatch) t[v.hommeDuMatch] = (t[v.hommeDuMatch] || 0) + 1; });
-  return Object.entries(t).sort((a, b) => b[1] - a[1]).map(([id, n]) => ({ id, n }));
-}
-function hommeDuMatch(m) {
-  if (!m?.joue) return null;
-  const cfg = Store.config();
-  if (cfg.hdmMode === 'vote' && !votesOuverts(m)) {
-    const r = resultatVote(m.id);
-    if (r.length) {
-      const ex = r.filter(x => x.n === r[0].n).map(x => x.id);
-      return ex.includes(m.hommeDuMatch) ? m.hommeDuMatch : ex[0];
-    }
-  }
-  if (cfg.hdmMode === 'vote' && votesOuverts(m)) return null; // vote en cours
-  return m.hommeDuMatch || null;
-}
+// Homme du match : choix du capitaine uniquement (plus de vote des joueurs)
+function hommeDuMatch(m) { return m?.joue ? m.hommeDuMatch || null : null; }
 // Notes sur 10 : données par le capitaine seul (lui compris), rangées dans le match
 function noteMatch(jid, mid) {
   const n = Store.get('matchs', mid)?.notes?.[jid];
@@ -229,10 +211,8 @@ function wrapped(saison) {
   const top = t => classement(t, ms)[0];
   const ecart = m => (m.scoreNous || 0) - (m.scoreEux || 0);
   const plusGros = [...ms].filter(m => resultat(m) === 'V' && !m.forfait).sort((a, b) => ecart(b) - ecart(a) || b.scoreNous - a.scoreNous)[0];
-  const votes = {}; ms.forEach(m => votesDe(m.id).forEach(v => { if (v.hommeDuMatch) votes[v.hommeDuMatch] = (votes[v.hommeDuMatch] || 0) + 1; }));
-  const plusVote = Object.entries(votes).sort((a, b) => b[1] - a[1])[0];
   const presents = tousJoueurs().map(j => ({ id: j.id, ...tauxPresence(j.id, ms) })).filter(x => x.convoc).sort((a, b) => b.pres - a.pres || b.taux - a.taux)[0];
-  return { ms, b: bilan(ms), buteur: top('buts'), passeur: top('passes'), hdm: top('hdm'), note: top('notes'), plusGros, plusVote, presents };
+  return { ms, b: bilan(ms), buteur: top('buts'), passeur: top('passes'), hdm: top('hdm'), note: top('notes'), plusGros, presents };
 }
 
 /* ---------- Formations (compo) ---------- */
