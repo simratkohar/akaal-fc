@@ -37,7 +37,7 @@ async function repondre(mid, rep, jid = Store.moi) {
   const max = +Store.config().maxJoueurs;
   if (rep === 'present' && max > 0 && !cap && reponse(mid, jid) !== 'present' && compteurs(m).p.length >= max) return toast(`Complet : ${max} joueurs maximum. Préviens le capitaine.`);
   const ok = await Store.set('presences', `${mid}_${jid}`, { match: mid, joueur: jid, reponse: rep, maj: Date.now() });
-  if (ok) { toast(rep === 'present' ? 'Présence enregistrée ✓' : 'Absence enregistrée'); Store._syncCompos(); }
+  if (ok) { toast(rep === 'present' ? 'Présence enregistrée ✓' : rep === 'staff' ? 'Noté : sur place, sans jouer' : 'Absence enregistrée'); Store._syncCompos(); }
 }
 
 /* Capitaine : changer le statut d'un joueur (match à venir ou déjà joué) */
@@ -48,6 +48,7 @@ function menuPresence(mid, jid) {
     <p class="aide">${m.joue ? `A-t-il joué contre ${esc(adv(m).nom)} ?` : `Réponse pour le match contre ${esc(adv(m).nom)}`}</p>
     ${opt('present', m.joue ? 'A joué' : 'Présent', 'check_circle', 'var(--vert)')}
     ${opt('absent', 'Absent', 'cancel', 'var(--rouge)')}
+    ${joueur(jid)?.role === 'capitaine' ? opt('staff', 'Blessé · sur place (ne joue pas)', 'healing', '#60A5FA') : ''}
     ${opt(null, m.joue ? 'Pas renseigné' : 'Sans réponse', 'help', 'var(--orange)')}
     ${m.joue && butsDe(mid).some(b => b.buteur === jid || b.passeur === jid) ? `<p class="aide">Il a marqué ou fait une passe dans ce match : il compte toujours comme ayant joué.</p>` : ''}`);
 }
