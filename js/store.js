@@ -212,18 +212,9 @@ const Store = {
     }, 800);
   },
   /* Vote clos : le capitaine reporte l'homme du match élu sur le match (visible par les visiteurs) */
-  _syncHdm() {
-    if (!this.fs || typeof hommeDuMatch !== 'function') return;
-    this.liste('matchs').forEach(m => {
-      if (!m.joue || !m.votesFin || votesOuverts(m)) return;
-      const h = hommeDuMatch(m);
-      if (h && h !== m.hommeDuMatch) this.fs.collection('matchs').doc(m.id).update({ hommeDuMatch: h }).catch(e => console.warn('hdm', e.code || e));
-    });
-  },
   /* Le capitaine tient à jour la copie publique des fiches (sans e-mail) */
   _syncProfils() {
     if (!this.capitaine || this.visiteur) return;
-    this._syncHdm();
     clearTimeout(this._tSync);
     this._tSync = setTimeout(() => {
       const ops = [];

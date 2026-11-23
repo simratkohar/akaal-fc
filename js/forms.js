@@ -212,9 +212,9 @@ function rendreResultat() {
     ${F.ontJoue.size ? '' : '<p class="aide">Coche d’abord qui a joué : seuls ces joueurs apparaissent comme buteurs et passeurs.</p>'}
     ${F.buts.map((b, i) => `<div class="ligne-but"><input class="in" type="number" min="0" max="130" placeholder="min" value="${b.minute}"><select class="in">${optionsJoueurs(b.buteur, { csc: true, ids: F.ontJoue })}</select><select class="in">${optionsJoueurs(b.passeur, { vide: true, videTxt: 'Sans passe', ids: F.ontJoue })}</select><button onclick="syncResultat();F.buts.splice(${i},1);rendreResultat()" aria-label="Retirer">×</button></div>`).join('')}
     <button class="ajout" onclick="syncResultat();F.buts.push({buteur:tousJoueurs().find(j=>F.ontJoue.has(j.id))?.id||'csc',passeur:'',minute:''});rendreResultat()">${ic('add')} Ajouter un but</button>
-    <label class="f">Homme du match ${cfg.hdmMode === 'vote' ? '(si personne ne vote)' : '(ton choix)'}</label>
+    <label class="f">Homme du match (ton choix)</label>
     <select class="in" id="r-hdm">${optionsJoueurs(F.hdm, { vide: true, ids: F.ontJoue })}</select>
-    ${cfg.hdmMode === 'vote' ? `<p class="aide">Réglage : l’homme du match sera le résultat du vote des joueurs (${cfg.votesHeures} h après la validation).</p>` : ''}`}
+`}
     <button class="btn" onclick="enregistrerResultat()">${ic('sports_score')} Valider le résultat</button>
     ${m.joue ? `<button class="btn danger" onclick="annulerResultat('${m.id}')">Remettre le match « à venir »</button>` : ''}`);
   $('#feuille').scrollTop = scroll;
@@ -234,8 +234,7 @@ async function enregistrerResultat() {
   const nous = +F.nous, eux = +F.eux;
   if (F.buts.length !== nous && !confirm(`Le score indique ${nous} but(s) pour nous, mais ${F.buts.length} buteur(s) saisi(s). Valider quand même ?`)) return;
   const ops = [{ op: 'patch', col: 'matchs', id: m.id, obj: {
-    forfait: null, scoreNous: nous, scoreEux: eux, joue: true, ontJoue: [...F.ontJoue], hommeDuMatch: F.hdm || null,
-    votesFin: m.votesFin || Date.now() + (+Store.config().votesHeures || 48) * 3600e3 } }];
+    forfait: null, scoreNous: nous, scoreEux: eux, joue: true, ontJoue: [...F.ontJoue], hommeDuMatch: F.hdm || null } }];
   butsDe(m.id).forEach(b => ops.push({ op: 'del', col: 'buts', id: b.id }));
   F.buts.forEach(b => ops.push({ op: 'set', col: 'buts', id: nouvelId(), obj: { match: m.id, buteur: b.buteur, passeur: b.passeur && b.passeur !== b.buteur ? b.passeur : null, minute: b.minute === '' ? null : +b.minute } }));
   if (await Store.batch(ops)) { fermerFeuille(); toast('Résultat enregistré ⚽'); location.replace('#/match/' + m.id + '/stats'); }
@@ -361,14 +360,17 @@ async function compoSupprimer(mid) {
   if (await Store.patch('matchs', mid, { compo: null })) { App.etat.compo = null; toast('Compo supprimée'); render(); }
 }
 
-/* ---------------- Votes ---------------- */
-async function enregistrerVote() {
-  const v = App.etat.vote, m = Store.get('matchs', v.match);
-  if (!votesOuverts(m)) return toast('Les votes sont clos');
-  if (!v.hdm) { App.etat.voteTab = 'hdm'; render(); return toast('Choisis d’abord ton homme du match'); }
-  if (await Store.set('votes', `${v.match}_${Store.moi}`, { match: v.match, joueur: Store.moi, hommeDuMatch: v.hdm, maj: Date.now() })) {
-    toast('Vote enregistré ✓'); App.etat.voteTab = 'resultats'; render();
-  }
+/* Homme du match : le capitaine choisit parmi ceux qui ont joué */
+function choisirHdm(mid) {
+  const m = Store.get('matchs', mid), ids = (m.ontJoue || []).filter(joueur);
+  const opt = j => `<button class="choix-joueur ${m.hommeDuMatch === j ? 'on' : ''}" onclick="definirHdm('${mid}','${j}')">${avatar(j, 's rond')}<span style="flex:1"><b>${esc(nomJ(j))}</b></span>${m.hommeDuMatch === j ? ic('star', 'fill') : ''}</button>`;
+  ouvrirFeuille(`<h3>Homme du match</h3><p class="aide">Parmi les joueurs qui ont joué ce match.</p>
+    ${ids.map(opt).join('') || vide('Coche d’abord qui a joué (Modifier la feuille de match)', 'group_off')}
+    ${m.hommeDuMatch ? `<button class="btn sec" onclick="definirHdm('${mid}',null)">${ic('close')} Aucun homme du match</button>` : ''}`);
+}
+async function definirHdm(mid, jid) {
+  if (!Store.capitaine) return;
+  if (await Store.patch('matchs', mid, { hommeDuMatch: jid })) { fermerFeuille(); toast(jid ? `★ ${prenom(jid)} homme du match` : 'Homme du match retiré'); }
 }
 
 /* Notes sur 10 : le capitaine note tous ceux qui ont joué, lui compris */
@@ -486,13 +488,6 @@ function formEquipe() {
     <button class="btn" onclick="sauverConfig({nom:val('e-nom')||'Akaal FC',saison:val('e-saison'),championnat:val('e-champ')||'FSGT',couleurs:val('e-coul'),groupe:val('e-groupe'),logo:F.logo})">${ic('check')} Enregistrer</button>`);
 }
 async function logoEquipe() { const p = await choisirPhoto(); if (p) { F.logo = p; $('#e-logo').innerHTML = `<div class="ecusson nous" style="width:64px;height:64px"><img src="${p}"></div>`; } }
-function formVotes() {
-  const c = Store.config(); F = { hdmMode: c.hdmMode, votesHeures: String(c.votesHeures) };
-  ouvrirFeuille(`<h3>Votes et notes</h3><p class="aide">Après un match, chaque joueur qui a joué vote pour l’homme du match. Les notes sur 10 sont données par le capitaine seul (fiche match → Stats → « Noter les joueurs »).</p>
-    <label class="f">Homme du match =</label>${choixHtml('hdmMode', ['vote', 'capitaine'], F.hdmMode, x => x === 'vote' ? 'Résultat du vote' : 'Mon choix')}
-    <label class="f">Fermeture des votes après</label>${choixHtml('votesHeures', ['24', '48', '72'], F.votesHeures, x => x + ' h')}
-    <button class="btn" onclick="sauverConfig({hdmMode:F.hdmMode,votesHeures:+F.votesHeures})">${ic('check')} Enregistrer</button>`);
-}
 function formMembres() {
   const c = Store.config();
   F = { conv: {} }; TYPES.forEach(t => F.conv[t] = Array.isArray(c.convocation?.[t]) ? new Set(c.convocation[t]) : null);
