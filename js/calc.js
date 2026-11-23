@@ -96,13 +96,15 @@ function convoques(m) {
 const aJoueSet = m => new Set([...(m.ontJoue || []), ...butsDe(m.id).flatMap(b => [b.buteur, b.passeur])].filter(j => j && joueur(j)));
 function statutPresence(m, jid, joues = m.joue ? aJoueSet(m) : null) {
   if (!m.joue) return reponse(m.id, jid) || null;
-  return joues.has(jid) ? 'present' : reponse(m.id, jid) === 'absent' ? 'absent' : null;
+  const r = reponse(m.id, jid);
+  return joues.has(jid) ? 'present' : r === 'absent' || r === 'staff' ? r : null;
 }
 function compteurs(m) {
-  const c = convoques(m), r = { p: [], a: [], q: [] };
+  // s = sur place sans jouer (capitaine blessé…)
+  const c = convoques(m), r = { p: [], a: [], q: [], s: [] };
   const joues = m.joue ? aJoueSet(m) : null;
   if (joues) joues.forEach(j => { if (!c.includes(j)) c.push(j); });
-  c.forEach(j => { const x = statutPresence(m, j, joues); (x === 'present' ? r.p : x === 'absent' ? r.a : r.q).push(j); });
+  c.forEach(j => { const x = statutPresence(m, j, joues); (x === 'present' ? r.p : x === 'absent' ? r.a : x === 'staff' ? r.s : r.q).push(j); });
   const tri = l => l.sort((a, b) => (joueur(a)?.numero || 99) - (joueur(b)?.numero || 99));
   tri(r.p); tri(r.a); tri(r.q);
   return r;
@@ -176,7 +178,7 @@ function classement(type, matchs) {
 function tauxPresence(jid, matchs) {
   let convoc = 0, pres = 0;
   matchs.forEach(m => {
-    if (!convoques(m).includes(jid)) return;
+    if (!convoques(m).includes(jid) || reponse(m.id, jid) === 'staff') return; // sur place sans jouer : ne compte pas
     convoc++;
     if ((m.ontJoue || []).includes(jid) || reponse(m.id, jid) === 'present') pres++;
   });
@@ -266,7 +268,7 @@ const ROLE_POSTE = { GAR: 'Gardien', DEF: 'Défenseur', MIL: 'Milieu', ATT: 'Att
 function compoAJour(m) {
   const c = m?.compo;
   if (!c || m.joue) return c;
-  const absent = j => reponse(m.id, j) === 'absent';
+  const absent = j => ['absent', 'staff'].includes(reponse(m.id, j)); // ne joue pas → hors compo
   const presents = compteurs(m).p;
   const postes = { ...(c.postes || {}) };
   let remp = [...(c.remplacants || [])];

@@ -165,7 +165,7 @@ function heroMatch(m) {
     ${lienLieu(m)}
     <div class="tricolore fin mt16"></div>
     ${blocPresence(m)}
-    <div class="compteurs"><span class="p">${c.p.length} présent${c.p.length > 1 ? 's' : ''}</span><span class="a">${c.a.length} absent${c.a.length > 1 ? 's' : ''}</span><span class="q">${c.q.length} sans réponse</span></div>
+    <div class="compteurs"><span class="p">${c.p.length} présent${c.p.length > 1 ? 's' : ''}</span><span class="a">${c.a.length} absent${c.a.length > 1 ? 's' : ''}</span><span class="q">${c.q.length} sans réponse</span>${c.s.length ? `<span class="s">${c.s.length} sur place</span>` : ''}</div>
     <div class="jauge"><i class="p" style="width:${c.p.length / tot * 100}%"></i><i class="a" style="width:${c.a.length / tot * 100}%"></i></div>
     <div class="entre mt12"><div class="pile">${c.p.slice(0, 6).map(j => avatar(j, 's rond')).join('')}${c.p.length > 6 ? `<div class="av s rond">+${c.p.length - 6}</div>` : ''}</div>
       <a class="lien-btn" href="#/match/${m.id}/presences">Voir la feuille ${ic('chevron_right')}</a></div>
@@ -191,6 +191,7 @@ function blocPresence(m, jid = Store.moi) {
       <button class="oui ${r === 'present' ? 'on' : ''}" ${bloque ? 'disabled' : ''} onclick="repondre('${m.id}','present')">${ic('check_circle')} Présent</button>
       <button class="non ${r === 'absent' ? 'on' : ''}" ${bloque ? 'disabled' : ''} onclick="repondre('${m.id}','absent')">${ic('cancel')} Absent</button>
     </div>
+    ${joueur(jid).role === 'capitaine' ? `<button class="staff-btn ${r === 'staff' ? 'on' : ''}" onclick="repondre('${m.id}','staff')">${ic('healing')} Blessé · sur place (ne joue pas)</button>` : ''}
     <div class="info-limite">${ic('timer')} ${ouvert ? `Réponse possible jusqu’au ${fmtDateCourte(limiteDe(m))}` : 'Réponses fermées' + (Store.capitaine ? ' (le capitaine peut encore modifier)' : '')}</div>`;
 }
 function carteDernier(m) {
@@ -322,13 +323,15 @@ function ongletPresences(m) {
   const ST = {
     present: { t: m.joue ? 'A joué' : 'Présent', c: 'var(--vert)', i: 'check' },
     absent: { t: 'Absent', c: 'var(--rouge)', i: 'close' },
-    q: { t: m.joue ? 'Pas renseigné' : 'Sans réponse', c: 'var(--orange)', i: 'question_mark' }
+    q: { t: m.joue ? 'Pas renseigné' : 'Sans réponse', c: 'var(--orange)', i: 'question_mark' },
+    staff: { t: 'Blessé · sur place', c: '#60A5FA', i: 'healing' }
   };
   const ligne = (j, k) => `<div class="ligne"><div class="av-statut">${avatar(j, 'rond')}<span class="pastille" style="background:${ST[k].c}">${ic(ST[k].i)}</span></div>
     <div class="t"><b>${esc(nomJ(j))}${capC(joueur(j))}${joueur(j)?.role === 'invite' ? ' <span class="chip">Occasionnel</span>' : ''}</b><span style="color:${ST[k].c};font-weight:700">${ST[k].t}</span></div>
     ${cap ? `<button class="icon-btn" style="border:0;background:none" aria-label="Changer" onclick="menuPresence('${m.id}','${j}')">${ic('more_vert')}</button>` : ''}</div>`;
   h += sec(`${m.joue ? 'Ont joué' : 'Présents'} (${c.p.length})`, 'check_circle', !m.joue && cfg.maxJoueurs > 0 ? `max ${cfg.maxJoueurs}` : '');
   h += `<div class="carte liste">${c.p.map(j => ligne(j, 'present')).join('') || vide('Personne pour l’instant', 'person_off')}</div>`;
+  if (c.s.length) h += sec(`Sur place, ne joue pas (${c.s.length})`, 'healing') + `<div class="carte liste">${c.s.map(j => ligne(j, 'staff')).join('')}</div>`;
   h += sec(`Absents (${c.a.length})`, 'cancel');
   h += `<div class="carte liste">${c.a.map(j => ligne(j, 'absent')).join('') || vide('Aucun absent', 'sentiment_satisfied')}</div>`;
   if (c.q.length || !m.joue) {

@@ -124,6 +124,7 @@ img{display:block}
 .compteurs .p{color:var(--or-2)}.compteurs .p::before{background:var(--vert)}
 .compteurs .a{color:#FCA5A5}.compteurs .a::before{background:var(--rouge)}
 .compteurs .q{color:var(--gris)}.compteurs .q::before{background:var(--orange)}
+.compteurs .s{color:#93C5FD}.compteurs .s::before{background:#60A5FA}
 .jauge{display:flex;height:6px;border-radius:3px;background:var(--carte-2);overflow:hidden;margin-top:8px}
 .jauge i{display:block;height:100%}
 .jauge .p{background:linear-gradient(90deg,var(--or-sombre),var(--or-2))}
@@ -533,3 +534,7 @@ body.sans-nav{padding-left:0}
 .deroule[open] summary .ms:last-child{transform:rotate(180deg)}
 .deroule .but{gap:12px}
 .deroule .but .t span .ms{font-size:14px;vertical-align:-2px;color:var(--or)}
+
+/* Statut « Blessé · sur place » (capitaine) */
+.staff-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:8px;padding:11px;border-radius:8px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#93C5FD;background:rgba(96,165,250,.1);border:1px solid rgba(96,165,250,.45)}
+.staff-btn.on{background:#3B82F6;color:#fff;border-color:#3B82F6}
